@@ -99,18 +99,32 @@ class EnterpriseSimulationRunner:
             deterministic_seed=effective_seed,
             configuration_version=self.generation_contract.contract_version,
         )
+        if mode is RunMode.LIVE:
+            baseline_telemetry_interval = int(
+                generation["time"]["live_tick_seconds"]
+            )
+        else:
+            baseline_telemetry_interval = int(
+                generation["time"]["telemetry"]["baseline_interval_seconds"]
+            )
+
         step_engine = IntegratedSimulationStepEngine.from_repository_config(
             context=context,
             machines=machines,
             production_engine=production_engine,
             repository_root=self.root,
+            baseline_telemetry_interval_seconds=baseline_telemetry_interval,
+            incident_telemetry_interval_seconds=int(
+                generation["time"]["telemetry"]["incident_interval_seconds"]
+            ),
         )
         writer = PartitionedEventStreamWriter(output_root)
 
-        if mode is RunMode.LIVE:
-            tick_seconds = int(generation["time"]["live_tick_seconds"])
-        else:
-            tick_seconds = int(generation["time"]["telemetry"]["baseline_interval_seconds"])
+        tick_seconds = (
+            int(generation["time"]["live_tick_seconds"])
+            if mode is RunMode.LIVE
+            else int(generation["time"]["telemetry"]["baseline_interval_seconds"])
+        )
 
         generator = EnterpriseProductionGenerator(
             catalog=catalog,

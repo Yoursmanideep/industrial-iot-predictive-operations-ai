@@ -37,6 +37,7 @@ class IngestionCheckpoint:
     source_file_sha256: str | None = None
     updated_at_utc: datetime | None = None
     error_code: str | None = None
+    destination_path: str | None = None
 
     def to_dict(self) -> dict:
         payload = self.__dict__.copy()

@@ -1,0 +1,212 @@
+failure_taxonomy:
+  severity_levels:
+    - INFO
+    - LOW
+    - MEDIUM
+    - HIGH
+    - CRITICAL
+
+  categories:
+    MECHANICAL:
+      description: Mechanical degradation, wear, imbalance or bearing-related faults.
+      examples:
+        - Bearing degradation
+        - Spindle imbalance
+        - Joint wear
+        - Belt degradation
+
+    THERMAL:
+      description: Abnormal temperature behavior or overheating.
+      examples:
+        - Motor overheating
+        - Bearing overheating
+        - Furnace temperature instability
+
+    PRESSURE:
+      description: Pressure outside the expected operating envelope.
+      examples:
+        - Hydraulic pressure leak
+        - Compressor pressure instability
+        - Low process pressure
+
+    ELECTRICAL:
+      description: Electrical load or power-consumption abnormalities.
+      examples:
+        - Motor overload
+        - Abnormal power draw
+        - Current spike
+
+    PROCESS:
+      description: Process degradation causing production or quality impact.
+      examples:
+        - Production slowdown
+        - Cycle-time degradation
+        - Quality deterioration
+
+    CONTROL:
+      description: Controls, communication or positioning problems.
+      examples:
+        - Position deviation
+        - Sensor communication loss
+        - Calibration drift
+
+    ENVIRONMENTAL:
+      description: External environmental effects influencing machine behavior.
+      examples:
+        - Ambient temperature stress
+        - Humidity-related impact
+
+failure_modes:
+  CNC-BRG:
+    category: MECHANICAL
+    name: Spindle Bearing Degradation
+    primary_signals:
+      - vibration_mm_s
+      - temperature_c
+      - power_kw
+  CNC-OVH:
+    category: THERMAL
+    name: CNC Overheating
+    primary_signals:
+      - temperature_c
+      - power_kw
+  CNC-TOOL:
+    category: PROCESS
+    name: Cutting Tool Wear
+    primary_signals:
+      - vibration_mm_s
+      - production_rate_unit_min
+      - quality_score_pct
+  CNC-IMB:
+    category: MECHANICAL
+    name: Spindle Imbalance
+    primary_signals:
+      - vibration_mm_s
+      - spindle_rpm
+
+  HPR-LEAK:
+    category: PRESSURE
+    name: Hydraulic Pressure Leak
+    primary_signals:
+      - hydraulic_pressure_bar
+      - force_kn
+  HPR-OVH:
+    category: THERMAL
+    name: Hydraulic Overheating
+    primary_signals:
+      - temperature_c
+      - hydraulic_pressure_bar
+  HPR-ACT:
+    category: MECHANICAL
+    name: Actuator Degradation
+    primary_signals:
+      - force_kn
+      - cycle_time_s
+
+  ROB-JNT:
+    category: MECHANICAL
+    name: Robot Joint Degradation
+    primary_signals:
+      - torque_nm
+      - vibration_mm_s
+  ROB-MTR:
+    category: THERMAL
+    name: Robot Motor Overheating
+    primary_signals:
+      - motor_temperature_c
+      - power_kw
+  ROB-POS:
+    category: CONTROL
+    name: Robot Position Deviation
+    primary_signals:
+      - position_error_mm
+
+  CON-OVL:
+    category: ELECTRICAL
+    name: Conveyor Motor Overload
+    primary_signals:
+      - motor_current_a
+      - power_kw
+  CON-BLT:
+    category: MECHANICAL
+    name: Conveyor Belt Degradation
+    primary_signals:
+      - belt_speed_m_s
+      - vibration_mm_s
+  CON-BLK:
+    category: PROCESS
+    name: Conveyor Blockage
+    primary_signals:
+      - throughput_unit_min
+      - motor_current_a
+
+  CMP-BRG:
+    category: MECHANICAL
+    name: Compressor Bearing Degradation
+    primary_signals:
+      - vibration_mm_s
+      - temperature_c
+  CMP-PRS:
+    category: PRESSURE
+    name: Compressor Pressure Instability
+    primary_signals:
+      - discharge_pressure_bar
+  CMP-OVH:
+    category: THERMAL
+    name: Compressor Overheating
+    primary_signals:
+      - temperature_c
+      - power_kw
+
+  FRN-TMP:
+    category: THERMAL
+    name: Furnace Temperature Instability
+    primary_signals:
+      - chamber_temperature_c
+  FRN-FLW:
+    category: PROCESS
+    name: Furnace Fuel Flow Abnormality
+    primary_signals:
+      - fuel_flow_rate
+  FRN-PRS:
+    category: PRESSURE
+    name: Furnace Pressure Abnormality
+    primary_signals:
+      - pressure_mbar
+
+  INS-CAL:
+    category: CONTROL
+    name: Inspection Calibration Drift
+    primary_signals:
+      - measurement_deviation_mm
+  INS-COM:
+    category: CONTROL
+    name: Inspection Equipment Communication Fault
+    primary_signals:
+      - inspection_cycle_time_s
+
+  PKG-JAM:
+    category: PROCESS
+    name: Packaging Jam
+    primary_signals:
+      - cycle_time_s
+      - throughput_unit_min
+  PKG-MTR:
+    category: ELECTRICAL
+    name: Packaging Motor Fault
+    primary_signals:
+      - motor_current_a
+      - power_kw
+
+  PAL-JNT:
+    category: MECHANICAL
+    name: Palletizer Joint Degradation
+    primary_signals:
+      - torque_nm
+      - vibration_mm_s
+  PAL-MTR:
+    category: THERMAL
+    name: Palletizer Motor Overheating
+    primary_signals:
+      - motor_temperature_c
+      - power_kw

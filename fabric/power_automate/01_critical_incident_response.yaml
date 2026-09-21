@@ -1,0 +1,84 @@
+version: 1.0.0
+
+flow:
+  name: IndustrialIoT_Critical_Incident_Response
+  trigger:
+    type: Activator_CustomAction
+    source: IndustrialIoT_Operational_Activator
+  purpose: create_and_route_critical_machine_incidents
+
+inputs:
+  - event_id
+  - event_type
+  - event_time
+  - plant_id
+  - line_id
+  - machine_id
+  - machine_type
+  - severity
+  - alarm_code
+  - fault_code
+  - failure_mode_code
+  - scenario_id
+  - scenario_instance_id
+  - event_payload_json
+
+steps:
+  - name: BuildIncidentKey
+    action: compose
+    value: event_id
+
+  - name: Deduplicate
+    action: lookup_existing_incident
+    key: event_id
+    on_duplicate: terminate_success
+
+  - name: CreateIncident
+    action: create_dataverse_row
+    entity: IndustrialIoTIncident
+    fields:
+      incident_key: event_id
+      status: OPEN
+      severity: severity
+      plant_id: plant_id
+      line_id: line_id
+      machine_id: machine_id
+      machine_type: machine_type
+      event_type: event_type
+      alarm_code: alarm_code
+      fault_code: fault_code
+      failure_mode_code: failure_mode_code
+      event_time_utc: event_time
+      scenario_id: scenario_id
+      scenario_instance_id: scenario_instance_id
+      source_payload_json: event_payload_json
+
+  - name: NotifyOperations
+    action: send_teams_message
+    recipient_group: Plant Operations
+    content_template: "CRITICAL machine incident | {plant_id} | {line_id} | {machine_id} | {event_type} | {fault_code} {alarm_code}"
+
+  - name: NotifyReliability
+    action: send_email
+    recipient_group: Reliability Engineering
+    subject_template: "Industrial IoT critical incident — {machine_id}"
+
+  - name: CreateMaintenanceHandoff
+    action: create_dataverse_row
+    entity: MaintenanceWorkItem
+    fields:
+      incident_key: event_id
+      machine_id: machine_id
+      plant_id: plant_id
+      line_id: line_id
+      recommended_priority: CRITICAL
+      source: ACTIVATOR
+      status: NEW
+
+retry:
+  max_attempts: 3
+  backoff_seconds: 30
+
+security:
+  credentials_in_git: false
+  connection_references_externalized: true

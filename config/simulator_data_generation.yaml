@@ -251,3 +251,15 @@ validation:
     - maintenance_lifecycle_consistency
     - generation_sequence_uniqueness
   failure_action: quarantine_and_preserve_generation_trace
+
+
+production_event_output:
+  format: JSONL
+  partitioning:
+    - event_date
+    - plant_id
+  ordering:
+    primary: event_time
+    secondary: generation_sequence
+    tertiary: event_id
+  manifest_required: true

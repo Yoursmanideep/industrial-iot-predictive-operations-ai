@@ -203,7 +203,8 @@ def extract_domain_columns(df):
     payload = "event_payload_json"
 
     telemetry = df.where(F.col("event_type") == "MachineTelemetry").select(
-        "event_id", "event_time", "ingestion_time", "source_system", "plant_id", "line_id", "machine_id",
+        "event_id", "event_type", "schema_version", "event_time", "ingestion_time", "source_system",
+        "plant_id", "line_id", "machine_id", "correlation_id", "causation_id", "payload_sha256",
         json_string(payload, "machine_type").alias("machine_type"),
         json_string(payload, "operating_state").alias("operating_state"),
         json_double(payload, "temperature_c").alias("temperature_c"),
@@ -241,7 +242,8 @@ def extract_domain_columns(df):
         "MachineStarted", "MachineStopped", "StateChanged", "AlarmRaised", "AlarmCleared",
         "MachineFaulted", "MachineRecovered", "CommunicationLost", "CommunicationRestored"
     )).select(
-        "event_id", "event_time", "ingestion_time", "source_system", "plant_id", "line_id", "machine_id",
+        "event_id", "event_type", "schema_version", "event_time", "ingestion_time", "source_system",
+        "plant_id", "line_id", "machine_id", "correlation_id", "causation_id", "payload_sha256",
         json_string(payload, "machine_type").alias("machine_type"),
         json_string(payload, "operating_state").alias("operating_state"),
         json_string(payload, "previous_state").alias("previous_state"),
@@ -264,7 +266,8 @@ def extract_domain_columns(df):
         "UnitProduced", "BatchCompleted", "ProductionPaused", "ProductionResumed",
         "ProductionCompleted", "ProductionLossRecorded"
     )).select(
-        "event_id", "event_time", "ingestion_time", "source_system", "plant_id", "line_id", "machine_id",
+        "event_id", "event_type", "schema_version", "event_time", "ingestion_time", "source_system",
+        "plant_id", "line_id", "machine_id", "correlation_id", "causation_id", "payload_sha256",
         json_string(payload, "production_order_id").alias("production_order_id"),
         json_string(payload, "batch_id").alias("batch_id"),
         json_string(payload, "product_id").alias("product_id"),
@@ -312,7 +315,7 @@ def write_delta(table_name: str, df):
 
 
 ensure_tables()
-started_at = F.current_timestamp()
+started_at = datetime.now(timezone.utc)
 bronze = read_bronze()
 source_count = bronze.count()
 
@@ -354,15 +357,15 @@ if all_rejected.take(1):
 telemetry, operational, production = extract_domain_columns(accepted)
 
 telemetry = telemetry.join(
-    enriched.select("event_id", "machine_sk", "master_line_sk", "plant_sk", "product_sk"),
+    enriched.select("event_id", "machine_sk", "master_line_sk", "plant_sk", "master_plant_sk", "product_sk"),
     "event_id", "left"
 )
 operational = operational.join(
-    enriched.select("event_id", "machine_sk", "master_line_sk", "plant_sk", "product_sk"),
+    enriched.select("event_id", "machine_sk", "master_line_sk", "plant_sk", "master_plant_sk", "product_sk"),
     "event_id", "left"
 )
 production = production.join(
-    enriched.select("event_id", "machine_sk", "master_line_sk", "plant_sk", "product_sk"),
+    enriched.select("event_id", "machine_sk", "master_line_sk", "plant_sk", "master_plant_sk", "product_sk"),
     "event_id", "left"
 )
 
@@ -390,8 +393,18 @@ audit = spark.createDataFrame([(
 audit = audit.withColumn("processing_started_at_utc", started_at)
 audit = audit.withColumn("processing_completed_at_utc", F.current_timestamp())
 audit = audit.withColumn("source_table", F.lit(BRONZE_TABLE))
-audit = audit.withColumn("source_window_start_utc", F.lit(None).cast("timestamp"))
-audit = audit.withColumn("source_window_end_utc", F.lit(None).cast("timestamp"))
+source_window = bronze.agg(
+    F.min("event_time").alias("min_event_time"),
+    F.max("event_time").alias("max_event_time"),
+).first()
+audit = audit.withColumn(
+    "source_window_start_utc",
+    F.lit(source_window["min_event_time"]).cast("timestamp"),
+)
+audit = audit.withColumn(
+    "source_window_end_utc",
+    F.lit(source_window["max_event_time"]).cast("timestamp"),
+)
 audit = audit.withColumn("status", F.lit("COMPLETED"))
 audit = audit.withColumn("error_code", F.lit(None).cast("string"))
 audit = audit.withColumn("details", F.lit("Bronze normalized, deduplicated, master-validated and routed to Silver domain Delta tables"))

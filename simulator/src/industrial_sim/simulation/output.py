@@ -44,8 +44,7 @@ class PartitionedEventStreamWriter:
         self.stats: dict[str, StreamStats] = {}
 
     def write(self, events: Iterable[object]) -> None:
-        try:
-            for event in events:
+        for event in events:
                 stream = self._stream_name(event)
                 stats = self.stats.setdefault(stream, StreamStats())
                 stats.observe(event)
@@ -69,8 +68,6 @@ class PartitionedEventStreamWriter:
                     )
                     + "\n"
                 )
-        finally:
-            self.close()
 
     def close(self) -> None:
         for handle in self._handles.values():

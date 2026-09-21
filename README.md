@@ -30,3 +30,8 @@ Every component must have a defined business or engineering purpose. Avoid techn
 Stages 3.5–3.9 establish the deterministic simulator, synchronized execution, enterprise runner and validation/quarantine boundary.
 
 Stage 3.10 establishes the Microsoft Fabric ingestion control plane.
+
+## Current progression
+
+Stage 3.10 established replay-safe Fabric ingestion into Bronze.
+Stage 3.11 establishes Bronze-to-Silver normalization, deduplication, SCD2 master validation and Silver quality auditing.

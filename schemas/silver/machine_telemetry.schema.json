@@ -1,0 +1,133 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Silver Machine Telemetry",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "event_id",
+    "event_time",
+    "ingestion_time",
+    "plant_id",
+    "line_id",
+    "machine_id",
+    "machine_type",
+    "operating_state",
+    "ingestion_batch_id",
+    "event_date",
+    "is_late_arrival"
+  ],
+  "properties": {
+    "event_id": {
+      "type": "string"
+    },
+    "event_time": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "ingestion_time": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "plant_id": {
+      "type": "string"
+    },
+    "line_id": {
+      "type": "string"
+    },
+    "machine_id": {
+      "type": "string"
+    },
+    "machine_type": {
+      "type": "string"
+    },
+    "operating_state": {
+      "type": "string"
+    },
+    "temperature_c": {
+      "type": [
+        "number",
+        "null"
+      ]
+    },
+    "vibration_mm_s": {
+      "type": [
+        "number",
+        "null"
+      ]
+    },
+    "pressure_bar": {
+      "type": [
+        "number",
+        "null"
+      ]
+    },
+    "spindle_rpm": {
+      "type": [
+        "number",
+        "null"
+      ]
+    },
+    "power_kw": {
+      "type": [
+        "number",
+        "null"
+      ]
+    },
+    "production_rate_unit_min": {
+      "type": [
+        "number",
+        "null"
+      ]
+    },
+    "quality_score_pct": {
+      "type": [
+        "number",
+        "null"
+      ]
+    },
+    "throughput_unit_min": {
+      "type": [
+        "number",
+        "null"
+      ]
+    },
+    "simulator_run_id": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "scenario_id": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "scenario_instance_id": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "generation_sequence": {
+      "type": [
+        "integer",
+        "null"
+      ]
+    },
+    "ingestion_batch_id": {
+      "type": "string"
+    },
+    "event_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "is_late_arrival": {
+      "type": "boolean"
+    },
+    "processed_at_utc": {
+      "type": "string",
+      "format": "date-time"
+    }
+  }
+}

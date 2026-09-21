@@ -75,6 +75,29 @@ def test_one_day_generates_enterprise_order_volume_and_keeps_orders_in_plant() -
         assert 1 <= plan.batch_count <= 8
 
 
+def test_daily_plan_anchors_to_business_shift_in_utc() -> None:
+    generator = make_generator()
+    from industrial_sim.engine.context import SimulationContext
+    from zoneinfo import ZoneInfo
+
+    context = SimulationContext(
+        simulator_run_id=RUN_ID,
+        deterministic_seed=20260921,
+        generator_version="0.1.0",
+        configuration_version="1.0.0",
+        current_time=START,
+    )
+    plans = generator.generate_day(
+        context,
+        START,
+        ("PLT-CHN-01", "PLT-PUN-01", "PLT-CBE-01"),
+    )
+    assert all(
+        plan.planned_start_time.astimezone(ZoneInfo("Asia/Kolkata")).hour >= 6
+        for plan in plans
+    )
+
+
 def test_same_seed_produces_same_first_day_plan() -> None:
     generator = make_generator()
     from industrial_sim.engine.context import SimulationContext
@@ -133,3 +156,4 @@ def test_partitioned_writer_orders_and_partitions_events(tmp_path: Path) -> None
     assert manifest.first_event_time == event_b.event_time.isoformat()
     assert manifest.last_event_time == event_a.event_time.isoformat()
     assert all(Path(file).is_file() for file in manifest.files)
+    assert (tmp_path / "production_event_manifest.json").is_file()

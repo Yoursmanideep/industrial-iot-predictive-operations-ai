@@ -1,0 +1,63 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.9.0/schema.json",
+  "name": "d1e2f304152637485960",
+  "position": {
+    "x": 20,
+    "y": 20,
+    "z": 1000,
+    "height": 500,
+    "width": 610,
+    "tabOrder": 1000
+  },
+  "visual": {
+    "visualType": "barChart",
+    "query": {
+      "queryState": {
+        "Category": {
+          "projections": [
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "Downtime"
+                    }
+                  },
+                  "Property": "downtime_category"
+                }
+              },
+              "queryRef": "Downtime.downtime_category",
+              "nativeQueryRef": "downtime_category",
+              "active": true
+            }
+          ]
+        },
+        "Y": {
+          "projections": [
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "Downtime"
+                    }
+                  },
+                  "Property": "Downtime Minutes"
+                }
+              },
+              "queryRef": "Downtime.Downtime Minutes",
+              "nativeQueryRef": "Downtime Minutes",
+              "active": true
+            }
+          ]
+        }
+      }
+    }
+  },
+  "annotations": [
+    {
+      "name": "businessPurpose",
+      "value": "Downtime minutes by category"
+    }
+  ]
+}

@@ -3,7 +3,8 @@ from __future__ import annotations
 import hashlib
 import random
 from dataclasses import dataclass
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timedelta, timezone, time
+from zoneinfo import ZoneInfo
 from uuid import UUID
 
 from industrial_sim.engine.context import SimulationContext
@@ -58,11 +59,12 @@ class EnterpriseProductionGenerator:
         date_time: datetime,
         plant_ids: tuple[str, ...],
     ) -> tuple[GeneratedOrderPlan, ...]:
-        day_utc = date_time.astimezone(timezone.utc).date()
+        business_tz = ZoneInfo("Asia/Kolkata")
+        day_local = date_time.astimezone(business_tz).date()
         plans: list[GeneratedOrderPlan] = []
 
         for plant_id in sorted(plant_ids):
-            rng = self._rng(context.deterministic_seed, "orders", plant_id, day_utc.isoformat())
+            rng = self._rng(context.deterministic_seed, "orders", plant_id, day_local.isoformat())
             order_count = rng.randint(*self.orders_range)
             plant_lines = tuple(
                 line_id for line_id in self.catalog.lines
@@ -72,11 +74,10 @@ class EnterpriseProductionGenerator:
                 raise ValueError(f"Plant {plant_id} must map to exactly five lines")
             next_available: dict[str, datetime] = {
                 line_id: datetime.combine(
-                    day_utc,
-                    datetime.min.time(),
-                    tzinfo=timezone.utc,
-                )
-                + timedelta(hours=6)
+                    day_local,
+                    time(6, 0),
+                    tzinfo=business_tz,
+                ).astimezone(timezone.utc)
                 for line_id in plant_lines
             }
 
@@ -92,10 +93,10 @@ class EnterpriseProductionGenerator:
                 start = max(
                     next_available[line_id],
                     datetime.combine(
-                        day_utc,
-                        datetime.min.time(),
-                        tzinfo=timezone.utc,
-                    ) + timedelta(minutes=rng.randint(0, 60)),
+                        day_local,
+                        time(6, 0),
+                        tzinfo=business_tz,
+                    ).astimezone(timezone.utc) + timedelta(minutes=rng.randint(0, 60)),
                 )
                 product = self.catalog.product(product_id)
                 duration_seconds = max(

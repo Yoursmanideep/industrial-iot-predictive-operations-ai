@@ -87,6 +87,7 @@ class FabricIngestionAdapter:
                 rejected_event_count=0,
                 source_file_sha256=manifest.source_file_sha256,
                 updated_at_utc=datetime.now(timezone.utc),
+                destination_path=str(destination),
             )
         )
 

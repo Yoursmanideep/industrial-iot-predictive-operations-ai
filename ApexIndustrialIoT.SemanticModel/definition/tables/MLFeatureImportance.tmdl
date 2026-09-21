@@ -1,0 +1,39 @@
+table MLFeatureImportance
+    column model_name
+        dataType: string
+        summarizeBy: none
+        sourceColumn: model_name
+    column model_version
+        dataType: string
+        summarizeBy: none
+        sourceColumn: model_version
+    column feature_name
+        dataType: string
+        summarizeBy: none
+        sourceColumn: feature_name
+    column feature_importance
+        dataType: decimal
+        summarizeBy: average
+        sourceColumn: feature_importance
+    column importance_rank
+        dataType: int64
+        summarizeBy: none
+        sourceColumn: importance_rank
+    column explanation_method
+        dataType: string
+        summarizeBy: none
+        sourceColumn: explanation_method
+    column feature_version
+        dataType: string
+        summarizeBy: none
+        sourceColumn: feature_version
+    column created_at_utc
+        dataType: dateTime
+        summarizeBy: none
+        sourceColumn: created_at_utc
+    partition MLFeatureImportance = entity
+        mode: directLake
+        source
+            entityName: fact_ml_feature_explanation
+            schemaName: gold
+            expressionSource: DL_Warehouse

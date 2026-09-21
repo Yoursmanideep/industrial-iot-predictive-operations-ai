@@ -1,0 +1,77 @@
+// Eventhouse destination schema for real-time or batch-routed simulator events.
+// Keep event_id as the business idempotency key and preserve the raw JSON payload.
+
+.create table MachineTelemetry (
+    event_id:string,
+    event_type:string,
+    schema_version:string,
+    event_time:datetime,
+    ingestion_time:datetime,
+    source_system:string,
+    plant_id:string,
+    line_id:string,
+    machine_id:string,
+    machine_type:string,
+    operating_state:string,
+    simulator_run_id:string,
+    scenario_id:string,
+    scenario_instance_id:string,
+    generation_sequence:long,
+    payload_sha256:string,
+    event_payload_json:string
+)
+
+.create table MachineOperationalEvent (
+    event_id:string,
+    event_type:string,
+    schema_version:string,
+    event_time:datetime,
+    ingestion_time:datetime,
+    source_system:string,
+    plant_id:string,
+    line_id:string,
+    machine_id:string,
+    machine_type:string,
+    operating_state:string,
+    previous_state:string,
+    new_state:string,
+    alarm_code:string,
+    severity:string,
+    fault_code:string,
+    failure_mode_code:string,
+    simulator_run_id:string,
+    scenario_id:string,
+    scenario_instance_id:string,
+    generation_sequence:long,
+    payload_sha256:string,
+    event_payload_json:string
+)
+
+.create table ProductionEvent (
+    event_id:string,
+    event_type:string,
+    schema_version:string,
+    event_time:datetime,
+    ingestion_time:datetime,
+    source_system:string,
+    plant_id:string,
+    line_id:string,
+    machine_id:string,
+    production_order_id:string,
+    batch_id:string,
+    product_id:string,
+    actual_quantity:real,
+    good_quantity:real,
+    rejected_quantity:real,
+    loss_category:string,
+    loss_reason_code:string,
+    simulator_run_id:string,
+    scenario_id:string,
+    scenario_instance_id:string,
+    generation_sequence:long,
+    payload_sha256:string,
+    event_payload_json:string
+)
+
+// Route telemetry, operational and production streams to the matching table.
+// Eventstream destinations can be configured separately from the durable Bronze path.

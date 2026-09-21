@@ -107,6 +107,8 @@ class ProductionEventFactory:
             line_id=production_order.line_id,
             batch_id=f"BAT-{batch.batch_id}" if batch else None,
             product_id=production_order.product_id,
+            operation_id=kwargs.pop("operation_id", None),
+            machine_id=kwargs.pop("machine_id", None),
             correlation_id=kwargs.pop("correlation_id", f"PO-{production_order.production_order_id}"),
             causation_id=causation_id,
             simulator_run_id=f"RUN-{run_id}",

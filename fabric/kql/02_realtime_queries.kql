@@ -1,0 +1,270 @@
+// Stage 3.15 — Real-time Eventhouse KQL
+// Source: IndustrialIoTEvent
+// All event timestamps are persisted in UTC.
+
+.create-or-alter function with (
+    folder = 'IndustrialIoT/Realtime',
+    docstring = 'Latest valid telemetry snapshot per machine'
+)
+rt_latest_machine_telemetry()
+{
+    IndustrialIoTEvent
+    | where event_type == 'MachineTelemetry'
+    | extend payload = parse_json(event_payload_json)
+    | extend
+        temperature_c = todouble(payload.temperature_c),
+        vibration_mm_s = todouble(payload.vibration_mm_s),
+        pressure_bar = todouble(payload.pressure_bar),
+        power_kw = todouble(payload.power_kw),
+        production_rate_unit_min = todouble(payload.production_rate_unit_min),
+        quality_score_pct = todouble(payload.quality_score_pct),
+        throughput_unit_min = todouble(payload.throughput_unit_min)
+    | summarize arg_max(event_time, *) by machine_id
+    | project
+        event_id,
+        event_time,
+        plant_id,
+        line_id,
+        machine_id,
+        machine_type,
+        operating_state,
+        temperature_c,
+        vibration_mm_s,
+        pressure_bar,
+        power_kw,
+        production_rate_unit_min,
+        quality_score_pct,
+        throughput_unit_min,
+        scenario_id,
+        scenario_instance_id,
+        generation_sequence
+};
+
+.create-or-alter function with (
+    folder = 'IndustrialIoT/Realtime',
+    docstring = 'Recent critical alarms, faults and communications loss'
+)
+rt_recent_critical_incidents(window_minutes:int = 15)
+{
+    IndustrialIoTEvent
+    | where event_time >= ago(window_minutes * 1m)
+    | where event_type in ('AlarmRaised', 'MachineFaulted', 'CommunicationLost')
+    | where severity in ('HIGH', 'CRITICAL')
+        or event_type in ('MachineFaulted', 'CommunicationLost')
+    | project
+        event_id,
+        event_time,
+        plant_id,
+        line_id,
+        machine_id,
+        machine_type,
+        event_type,
+        severity,
+        alarm_code,
+        fault_code,
+        failure_mode_code,
+        operating_state,
+        scenario_id,
+        scenario_instance_id
+    | order by event_time desc
+};
+
+.create-or-alter function with (
+    folder = 'IndustrialIoT/Realtime',
+    docstring = 'Machine risk signal from latest telemetry and recent critical events'
+)
+rt_machine_risk()
+{
+    let telemetry = rt_latest_machine_telemetry();
+    let incidents =
+        rt_recent_critical_incidents(15)
+        | summarize
+            critical_incident_count = count(),
+            fault_count = countif(event_type == 'MachineFaulted'),
+            communication_loss_count = countif(event_type == 'CommunicationLost')
+          by machine_id;
+    telemetry
+    | join kind=leftouter incidents on machine_id
+    | extend
+        critical_incident_count = coalesce(critical_incident_count, 0),
+        fault_count = coalesce(fault_count, 0),
+        communication_loss_count = coalesce(communication_loss_count, 0)
+    | extend
+        temperature_risk = case(
+            isnull(temperature_c), 0.0,
+            temperature_c >= 90.0, 40.0,
+            temperature_c >= 80.0, 20.0,
+            temperature_c >= 70.0, 10.0,
+            0.0),
+        vibration_risk = case(
+            isnull(vibration_mm_s), 0.0,
+            vibration_mm_s >= 8.0, 40.0,
+            vibration_mm_s >= 6.0, 20.0,
+            vibration_mm_s >= 4.0, 10.0,
+            0.0),
+        incident_risk = min_of(
+            20.0,
+            5.0 * todouble(critical_incident_count)
+        ),
+        fault_risk = min_of(30.0, 15.0 * todouble(fault_count)),
+        communication_risk = min_of(10.0, 5.0 * todouble(communication_loss_count))
+    | extend
+        machine_risk_score = min_of(
+            100.0,
+            temperature_risk + vibration_risk + incident_risk + fault_risk + communication_risk
+        )
+    | extend
+        risk_band = case(
+            machine_risk_score >= 80.0, 'CRITICAL',
+            machine_risk_score >= 60.0, 'HIGH',
+            machine_risk_score >= 30.0, 'MEDIUM',
+            'LOW')
+    | project
+        event_id,
+        event_time,
+        plant_id,
+        line_id,
+        machine_id,
+        machine_type,
+        operating_state,
+        temperature_c,
+        vibration_mm_s,
+        pressure_bar,
+        power_kw,
+        critical_incident_count,
+        fault_count,
+        communication_loss_count,
+        machine_risk_score,
+        risk_band,
+        scenario_id,
+        scenario_instance_id
+};
+
+.create-or-alter function with (
+    folder = 'IndustrialIoT/Realtime',
+    docstring = 'Production output and loss over a recent time window'
+)
+rt_production_15m()
+{
+    IndustrialIoTEvent
+    | where event_time >= ago(15m)
+    | where event_type in ('UnitProduced', 'ProductionLossRecorded')
+    | summarize
+        actual_quantity = sum(coalesce(actual_quantity, 0.0)),
+        good_quantity = sum(coalesce(good_quantity, 0.0)),
+        rejected_quantity = sum(coalesce(rejected_quantity, 0.0)),
+        loss_quantity = sum(coalesce(
+            loss_quantity,
+            case(event_type == 'ProductionLossRecorded', actual_quantity, 0.0)
+        )),
+        event_count = count()
+      by plant_id, line_id, product_id
+};
+
+.create-or-alter function with (
+    folder = 'IndustrialIoT/Realtime',
+    docstring = 'Production loss events during a recent time window'
+)
+rt_production_losses()
+{
+    IndustrialIoTEvent
+    | where event_time >= ago(15m)
+    | where event_type == 'ProductionLossRecorded'
+    | project
+        event_id,
+        event_time,
+        plant_id,
+        line_id,
+        machine_id,
+        production_order_id,
+        batch_id,
+        product_id,
+        actual_quantity,
+        good_quantity,
+        rejected_quantity,
+        loss_category,
+        loss_reason_code,
+        scenario_id,
+        machine_fault_event_id
+    | order by event_time desc
+};
+
+.create-or-alter function with (
+    folder = 'IndustrialIoT/Realtime',
+    docstring = 'Real-time plant KPI snapshot'
+)
+rt_plant_realtime_kpi()
+{
+    let production =
+        IndustrialIoTEvent
+        | where event_time >= ago(15m)
+        | where event_type == 'UnitProduced'
+        | summarize
+            total_quantity = sum(coalesce(actual_quantity, 0.0)),
+            good_quantity = sum(coalesce(good_quantity, 0.0)),
+            rejected_quantity = sum(coalesce(rejected_quantity, 0.0)),
+            production_events = count()
+          by plant_id;
+
+    let incidents =
+        IndustrialIoTEvent
+        | where event_time >= ago(15m)
+        | where event_type in ('AlarmRaised', 'MachineFaulted', 'CommunicationLost')
+        | summarize
+            alarm_count = countif(event_type == 'AlarmRaised'),
+            fault_count = countif(event_type == 'MachineFaulted'),
+            communication_loss_count = countif(event_type == 'CommunicationLost')
+          by plant_id;
+
+    production
+    | join kind=fullouter incidents on plant_id
+    | extend
+        total_quantity = coalesce(total_quantity, 0.0),
+        good_quantity = coalesce(good_quantity, 0.0),
+        rejected_quantity = coalesce(rejected_quantity, 0.0),
+        production_events = coalesce(production_events, 0),
+        alarm_count = coalesce(alarm_count, 0),
+        fault_count = coalesce(fault_count, 0),
+        communication_loss_count = coalesce(communication_loss_count, 0)
+    | extend
+        quality_pct = iff(total_quantity > 0.0, 100.0 * good_quantity / total_quantity, real(null))
+    | project
+        plant_id,
+        total_quantity,
+        good_quantity,
+        rejected_quantity,
+        quality_pct,
+        production_events,
+        alarm_count,
+        fault_count,
+        communication_loss_count
+};
+
+.create-or-alter function with (
+    folder = 'IndustrialIoT/Realtime',
+    docstring = 'Ingestion lag and event volume diagnostics'
+)
+rt_stream_health()
+{
+    IndustrialIoTEvent
+    | where ingestion_time >= ago(15m)
+    | summarize
+        event_count = count(),
+        avg_ingestion_lag_ms = avg(datetime_diff('millisecond', ingestion_time, event_time)),
+        p95_ingestion_lag_ms = percentile(datetime_diff('millisecond', ingestion_time, event_time), 95)
+      by event_type
+};
+
+// Example operational queries
+
+rt_machine_risk()
+| where risk_band in ('CRITICAL', 'HIGH')
+| order by machine_risk_score desc;
+
+rt_recent_critical_incidents(15);
+
+rt_production_15m();
+
+rt_plant_realtime_kpi();
+
+rt_stream_health();

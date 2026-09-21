@@ -16,8 +16,8 @@ CREATE TABLE control.ingestion_batch_checkpoint (
     first_generation_sequence BIGINT NULL,
     last_generation_sequence BIGINT NULL,
     status VARCHAR(32) NOT NULL,
-    accepted_event_count BIGINT NOT NULL DEFAULT 0,
-    rejected_event_count BIGINT NOT NULL DEFAULT 0,
+    accepted_event_count BIGINT NOT NULL,
+    rejected_event_count BIGINT NOT NULL,
     error_code VARCHAR(100) NULL,
     created_at_utc DATETIME2 NOT NULL,
     updated_at_utc DATETIME2 NOT NULL

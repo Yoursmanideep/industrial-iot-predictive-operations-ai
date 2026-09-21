@@ -203,7 +203,37 @@ BEGIN
     -- Split machine state intervals across shift boundaries.
     MERGE gold.fact_downtime_interval AS target
     USING (
-        WITH state_changes AS (
+        WITH ranked_before_window AS (
+            SELECT
+                f.*,
+                ROW_NUMBER() OVER (
+                    PARTITION BY f.machine_sk
+                    ORDER BY f.event_time_utc DESC, f.generation_sequence DESC, f.event_id DESC
+                ) AS row_rank
+            FROM gold.fact_machine_operational_event f
+            WHERE f.event_type = 'StateChanged'
+              AND f.event_time_utc < @source_window_start_utc
+        ),
+        candidate_changes AS (
+            SELECT *
+            FROM gold.fact_machine_operational_event
+            WHERE event_type = 'StateChanged'
+              AND event_time_utc >= @source_window_start_utc
+              AND event_time_utc < @source_window_end_utc
+
+            UNION ALL
+
+            SELECT
+                event_id, date_sk, shift_sk, plant_sk, line_sk, machine_sk, event_type,
+                event_time_utc, operating_state, previous_state, new_state, alarm_sk,
+                failure_mode_sk, operator_sk, severity, fault_code, operator_id, work_order_id,
+                is_planned, estimated_duration_seconds, communication_gap_seconds, is_late_arrival,
+                ingestion_batch_id, simulator_run_id, scenario_id, scenario_instance_id,
+                generation_sequence, payload_sha256
+            FROM ranked_before_window
+            WHERE row_rank = 1
+        ),
+        state_changes AS (
             SELECT
                 event_id AS start_event_id,
                 LEAD(event_id) OVER (
@@ -216,16 +246,15 @@ BEGIN
                     ORDER BY event_time_utc, generation_sequence, event_id
                 ) AS interval_end_utc,
                 plant_sk, line_sk, machine_sk, new_state AS state_code, is_planned
-            FROM gold.fact_machine_operational_event
-            WHERE event_type = 'StateChanged'
-              AND event_time_utc >= @source_window_start_utc
-              AND event_time_utc < @source_window_end_utc
+            FROM candidate_changes
         ),
         intervals AS (
             SELECT *
             FROM state_changes
             WHERE interval_end_utc IS NOT NULL
               AND interval_end_utc > interval_start_utc
+              AND interval_end_utc > @source_window_start_utc
+              AND interval_start_utc < @source_window_end_utc
               AND state_code IN (
                   'FAULT', 'MAINTENANCE', 'OFFLINE', 'BLOCKED', 'STARVED', 'SETUP', 'IDLE'
               )
@@ -250,8 +279,20 @@ BEGIN
                 ELSE 'IDLE_NO_DEMAND'
             END AS downtime_category,
             COALESCE(i.is_planned, 0) AS is_planned,
-            CASE WHEN i.interval_start_utc > sc.shift_start_utc THEN i.interval_start_utc ELSE sc.shift_start_utc END AS overlap_start,
-            CASE WHEN i.interval_end_utc < sc.shift_end_utc THEN i.interval_end_utc ELSE sc.shift_end_utc END AS overlap_end
+            CASE
+                WHEN i.interval_start_utc > sc.shift_start_utc AND i.interval_start_utc > @source_window_start_utc
+                    THEN i.interval_start_utc
+                WHEN sc.shift_start_utc > @source_window_start_utc
+                    THEN sc.shift_start_utc
+                ELSE @source_window_start_utc
+            END AS overlap_start,
+            CASE
+                WHEN i.interval_end_utc < sc.shift_end_utc AND i.interval_end_utc < @source_window_end_utc
+                    THEN i.interval_end_utc
+                WHEN sc.shift_end_utc < @source_window_end_utc
+                    THEN sc.shift_end_utc
+                ELSE @source_window_end_utc
+            END AS overlap_end
         FROM intervals i
         JOIN gold.dim_shift_calendar sc
           ON i.interval_start_utc < sc.shift_end_utc

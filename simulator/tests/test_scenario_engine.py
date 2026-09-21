@@ -2,6 +2,8 @@ from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from uuid import UUID
 
+import pytest
+
 from industrial_sim.domain.scenario import ScenarioStage, ScenarioStatus
 from industrial_sim.scenarios.catalog import load_scenario_catalog
 from industrial_sim.scenarios.deterministic import deterministic_scenario_instance_id

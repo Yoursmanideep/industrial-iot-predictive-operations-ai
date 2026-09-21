@@ -1,13 +1,12 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timedelta, timezone, time
 from pathlib import Path
 from uuid import UUID
 
 import yaml
 
-from industrial_sim.context.production_context import ProductionContextEngine
 from industrial_sim.production.batch_writer import EventBatchManifest, PartitionedProductionEventWriter
 from industrial_sim.production.catalog import load_production_catalog
 from industrial_sim.production.engine import ProductionExecutionEngine
@@ -41,9 +40,6 @@ def generate_production_plan(
 
     config_root = Path(__file__).resolve().parents[4] / "config"
     data_root = Path(__file__).resolve().parents[4] / "data_reference" / "seed"
-    production_config = yaml.safe_load(
-        (config_root / "simulator_production.yaml").read_text(encoding="utf-8")
-    )
     generation_config = yaml.safe_load(
         (config_root / "simulator_data_generation.yaml").read_text(encoding="utf-8")
     )
@@ -93,7 +89,7 @@ def generate_production_plan(
         )
         all_orders += len(plans)
         for plan in plans:
-            context.current_time = plan.planned_start_time
+            context.current_time = plan.planned_start_time.astimezone(timezone.utc)
             order, batches, events = generator.instantiate(context, plan)
             all_batches += len(batches)
             events.append(execution_engine.release_order(context, order))

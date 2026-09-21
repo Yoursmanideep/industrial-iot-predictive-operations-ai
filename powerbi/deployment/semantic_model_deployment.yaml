@@ -1,0 +1,34 @@
+version: 1.0.0
+
+item:
+  type: SemanticModel
+  display_name: ApexIndustrialIoT
+  definition_root: powerbi/ApexIndustrialIoT.SemanticModel
+  format: TMDL
+
+environment:
+  workspace_id: ${FABRIC_WORKSPACE_ID}
+  semantic_model_id: ${FABRIC_SEMANTIC_MODEL_ID}
+  warehouse_id: ${FABRIC_WAREHOUSE_ID}
+
+pre_deployment:
+  validate_all_tmdl_parts: true
+  validate_warehouse_gold_objects: true
+  validate_security_mapping_table: true
+
+deployment:
+  definition_parts_are_complete: true
+  do_not_include_platform_file: true
+  bind_direct_lake_source_at_deploy: true
+  configure_rls_role_assignment_outside_git: true
+
+post_deployment:
+  open_data_model: true
+  validate_direct_lake_partitions: true
+  validate_relationships: true
+  validate_rls_as_test_user: true
+  execute_smoke_measures:
+    - OEE %
+    - Availability %
+    - Quality %
+    - Good Units

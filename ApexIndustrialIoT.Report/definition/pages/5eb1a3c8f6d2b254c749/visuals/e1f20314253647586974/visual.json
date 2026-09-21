@@ -1,0 +1,44 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.9.0/schema.json",
+  "name": "e1f20314253647586974",
+  "position": {
+    "x": 640,
+    "y": 540,
+    "z": 1000,
+    "height": 140,
+    "width": 290,
+    "tabOrder": 1000
+  },
+  "visual": {
+    "visualType": "cardVisual",
+    "query": {
+      "queryState": {
+        "Data": {
+          "projections": [
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "Production"
+                    }
+                  },
+                  "Property": "Production Yield %"
+                }
+              },
+              "queryRef": "Production.Production Yield %",
+              "nativeQueryRef": "Production Yield %",
+              "active": true
+            }
+          ]
+        }
+      }
+    }
+  },
+  "annotations": [
+    {
+      "name": "businessPurpose",
+      "value": "Production yield KPI"
+    }
+  ]
+}

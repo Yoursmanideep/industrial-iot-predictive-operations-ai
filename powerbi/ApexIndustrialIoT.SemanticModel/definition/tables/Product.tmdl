@@ -1,0 +1,35 @@
+table Product
+    column product_sk
+        dataType: int64
+        isHidden
+        isKey
+        summarizeBy: none
+        sourceColumn: product_sk
+    column product_id
+        dataType: string
+        isDefaultLabel
+        summarizeBy: none
+        sourceColumn: product_id
+    column product_name
+        dataType: string
+        isDefaultLabel
+        summarizeBy: none
+        sourceColumn: product_name
+    column product_family
+        dataType: string
+        summarizeBy: none
+        sourceColumn: product_family
+    column product_category
+        dataType: string
+        summarizeBy: none
+        sourceColumn: product_category
+    column standard_cycle_time_seconds
+        dataType: decimal
+        summarizeBy: none
+        sourceColumn: standard_cycle_time_seconds
+    partition Product = entity
+        mode: directLake
+        source
+            entityName: dim_product
+            schemaName: gold
+            expressionSource: DL_Warehouse

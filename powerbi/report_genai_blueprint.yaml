@@ -1,0 +1,25 @@
+version: 1.0.0
+
+page:
+  name: GenAI Maintenance Assistant
+  purpose: expose grounded maintenance Q&A and evidence from the RAG service
+  future_consumption:
+    - Power Apps maintenance workspace
+    - Power Automate approval/review flows
+
+display_fields:
+  - answer
+  - answer_status
+  - citations
+  - recommended_next_steps
+  - safety_notes
+  - used_structured_context
+  - retrieval_count
+
+governance:
+  show_citations: true
+  show_model_version: true
+  show_ml_risk_as_prediction_not_diagnosis: true
+  automatic_machine_control: false
+  automatic_maintenance_authorization: false
+  preserve_plant_scope: true

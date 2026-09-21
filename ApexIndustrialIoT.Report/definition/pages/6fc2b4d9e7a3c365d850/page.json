@@ -1,0 +1,15 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/page/2.1.0/schema.json",
+  "name": "6fc2b4d9e7a3c365d850",
+  "displayName": "Machine Detail",
+  "displayOption": "FitToPage",
+  "height": 720,
+  "width": 1280,
+  "visibility": "HiddenInViewMode",
+  "annotations": [
+    {
+      "name": "intendedUse",
+      "value": "machine-level drillthrough target; bind Machine[machine_id] during deployment"
+    }
+  ]
+}

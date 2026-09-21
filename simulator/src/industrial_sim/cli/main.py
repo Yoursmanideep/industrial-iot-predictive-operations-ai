@@ -3,62 +3,113 @@ from __future__ import annotations
 import argparse
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
+from uuid import UUID
 
-from industrial_sim.config.loader import load_generation_contract
 from industrial_sim.domain.run import RunMode
-from industrial_sim.engine.run_engine import RunEngine
+from industrial_sim.simulation.runner import EnterpriseSimulationRunner
 
 
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         prog="industrial-sim",
-        description="Deterministic industrial IoT simulation foundation.",
-    )
-    parser.add_argument(
-        "--contract",
-        type=Path,
-        default=Path("../config/simulator_data_generation.yaml"),
-        help="Path to the Stage 3.4 generation contract.",
+        description="Deterministic enterprise industrial IoT simulator.",
     )
     parser.add_argument(
         "--mode",
         choices=[mode.value for mode in RunMode],
         default=RunMode.LIVE.value,
+        help="Simulation mode.",
     )
     parser.add_argument(
-        "--seconds",
+        "--start",
+        help="UTC ISO-8601 simulation start time.",
+    )
+    parser.add_argument(
+        "--end",
+        help="UTC ISO-8601 simulation end time.",
+    )
+    parser.add_argument(
+        "--minutes",
         type=int,
-        default=15,
-        help="Simulation duration for the foundation smoke run.",
+        default=5,
+        help="Duration when --end is omitted.",
+    )
+    parser.add_argument(
+        "--seed",
+        type=int,
+        default=None,
+        help="Deterministic seed. Defaults to the governed contract seed.",
+    )
+    parser.add_argument(
+        "--run-id",
+        default=None,
+        help="Optional simulator run UUID.",
+    )
+    parser.add_argument(
+        "--repository-root",
+        type=Path,
+        default=None,
+        help="Repository root. Defaults to the project root containing config/.",
+    )
+    parser.add_argument(
+        "--output",
+        type=Path,
+        default=Path("output/simulator"),
+        help="Output directory for streamed events and manifests.",
     )
     return parser
 
 
+def _parse_utc(value: str) -> datetime:
+    normalized = value.replace("Z", "+00:00")
+    parsed = datetime.fromisoformat(normalized)
+    if parsed.tzinfo is None:
+        raise ValueError("Simulation timestamps must include a timezone.")
+    return parsed.astimezone(timezone.utc)
+
+
 def main() -> int:
     args = build_parser().parse_args()
-    if args.seconds <= 0:
-        raise SystemExit("--seconds must be greater than zero.")
+    if args.minutes <= 0:
+        raise SystemExit("--minutes must be greater than zero.")
 
-    contract = load_generation_contract(args.contract)
-    start = datetime.now(timezone.utc)
-    end = start + timedelta(seconds=args.seconds)
+    repository_root = (
+        args.repository_root.resolve()
+        if args.repository_root is not None
+        else Path(__file__).resolve().parents[4]
+    )
+    runner = EnterpriseSimulationRunner(repository_root)
 
-    engine = RunEngine(contract)
-    run, context, clock = engine.create_run(
+    start = (
+        _parse_utc(args.start)
+        if args.start is not None
+        else datetime.now(timezone.utc)
+    )
+    end = (
+        _parse_utc(args.end)
+        if args.end is not None
+        else start + timedelta(minutes=args.minutes)
+    )
+    run_id = UUID(args.run_id) if args.run_id else None
+
+    result = runner.run(
         mode=RunMode(args.mode),
         start_time=start,
         end_time=end,
+        seed=args.seed,
+        run_id=run_id,
+        output_root=args.output,
     )
 
-    tick_count = 0
-    while RunEngine.tick(context, clock, end):
-        tick_count += 1
-
-    print(f"simulator_run_id={run.simulator_run_id}")
-    print(f"run_mode={run.run_mode.value}")
-    print(f"deterministic_seed={run.deterministic_seed}")
-    print(f"ticks={tick_count}")
-    print(f"final_simulation_time={context.now_utc().isoformat()}")
+    print(f"simulator_run_id=RUN-{result.run_id}")
+    print(f"run_mode={result.mode.value}")
+    print(f"deterministic_seed={runner.generation_contract.default_seed if args.seed is None else args.seed}")
+    print(f"ticks={result.tick_count}")
+    print(f"orders_registered={result.order_count}")
+    print(f"events_emitted={result.event_count}")
+    print(f"simulation_start={result.simulation_start.isoformat()}")
+    print(f"simulation_end={result.simulation_end.isoformat()}")
+    print(f"run_manifest={result.output_manifest}")
     return 0
 
 

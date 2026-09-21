@@ -1,0 +1,494 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/Yoursmanideep/industrial-iot-predictive-operations-ai/blob/main/schemas/events/quality_event.schema.json",
+  "title": "Quality Event",
+  "description": "Canonical event contract for inspections, measurements, defects, holds, rework and batch quality disposition.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "event_id",
+    "event_type",
+    "schema_version",
+    "event_time",
+    "ingestion_time",
+    "source_system",
+    "plant_id",
+    "production_order_id"
+  ],
+  "properties": {
+    "event_id": {
+      "type": "string",
+      "pattern": "^EVT-[0-9a-fA-F-]{36}$"
+    },
+    "event_type": {
+      "type": "string",
+      "enum": [
+        "InspectionStarted",
+        "InspectionCompleted",
+        "MeasurementRecorded",
+        "DefectDetected",
+        "BatchAccepted",
+        "BatchRejected",
+        "QualityHoldPlaced",
+        "QualityHoldReleased",
+        "ReworkStarted",
+        "ReworkCompleted"
+      ]
+    },
+    "schema_version": {
+      "type": "string",
+      "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"
+    },
+    "event_time": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "ingestion_time": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "source_system": {
+      "type": "string",
+      "minLength": 1
+    },
+    "correlation_id": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "minLength": 1
+    },
+    "causation_id": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "minLength": 1
+    },
+    "plant_id": {
+      "type": "string",
+      "pattern": "^PLT-[A-Z]{3}-[0-9]{2}$"
+    },
+    "line_id": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "pattern": "^[A-Z]{3}-L[0-9]{2}$"
+    },
+    "machine_id": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "pattern": "^[A-Z]{3}-L[0-9]{2}-[A-Z]{3}[0-9]{2}$"
+    },
+    "production_order_id": {
+      "type": "string",
+      "pattern": "^PO-[0-9a-fA-F-]{36}$"
+    },
+    "batch_id": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "pattern": "^BAT-[0-9a-fA-F-]{36}$"
+    },
+    "product_id": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "pattern": "^PROD-[A-Z0-9_-]{3,30}$"
+    },
+    "operation_id": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "pattern": "^OP-[0-9a-fA-F-]{36}$"
+    },
+    "inspection_id": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "pattern": "^INSP-[0-9a-fA-F-]{36}$"
+    },
+    "inspector_id": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "pattern": "^INS-[0-9]{5,}$"
+    },
+    "inspection_type": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "enum": [
+        "INLINE",
+        "FINAL",
+        "RANDOM",
+        "FIRST_ARTICLE",
+        "REWORK",
+        null
+      ]
+    },
+    "inspection_result": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "enum": [
+        "PASS",
+        "FAIL",
+        "CONDITIONAL",
+        "PENDING",
+        null
+      ]
+    },
+    "measurement_id": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "pattern": "^MEAS-[0-9a-fA-F-]{36}$"
+    },
+    "measurement_name": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "minLength": 1
+    },
+    "measurement_value": {
+      "type": [
+        "number",
+        "null"
+      ]
+    },
+    "target_value": {
+      "type": [
+        "number",
+        "null"
+      ]
+    },
+    "lower_spec_limit": {
+      "type": [
+        "number",
+        "null"
+      ]
+    },
+    "upper_spec_limit": {
+      "type": [
+        "number",
+        "null"
+      ]
+    },
+    "measurement_uom": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "enum": [
+        "mm",
+        "mm_s",
+        "degC",
+        "bar",
+        "kN",
+        "N_m",
+        "percent",
+        "unit",
+        null
+      ]
+    },
+    "measurement_status": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "enum": [
+        "IN_SPEC",
+        "OUT_OF_SPEC",
+        "NOT_EVALUATED",
+        null
+      ]
+    },
+    "defect_code": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "pattern": "^[A-Z0-9_-]{2,50}$"
+    },
+    "defect_category": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "enum": [
+        "DIMENSIONAL",
+        "SURFACE",
+        "FUNCTIONAL",
+        "ASSEMBLY",
+        "MATERIAL",
+        "PROCESS",
+        "COSMETIC",
+        "OTHER",
+        null
+      ]
+    },
+    "defect_severity": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "enum": [
+        "LOW",
+        "MEDIUM",
+        "HIGH",
+        "CRITICAL",
+        null
+      ]
+    },
+    "defect_quantity": {
+      "type": [
+        "number",
+        "null"
+      ],
+      "minimum": 0
+    },
+    "defect_disposition": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "enum": [
+        "SCRAP",
+        "REWORK",
+        "USE_AS_IS",
+        "PENDING",
+        null
+      ]
+    },
+    "hold_reason_code": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "pattern": "^[A-Z0-9_-]{2,50}$"
+    },
+    "rework_reason_code": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "pattern": "^[A-Z0-9_-]{2,50}$"
+    },
+    "rework_quantity": {
+      "type": [
+        "number",
+        "null"
+      ],
+      "minimum": 0
+    },
+    "disposition_reason_code": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "pattern": "^[A-Z0-9_-]{2,50}$"
+    },
+    "notes": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "minLength": 1
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "event_type": {
+            "const": "InspectionStarted"
+          }
+        }
+      },
+      "then": {
+        "required": [
+          "inspection_id",
+          "inspection_type",
+          "batch_id",
+          "product_id"
+        ]
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "event_type": {
+            "const": "InspectionCompleted"
+          }
+        }
+      },
+      "then": {
+        "required": [
+          "inspection_id",
+          "inspection_result"
+        ]
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "event_type": {
+            "const": "MeasurementRecorded"
+          }
+        }
+      },
+      "then": {
+        "required": [
+          "measurement_id",
+          "measurement_name",
+          "measurement_value",
+          "measurement_uom",
+          "measurement_status"
+        ]
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "event_type": {
+            "const": "DefectDetected"
+          }
+        }
+      },
+      "then": {
+        "required": [
+          "defect_code",
+          "defect_category",
+          "defect_severity",
+          "defect_quantity",
+          "defect_disposition"
+        ]
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "event_type": {
+            "const": "BatchAccepted"
+          }
+        }
+      },
+      "then": {
+        "required": [
+          "batch_id",
+          "inspection_result"
+        ],
+        "properties": {
+          "inspection_result": {
+            "const": "PASS"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "event_type": {
+            "const": "BatchRejected"
+          }
+        }
+      },
+      "then": {
+        "required": [
+          "batch_id",
+          "inspection_result"
+        ],
+        "properties": {
+          "inspection_result": {
+            "const": "FAIL"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "event_type": {
+            "const": "QualityHoldPlaced"
+          }
+        }
+      },
+      "then": {
+        "required": [
+          "batch_id",
+          "hold_reason_code"
+        ]
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "event_type": {
+            "const": "QualityHoldReleased"
+          }
+        }
+      },
+      "then": {
+        "required": [
+          "batch_id",
+          "disposition_reason_code"
+        ]
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "event_type": {
+            "const": "ReworkStarted"
+          }
+        }
+      },
+      "then": {
+        "required": [
+          "batch_id",
+          "rework_quantity",
+          "rework_reason_code"
+        ]
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "event_type": {
+            "const": "ReworkCompleted"
+          }
+        }
+      },
+      "then": {
+        "required": [
+          "batch_id",
+          "rework_quantity",
+          "inspection_result"
+        ]
+      }
+    }
+  ],
+  "x-business-rules": [
+    "measurement_value must be evaluated against lower_spec_limit and upper_spec_limit when both specification limits are available.",
+    "measurement_status must be IN_SPEC when the measurement is within inclusive specification limits and OUT_OF_SPEC when outside them.",
+    "DefectDetected should identify the affected batch when the batch is known.",
+    "BatchAccepted must not be emitted with inspection_result other than PASS.",
+    "BatchRejected must not be emitted with inspection_result other than FAIL.",
+    "defect_quantity and rework_quantity must be non-negative.",
+    "ReworkCompleted should be followed by an inspection outcome when quality verification is required.",
+    "Quality hold and disposition events must be traceable to the affected batch."
+  ]
+}

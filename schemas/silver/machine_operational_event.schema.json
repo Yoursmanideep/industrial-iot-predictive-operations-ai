@@ -5,18 +5,27 @@
   "additionalProperties": false,
   "required": [
     "event_id",
+    "event_type",
+    "schema_version",
     "event_time",
     "ingestion_time",
+    "source_system",
     "plant_id",
     "line_id",
     "machine_id",
-    "event_type",
     "ingestion_batch_id",
     "event_date",
-    "is_late_arrival"
+    "is_late_arrival",
+    "processed_at_utc"
   ],
   "properties": {
     "event_id": {
+      "type": "string"
+    },
+    "event_type": {
+      "type": "string"
+    },
+    "schema_version": {
       "type": "string"
     },
     "event_time": {
@@ -26,6 +35,9 @@
     "ingestion_time": {
       "type": "string",
       "format": "date-time"
+    },
+    "source_system": {
+      "type": "string"
     },
     "plant_id": {
       "type": "string"
@@ -108,6 +120,9 @@
         "null"
       ]
     },
+    "payload_sha256": {
+      "type": "string"
+    },
     "simulator_run_id": {
       "type": [
         "string",
@@ -145,6 +160,39 @@
     "processed_at_utc": {
       "type": "string",
       "format": "date-time"
+    },
+    "machine_sk": {
+      "type": [
+        "integer",
+        "null"
+      ]
+    },
+    "master_line_sk": {
+      "type": [
+        "integer",
+        "null"
+      ]
+    },
+    "plant_sk": {
+      "type": [
+        "integer",
+        "null"
+      ]
+    },
+    "master_plant_sk": {
+      "type": [
+        "integer",
+        "null"
+      ]
+    },
+    "product_sk": {
+      "type": [
+        "integer",
+        "null"
+      ]
+    },
+    "event_payload_json": {
+      "type": "string"
     }
   }
 }

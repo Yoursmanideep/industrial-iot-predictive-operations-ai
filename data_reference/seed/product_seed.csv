@@ -6,7 +6,7 @@ product_sk,product_id,product_name,product_family,product_category,unit_of_measu
 "5","PROD-GEAR-C01","Precision Gearbox C01","Drive Systems","Mechanical","unit","38","27600","ACTIVE","2024-01-01","","true"
 "6","PROD-GEAR-C02","Precision Gearbox C02","Drive Systems","Mechanical","unit","45","29800","ACTIVE","2024-01-01","","true"
 "7","PROD-VALVE-D01","Control Valve D01","Fluid Control","Mechanical","unit","31","12400","ACTIVE","2024-01-01","","true"
-"8","PROD-VALVE-D02","Control Valve D02","Fluid Control","unit","36","14800","","ACTIVE","2024-01-01","","true"
+"8","PROD-VALVE-D02","Control Valve D02","Fluid Control","Mechanical","unit","36","14800","ACTIVE","2024-01-01","","true"
 "9","PROD-HOUSING-E01","Machined Housing E01","Machined Components","Precision Parts","unit","28","8400","ACTIVE","2024-01-01","","true"
 "10","PROD-HOUSING-E02","Machined Housing E02","Machined Components","Precision Parts","unit","34","9700","ACTIVE","2024-01-01","","true"
 "11","PROD-SHAFT-F01","Drive Shaft F01","Drive Components","Precision Parts","unit","25","11200","ACTIVE","2024-01-01","","true"

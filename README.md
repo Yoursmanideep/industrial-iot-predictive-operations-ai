@@ -38,3 +38,5 @@ Stage 3.14 established the source-controlled PBIP/PBIR report project with execu
 Stage 3.15 established the real-time Eventstream/Eventhouse/Activator path, KQL operational monitoring, Power Automate workflows and the optional simulator-to-Eventstream live bridge.
 Stage 3.16 establishes the predictive-maintenance ML lifecycle: 5-minute features, causal 60-minute failure labels, chronological validation, MLflow experiment/model registration, Fabric PREDICT batch scoring, Warehouse prediction persistence and preview real-time model-endpoint integration.
 Stage 3.17 establishes ML operationalization: prediction-driven maintenance review workflows, model performance and feature-drift monitoring, model explainability, Power BI risk/health surfaces and governed Activator actions.
+
+Stage 3.18 establishes the GenAI/RAG intelligence layer: versioned maintenance knowledge, Fabric embeddings, Azure AI Search retrieval, grounded answers with citations, structured operational context and repeatable RAG evaluation.

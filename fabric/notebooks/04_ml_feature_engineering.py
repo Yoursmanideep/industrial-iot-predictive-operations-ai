@@ -281,18 +281,34 @@ def generate_causal_labels(features):
         .groupBy("f.feature_id", "f.feature_time_utc")
         .agg(
             F.min("x.fault_time_utc").alias("next_fault_time_utc"),
-            F.min("x.fault_event_id").alias("next_fault_event_id"),
-            F.first("x.failure_mode_code", ignorenulls=True).alias("label_failure_mode_code"),
+            F.min_by("x.fault_event_id", "x.fault_time_utc").alias("next_fault_event_id"),
+            F.min_by("x.failure_mode_code", "x.fault_time_utc").alias("label_failure_mode_code"),
         )
     )
-    source_max = features.agg(F.max("feature_time_utc")).first()[0]
-    return (
+    machine_end = features.groupBy("machine_id").agg(
+        F.max("feature_time_utc").alias("machine_feature_end_utc")
+    )
+
+    labelled = (
         joined
+        .join(
+            features.select("feature_id", "machine_id").dropDuplicates(["feature_id"]),
+            "feature_id",
+            "left",
+        )
+        .join(machine_end, "machine_id", "left")
+    )
+
+    return (
+        labelled
         .withColumn("label_failure_60m", F.when(F.col("next_fault_time_utc").isNotNull(), 1).otherwise(0))
         .withColumn(
             "right_censored",
             F.col("next_fault_time_utc").isNull()
-            & (F.col("feature_time_utc") > F.lit(source_max) - F.expr("INTERVAL 60 MINUTES")),
+            & (
+                F.col("feature_time_utc")
+                > F.col("machine_feature_end_utc") - F.expr("INTERVAL 60 MINUTES")
+            ),
         )
         .withColumn("label_valid", ~F.col("right_censored"))
         .withColumn("label_version", F.lit(LABEL_VERSION))

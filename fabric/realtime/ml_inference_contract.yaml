@@ -1,0 +1,61 @@
+version: 1.0.0
+
+pipeline:
+  name: IndustrialIoT_Realtime_ML_FailureRisk
+  purpose: enrich near-real-time machine feature snapshots with ML failure risk
+
+source:
+  surface: Eventhouse
+  feature_query: rt_machine_failure_features_5m
+  snapshot_interval_minutes: 5
+  model_input_grain: machine_snapshot
+
+model:
+  fabric_model_name: ApexIndustrialIoT_PredictiveMaintenance_FailureRisk
+  serving_flavor: sklearn
+  endpoint_feature: Fabric_ML_Model_Endpoint
+  lifecycle: preview
+  default_version_required_for_unversioned_endpoint_calls: true
+
+orchestration:
+  engine: Dataflow_Gen2
+  function_file: fabric/dataflows/01_ml_endpoint_enrichment.m
+  authentication:
+    method: service_principal
+    tenant_parameter: FabricTenantId
+    client_id_parameter: FabricMlClientId
+    secret_parameter: FabricMlClientSecret
+  secret_policy:
+    hardcoded_credentials: false
+    source: Fabric_Dataflow_parameters_or_variable_library
+
+input_features:
+  match_config: config/predictive_maintenance_ml.yaml
+  exclude:
+    - scenario_id
+    - scenario_instance_id
+    - failure_mode_code
+    - fault_code
+    - next_fault_event_id
+    - next_fault_time_utc
+    - label_failure_60m
+
+output:
+  eventhouse_table: IndustrialIoTMLPrediction
+  schema: schemas/ml/predictive_maintenance_predictions.schema.json
+
+failure_handling:
+  endpoint_timeout: mark_ml_status_unavailable
+  endpoint_http_error: mark_ml_status_unavailable
+  invalid_response: quarantine_prediction
+  authentication_error: stop_flow_and_raise_operational_alert
+
+fallback:
+  enabled: true
+  fallback_query: rt_machine_risk
+  fallback_label: HEURISTIC
+  never_promote_heuristic_to_ml_prediction: true
+
+security:
+  no_secrets_in_git: true
+  service_principal_permissions_required: true

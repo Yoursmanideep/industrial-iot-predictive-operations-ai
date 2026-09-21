@@ -1,0 +1,60 @@
+version: 1.0.0
+
+pipeline:
+  name: IndustrialIoT_ML_FailureRisk_Scoring
+  purpose: feature engineering, model promotion, batch scoring and prediction persistence
+
+parameters:
+  feature_window_start_utc: required
+  feature_window_end_utc: required
+  model_name: required
+  model_version: required
+  scoring_run_id: required
+
+activities:
+  - name: BuildMachineFailureFeatures
+    action: execute_fabric_notebook
+    notebook: fabric/notebooks/04_ml_feature_engineering.py
+    outputs:
+      - ml.machine_failure_features
+      - ml.machine_failure_training
+
+  - name: TrainAndRegisterModel
+    action: scheduled_or_manual_promotion
+    notebook: fabric/notebooks/05_ml_train_register.py
+    controls:
+      leakage_guard: required
+      temporal_split: required
+      untouched_test_period: required
+
+  - name: BatchScore
+    action: execute_fabric_notebook
+    notebook: fabric/notebooks/06_ml_batch_scoring.py
+    parameters:
+      MODEL_NAME: pipeline.model_name
+      MODEL_VERSION: pipeline.model_version
+    output: ml.machine_failure_prediction
+
+  - name: LoadWarehousePredictionFact
+    action: copy_delta_to_warehouse
+    source: ml.machine_failure_prediction
+    destination: gold.fact_machine_failure_prediction
+    idempotency_key: prediction_id
+
+quality_gates:
+  feature_version_is_explicit: true
+  model_version_is_explicit: true
+  source_feature_time_is_utc: true
+  prediction_id_is_deterministic: true
+  risk_score_is_bounded_0_to_1: true
+  duplicate_prediction_id_is_idempotent: true
+  no_future_fields_in_feature_vector: true
+
+cadence:
+  scheduled_batch: hourly
+  model_retraining: weekly_or_after_failure_distribution_drift
+  realtime_scoring: separate_dataflow_contract
+
+security:
+  credentials_in_git: false
+  workspace_resource_ids_from_environment: true

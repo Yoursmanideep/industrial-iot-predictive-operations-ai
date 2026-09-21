@@ -1,0 +1,47 @@
+// Stage 3.16 — real-time ML prediction contract in Eventhouse
+
+.create-merge table IndustrialIoTMLPrediction (
+    prediction_id:string,
+    feature_id:string,
+    plant_id:string,
+    line_id:string,
+    machine_id:string,
+    feature_time_utc:datetime,
+    scored_at_utc:datetime,
+    model_name:string,
+    model_version:string,
+    feature_version:string,
+    prediction_horizon_minutes:int,
+    failure_risk_score:real,
+    risk_band:string,
+    inference_mode:string,
+    endpoint_reference:string
+)
+
+.create-or-alter function with (docstring = 'Latest ML failure-risk prediction per machine')
+rt_ml_latest_prediction()
+{
+    IndustrialIoTMLPrediction
+    | summarize arg_max(feature_time_utc, *) by machine_id
+    | project machine_id, plant_id, line_id, feature_time_utc, scored_at_utc,
+              model_name, model_version, failure_risk_score, risk_band, inference_mode
+}
+
+.create-or-alter function with (docstring = 'High and critical ML failure-risk predictions')
+rt_ml_high_risk_machines()
+{
+    rt_ml_latest_prediction()
+    | where failure_risk_score >= 0.60
+    | order by failure_risk_score desc
+}
+
+.create-or-alter function with (docstring = 'ML model prediction volume and score summary')
+rt_ml_endpoint_health()
+{
+    IndustrialIoTMLPrediction
+    | summarize
+        prediction_count = count(),
+        avg_score = avg(failure_risk_score),
+        p95_score = percentile(failure_risk_score, 95)
+      by model_name, model_version, inference_mode
+}

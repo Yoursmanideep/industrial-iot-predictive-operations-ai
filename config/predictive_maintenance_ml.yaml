@@ -1,0 +1,123 @@
+version: 1.0.0
+
+project:
+  name: Apex Industrial Manufacturing Predictive Maintenance
+  target: machine_failure_within_horizon
+  target_horizon_minutes: 60
+  prediction_grain: machine_snapshot
+
+feature_engineering:
+  snapshot_interval_minutes: 5
+  rolling_windows_minutes: [15, 60]
+  fault_history_window_minutes: 1440
+  timezone: Asia/Kolkata
+  persisted_event_timezone: UTC
+  feature_version: "1.0.0"
+  label_version: "1.0.0"
+  exclude_from_model:
+    - scenario_id
+    - scenario_instance_id
+    - failure_mode_code
+    - fault_code
+    - next_fault_event_id
+    - next_fault_time_utc
+    - label_failure_60m
+  leakage_policy:
+    future_operational_events_are_label_only: true
+    scenario_metadata_is_label_only: true
+    post_fault_observations_excluded_from_training: true
+    right_censored_negative_examples_excluded: true
+
+signals:
+  current:
+    - temperature_c
+    - vibration_mm_s
+    - pressure_bar
+    - power_kw
+    - cycle_time_s
+    - throughput_unit_min
+    - quality_score_pct
+    - position_error_mm
+    - motor_current_a
+    - torque_nm
+  rolling:
+    - temperature_c
+    - vibration_mm_s
+    - pressure_bar
+    - power_kw
+
+context_features:
+  - machine_type_code
+  - shift_code
+  - hour_sin
+  - hour_cos
+  - utilization_proxy_15m
+  - machine_age_days
+  - alarm_count_15m
+  - alarm_count_60m
+  - fault_count_24h
+  - communication_loss_count_60m
+  - line_actual_quantity_15m
+  - line_loss_quantity_15m
+  - line_actual_quantity_60m
+  - line_loss_quantity_60m
+
+training:
+  time_split:
+    train_fraction: 0.70
+    validation_fraction: 0.15
+    test_fraction: 0.15
+  max_training_rows: 350000
+  negative_to_positive_ratio: 5
+  random_seed: 20260921
+  min_validation_recall: 0.80
+  candidate_models:
+    random_forest:
+      n_estimators: 300
+      max_depth: 18
+      min_samples_leaf: 10
+      max_features: sqrt
+    extra_trees:
+      n_estimators: 300
+      max_depth: 18
+      min_samples_leaf: 10
+      max_features: sqrt
+  selection_metric: average_precision
+  tie_break_metric: roc_auc
+
+model_registry:
+  experiment_name: ApexIndustrialIoT_PredictiveMaintenance
+  model_name: ApexIndustrialIoT_PredictiveMaintenance_FailureRisk
+  serving_flavor: sklearn
+  output_type: risk_score_0_to_1
+  endpoint_compatible: true
+
+prediction:
+  bands:
+    LOW: [0.0, 0.35]
+    MEDIUM: [0.35, 0.60]
+    HIGH: [0.60, 0.80]
+    CRITICAL: [0.80, 1.01]
+  horizon_minutes: 60
+  batch_table: ml.machine_failure_prediction
+  warehouse_table: gold.fact_machine_failure_prediction
+  realtime_eventhouse_table: IndustrialIoTMLPrediction
+
+operationalization:
+  batch_scoring:
+    engine: Fabric_PREDICT
+    cadence: hourly
+  realtime_scoring:
+    engine: Fabric_ML_Model_Endpoint
+    feature_refresh_minutes: 5
+    orchestration: Dataflow_Gen2
+    status: preview
+  fallback:
+    enabled: true
+    fallback_surface: rt_machine_risk
+    fallback_is_ml_prediction: false
+
+security:
+  credentials_in_git: false
+  model_endpoint_auth: service_principal
+  secrets_source: Fabric_Dataflow_parameters_or_variable_library

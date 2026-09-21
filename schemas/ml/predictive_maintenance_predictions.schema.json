@@ -1,0 +1,41 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/Yoursmanideep/industrial-iot-predictive-operations-ai/blob/main/schemas/ml/predictive_maintenance_predictions.schema.json",
+  "title": "Predictive Maintenance Machine Failure Risk Prediction",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "prediction_id",
+    "feature_id",
+    "machine_id",
+    "feature_time_utc",
+    "scored_at_utc",
+    "model_name",
+    "model_version",
+    "feature_version",
+    "prediction_horizon_minutes",
+    "failure_risk_score",
+    "risk_band",
+    "inference_mode"
+  ],
+  "properties": {
+    "prediction_id": {"type": "string", "minLength": 64, "maxLength": 64},
+    "feature_id": {"type": "string", "minLength": 64, "maxLength": 64},
+    "plant_id": {"type": "string"},
+    "line_id": {"type": "string"},
+    "machine_id": {"type": "string"},
+    "feature_time_utc": {"type": "string", "format": "date-time"},
+    "scored_at_utc": {"type": "string", "format": "date-time"},
+    "model_name": {"type": "string", "minLength": 1},
+    "model_version": {"type": "string", "minLength": 1},
+    "feature_version": {"type": "string", "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"},
+    "prediction_horizon_minutes": {"type": "integer", "const": 60},
+    "failure_risk_score": {"type": "number", "minimum": 0, "maximum": 1},
+    "risk_band": {"type": "string", "enum": ["LOW", "MEDIUM", "HIGH", "CRITICAL"]},
+    "inference_mode": {"type": "string", "enum": ["BATCH", "REALTIME", "REPLAY"]},
+    "endpoint_reference": {"type": ["string", "null"]},
+    "source_run_id": {"type": ["string", "null"]},
+    "threshold": {"type": ["number", "null"], "minimum": 0, "maximum": 1},
+    "prediction_created_at_utc": {"type": "string", "format": "date-time"}
+  }
+}

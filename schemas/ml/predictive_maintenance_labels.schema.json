@@ -1,0 +1,27 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/Yoursmanideep/industrial-iot-predictive-operations-ai/blob/main/schemas/ml/predictive_maintenance_labels.schema.json",
+  "title": "Predictive Maintenance Failure Label",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "feature_id",
+    "label_version",
+    "label_horizon_minutes",
+    "label_failure_60m",
+    "label_valid"
+  ],
+  "properties": {
+    "feature_id": {"type": "string", "minLength": 64, "maxLength": 64},
+    "label_version": {"type": "string", "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"},
+    "label_horizon_minutes": {"type": "integer", "const": 60},
+    "label_failure_60m": {"type": "integer", "enum": [0, 1]},
+    "label_valid": {"type": "boolean"},
+    "next_fault_event_id": {"type": ["string", "null"]},
+    "next_fault_time_utc": {"type": ["string", "null"], "format": "date-time"},
+    "label_failure_mode_code": {"type": ["string", "null"]},
+    "label_source": {"type": "string", "enum": ["CAUSAL_MACHINE_FAULT_EVENT"]},
+    "label_generated_at_utc": {"type": "string", "format": "date-time"},
+    "right_censored": {"type": "boolean"}
+  }
+}

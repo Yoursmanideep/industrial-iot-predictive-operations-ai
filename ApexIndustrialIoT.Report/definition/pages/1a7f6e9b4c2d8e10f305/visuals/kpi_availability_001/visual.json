@@ -1,0 +1,44 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.9.0/schema.json",
+  "name": "kpi_availability_001",
+  "position": {
+    "x": 640,
+    "y": 20,
+    "z": 1000,
+    "height": 120,
+    "width": 290,
+    "tabOrder": 1000
+  },
+  "visual": {
+    "visualType": "cardVisual",
+    "query": {
+      "queryState": {
+        "Data": {
+          "projections": [
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "OEE"
+                    }
+                  },
+                  "Property": "Availability %"
+                }
+              },
+              "queryRef": "OEE.Availability %",
+              "nativeQueryRef": "Availability %",
+              "active": true
+            }
+          ]
+        }
+      }
+    }
+  },
+  "annotations": [
+    {
+      "name": "businessPurpose",
+      "value": "Enterprise availability headline KPI"
+    }
+  ]
+}

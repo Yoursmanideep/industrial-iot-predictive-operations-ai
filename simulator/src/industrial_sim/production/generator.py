@@ -64,6 +64,12 @@ class EnterpriseProductionGenerator:
         for plant_index, plant_id in enumerate(sorted(plant_ids)):
             rng = self._rng(context.deterministic_seed, "orders", plant_id, day_utc.isoformat())
             order_count = rng.randint(*self.orders_range)
+            plant_lines = tuple(
+                line_id for line_id in self.catalog.lines
+                if line_id.startswith(plant_id[4:7] + "-")
+            )
+            if len(plant_lines) != 5:
+                raise ValueError(f"Plant {plant_id} must map to exactly five lines")
             next_available: dict[str, datetime] = {
                 line_id: datetime.combine(
                     day_utc,
@@ -71,12 +77,12 @@ class EnterpriseProductionGenerator:
                     tzinfo=timezone.utc,
                 )
                 + timedelta(hours=6)
-                for line_id in self.catalog.lines
+                for line_id in plant_lines
             }
 
             for sequence in range(1, order_count + 1):
                 product_id = self._select_product(rng)
-                line_id = self._select_line(product_id, next_available)
+                line_id = self._select_line(product_id, next_available, plant_lines)
                 quantity = rng.randint(*self.quantity_range)
                 batch_count = min(
                     rng.randint(*self.batch_range),
@@ -167,6 +173,7 @@ class EnterpriseProductionGenerator:
         self,
         product_id: str,
         next_available: dict[str, datetime],
+        plant_lines: tuple[str, ...],
     ) -> str:
         route = self.catalog.product(product_id).route
         candidates = [

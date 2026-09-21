@@ -1,0 +1,44 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.9.0/schema.json",
+  "name": "d1e2f304152637485964",
+  "position": {
+    "x": 640,
+    "y": 540,
+    "z": 1000,
+    "height": 140,
+    "width": 290,
+    "tabOrder": 1000
+  },
+  "visual": {
+    "visualType": "cardVisual",
+    "query": {
+      "queryState": {
+        "Data": {
+          "projections": [
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "OperationalEvent"
+                    }
+                  },
+                  "Property": "Alarm Count"
+                }
+              },
+              "queryRef": "OperationalEvent.Alarm Count",
+              "nativeQueryRef": "Alarm Count",
+              "active": true
+            }
+          ]
+        }
+      }
+    }
+  },
+  "annotations": [
+    {
+      "name": "businessPurpose",
+      "value": "Alarm count KPI"
+    }
+  ]
+}

@@ -38,6 +38,7 @@ class ValidationResult:
 @dataclass
 class ValidationRunState:
     simulator_run_id: str | None = None
+    last_seen_generation_sequence: int = 0
     last_generation_sequence: int = 0
     last_event_time: datetime | None = None
     event_ids: set[str] = field(default_factory=set)
@@ -48,6 +49,7 @@ class ValidationRunState:
 
     def reset(self) -> None:
         self.simulator_run_id = None
+        self.last_seen_generation_sequence = 0
         self.last_generation_sequence = 0
         self.last_event_time = None
         self.event_ids.clear()

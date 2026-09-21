@@ -1,0 +1,62 @@
+version: 1.0.0
+
+realtime:
+  eventstream_name: IndustrialIoT_Eventstream
+  eventhouse_name: ${FABRIC_EVENTHOUSE_NAME}
+  kql_database_name: ${FABRIC_EVENTHOUSE_DATABASE}
+  activator_name: ${FABRIC_ACTIVATOR_NAME}
+  workspace_id: ${FABRIC_WORKSPACE_ID}
+
+source:
+  type: CustomEndpoint
+  authentication: ManagedIdentityOrEntraID
+  payload_format: JSONL
+  schema_support: enabled
+  canonical_event_id: event_id
+
+eventhouse:
+  raw_table: IndustrialIoTEvent
+  ingestion_mode: ProcessedIngestion
+  preserve_payload: true
+  event_time_column: event_time
+  ingestion_time_column: ingestion_time
+
+kql:
+  hot_window_minutes: 15
+  machine_health_window_minutes: 5
+  production_window_minutes: 15
+  alert_deduplication_minutes: 10
+
+operational_thresholds:
+  # Synthetic operational trigger defaults; tune against plant policy.
+  critical_temperature_c: 90.0
+  critical_vibration_mm_s: 8.0
+  critical_pressure_low_bar: 1.5
+  communication_loss_seconds: 15
+
+alerts:
+  - MACHINE_FAULT_CRITICAL
+  - CRITICAL_ALARM
+  - COMMUNICATION_LOSS
+  - TELEMETRY_TEMPERATURE_CRITICAL
+  - TELEMETRY_VIBRATION_CRITICAL
+  - PRODUCTION_LOSS
+
+activator:
+  grouping_key: machine_id
+  object_type: IndustrialMachine
+  event_identity: event_id
+  action_deduplication: event_id
+  power_automate_enabled: true
+
+power_automate:
+  incident_flow_name: IndustrialIoT_Critical_Incident_Response
+  escalation_flow_name: IndustrialIoT_Unresolved_Incident_Escalation
+  notification_channels:
+    - Microsoft Teams
+    - Email
+
+security:
+  secrets_in_git: false
+  endpoint_credentials_externalized: true
+  workspace_ids_externalized: true

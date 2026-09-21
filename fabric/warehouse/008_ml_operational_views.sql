@@ -17,6 +17,24 @@ CREATE TABLE gold.fact_ml_model_monitoring (
 
 GO
 
+CREATE TABLE gold.fact_ml_feature_drift (
+    drift_fact_key BIGINT IDENTITY,
+    model_name VARCHAR(150) NOT NULL,
+    model_version VARCHAR(40) NOT NULL,
+    feature_name VARCHAR(150) NOT NULL,
+    baseline_row_count BIGINT NOT NULL,
+    recent_row_count BIGINT NOT NULL,
+    psi_value DECIMAL(18,10) NULL,
+    severity VARCHAR(20) NOT NULL,
+    baseline_window_start_utc DATETIME2(3) NOT NULL,
+    recent_window_start_utc DATETIME2(3) NOT NULL,
+    recent_window_end_utc DATETIME2(3) NOT NULL,
+    feature_version VARCHAR(40) NOT NULL,
+    created_at_utc DATETIME2(3) NOT NULL
+);
+
+GO
+
 CREATE TABLE gold.fact_ml_feature_explanation (
     explanation_fact_key BIGINT IDENTITY,
     model_name VARCHAR(150) NOT NULL,
@@ -46,6 +64,22 @@ SELECT
     feature_version,
     created_at_utc
 FROM gold.fact_ml_model_monitoring;
+
+GO
+
+CREATE VIEW mart.v_ml_feature_drift
+AS
+SELECT
+    model_name,
+    model_version,
+    feature_name,
+    baseline_row_count,
+    recent_row_count,
+    psi_value,
+    severity,
+    feature_version,
+    created_at_utc
+FROM gold.fact_ml_feature_drift;
 
 GO
 

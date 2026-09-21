@@ -1,0 +1,85 @@
+table OEE
+    measure 'Good Units' = SUM(OEE[good_quantity])
+        formatString: #,##0
+    measure 'Rejected Units' = SUM(OEE[rejected_quantity])
+        formatString: #,##0
+    measure 'Total Units' = SUM(OEE[total_quantity])
+        formatString: #,##0
+    measure 'Availability %' = DIVIDE(SUM(OEE[run_time_seconds]), SUM(OEE[planned_production_seconds]))
+        formatString: 0.0%
+    measure 'Performance %' = DIVIDE(SUM(OEE[ideal_production_seconds]), SUM(OEE[run_time_seconds]))
+        formatString: 0.0%
+    measure 'Quality %' = DIVIDE(SUM(OEE[good_quantity]), SUM(OEE[total_quantity]))
+        formatString: 0.0%
+    measure 'OEE %' = [Availability %] * [Performance %] * [Quality %]
+        formatString: 0.0%
+    measure 'OEE YTD %' = CALCULATE([OEE %], DATESYTD(Date[calendar_date]))
+        formatString: 0.0%
+    measure 'OEE % Change vs Prior Day' =
+        ```
+        [OEE %] - CALCULATE([OEE %], DATEADD(Date[calendar_date], -1, DAY))
+        ```
+        formatString: 0.0%
+    column date_sk
+        dataType: int64
+        isHidden
+        summarizeBy: none
+        sourceColumn: date_sk
+    column shift_sk
+        dataType: int64
+        isHidden
+        summarizeBy: none
+        sourceColumn: shift_sk
+    column plant_sk
+        dataType: int64
+        isHidden
+        summarizeBy: none
+        sourceColumn: plant_sk
+    column line_sk
+        dataType: int64
+        isHidden
+        summarizeBy: none
+        sourceColumn: line_sk
+    column machine_sk
+        dataType: int64
+        isHidden
+        summarizeBy: none
+        sourceColumn: machine_sk
+    column planned_production_seconds
+        dataType: decimal
+        summarizeBy: sum
+        sourceColumn: planned_production_seconds
+    column planned_stop_seconds
+        dataType: decimal
+        summarizeBy: sum
+        sourceColumn: planned_stop_seconds
+    column run_time_seconds
+        dataType: decimal
+        summarizeBy: sum
+        sourceColumn: run_time_seconds
+    column downtime_seconds
+        dataType: decimal
+        summarizeBy: sum
+        sourceColumn: downtime_seconds
+    column total_quantity
+        dataType: decimal
+        summarizeBy: sum
+        sourceColumn: total_quantity
+    column good_quantity
+        dataType: decimal
+        summarizeBy: sum
+        sourceColumn: good_quantity
+    column rejected_quantity
+        dataType: decimal
+        summarizeBy: sum
+        sourceColumn: rejected_quantity
+    column ideal_production_seconds
+        dataType: decimal
+        summarizeBy: sum
+        sourceColumn: ideal_production_seconds
+    partition OEE = entity
+        mode: directLake
+        source
+            entityName: fact_oee_daily
+            schemaName: gold
+            expressionSource: DL_Warehouse

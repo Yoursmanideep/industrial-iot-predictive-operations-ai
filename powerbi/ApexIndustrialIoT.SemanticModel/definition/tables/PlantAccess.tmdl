@@ -1,0 +1,30 @@
+table PlantAccess
+    isHidden
+    column access_sk
+        dataType: int64
+        isHidden
+        isKey
+        summarizeBy: none
+        sourceColumn: access_sk
+    column user_principal_name
+        dataType: string
+        summarizeBy: none
+        sourceColumn: user_principal_name
+    column plant_id
+        dataType: string
+        summarizeBy: none
+        sourceColumn: plant_id
+    column access_role
+        dataType: string
+        summarizeBy: none
+        sourceColumn: access_role
+    column is_active
+        dataType: boolean
+        summarizeBy: none
+        sourceColumn: is_active
+    partition PlantAccess = entity
+        mode: directLake
+        source
+            entityName: user_plant_access
+            schemaName: security
+            expressionSource: DL_Warehouse

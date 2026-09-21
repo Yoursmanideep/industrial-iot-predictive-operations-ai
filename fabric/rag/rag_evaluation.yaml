@@ -1,0 +1,29 @@
+version: 1.0.0
+
+evaluation:
+  benchmark: ApexIndustrialIoT_RAG_Benchmark
+  top_k: [3, 5]
+  deterministic_metrics:
+    retrieval_top_n_accuracy: true
+    citation_document_match: true
+    citation_chunk_match: true
+  ai_assisted_metrics:
+    groundedness: true
+    relevance: true
+    answer_completeness: true
+  thresholds:
+    retrieval_top5_min: 0.80
+    groundedness_min: 4
+    relevance_min: 4
+    completeness_min: 4
+  regression_policy:
+    block_production_prompt_change_when_groundedness_breaches: true
+    compare_against_previous_prompt_version: true
+    save_results_to_onelake: true
+  categories:
+    - known_failure_mode
+    - alarm_troubleshooting
+    - machine_risk_explanation
+    - safety_boundary
+    - insufficient_evidence
+    - structured_context_plus_manual

@@ -130,17 +130,23 @@ def test_scenario_failure_affects_state_telemetry_and_production() -> None:
 
 def test_tick_generation_sequence_is_strictly_increasing() -> None:
     engine = build_engine()
-    engine.register_production_plan(production_plan())
+    registration_events = engine.register_production_plan(production_plan())
+    scenario = engine.activate_scenario("CHN-L01-CNC01", "SCN-CNC-OVH")
     results = [engine.step(5) for _ in range(6)]
 
     events = [
+        *registration_events,
         *[event for result in results for event in result.operational_events],
         *[event for result in results for event in result.telemetry_events],
         *[event for result in results for event in result.production_events],
     ]
     sequences = sorted(
-        event.generation_sequence
-        for event in events
-        if event.generation_sequence is not None
+        [
+            event.generation_sequence
+            for event in events
+            if event.generation_sequence is not None
+        ]
+        + [scenario.generation_sequence]
     )
+    assert len(sequences) == len(set(sequences))
     assert sequences == list(range(1, len(sequences) + 1))

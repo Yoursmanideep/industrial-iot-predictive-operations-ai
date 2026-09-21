@@ -3,6 +3,9 @@ seed_data:
   deterministic: true
   generation_rule: stable formulas and ordered definitions; no runtime randomness
   counts:
+    plants: 3
+    production_areas: 15
+    lines: 15
     machine_inventory: 270
     machine_master: 270
     machine_models: 18

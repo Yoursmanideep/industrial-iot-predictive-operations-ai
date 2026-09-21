@@ -17,6 +17,7 @@ from industrial_sim.production.generator import EnterpriseProductionGenerator
 from industrial_sim.validation.stream import ValidatedEventStreamWriter
 from industrial_sim.simulation.step_engine import IntegratedSimulationStepEngine
 from industrial_sim.world.machines import MachineWorldLoader
+from industrial_sim.transport.eventstream import EventPublisher, NullEventPublisher
 
 
 @dataclass(frozen=True)
@@ -50,6 +51,7 @@ class EnterpriseSimulationRunner:
         seed: int | None = None,
         run_id: UUID | None = None,
         output_root: str | Path = "output/simulator",
+        event_publisher: EventPublisher | None = None,
     ) -> SimulationRunnerResult:
         if start_time.tzinfo is None or end_time.tzinfo is None:
             raise ValueError("Simulation times must be timezone-aware")
@@ -124,6 +126,13 @@ class EnterpriseSimulationRunner:
             schema_root=self.root / "schemas",
             output_root=output_root,
         )
+        publisher = event_publisher or NullEventPublisher()
+
+        def emit(events: list[object] | tuple[object, ...]) -> None:
+            if not events:
+                return
+            writer.write(events)
+            publisher.publish(events)
 
         tick_seconds = (
             int(generation["time"]["live_tick_seconds"])
@@ -175,21 +184,22 @@ class EnterpriseSimulationRunner:
 
             while plan_index < len(plans) and plans[plan_index].planned_start_time <= cursor:
                 registration_events = step_engine.register_production_plan(plans[plan_index])
-                writer.write(registration_events)
+                emit(registration_events)
                 order_count += 1
                 plan_index += 1
 
             step_end = min(end_time, cursor + timedelta(seconds=tick_seconds))
             step_seconds = max(1, int((step_end - cursor).total_seconds()))
             result = step_engine.step(step_seconds)
-            writer.write(result.operational_events)
-            writer.write(result.telemetry_events)
-            writer.write(result.production_events)
+            emit(result.operational_events)
+            emit(result.telemetry_events)
+            emit(result.production_events)
 
             tick_count += 1
             cursor = result.event_time
 
         writer.close()
+        publisher.close()
         manifest_path = writer.write_manifest()
         stream_manifest = writer.manifest()
         run_manifest_path = Path(manifest_path).with_name("simulation_run_manifest.json")

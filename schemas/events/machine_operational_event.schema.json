@@ -243,6 +243,70 @@
         "null"
       ],
       "pattern": "^WO-[0-9a-fA-F-]{36}$"
+    },
+    "simulator_run_id": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "pattern": "^RUN-[0-9a-fA-F-]{36}$",
+      "description": "Simulator run lineage identifier."
+    },
+    "scenario_id": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "pattern": "^SCN-[A-Z0-9_-]{3,50}$",
+      "description": "Scenario catalog identifier when applicable."
+    },
+    "scenario_instance_id": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "pattern": "^SCN-[0-9a-fA-F-]{36}$",
+      "description": "Concrete scenario execution identifier when applicable."
+    },
+    "generated_at_utc": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "format": "date-time",
+      "description": "UTC time at which the simulator generated the record."
+    },
+    "deterministic_seed": {
+      "type": [
+        "integer",
+        "null"
+      ],
+      "minimum": 0,
+      "description": "Seed used for deterministic generation."
+    },
+    "generation_sequence": {
+      "type": [
+        "integer",
+        "null"
+      ],
+      "minimum": 1,
+      "description": "Monotonic generation order within simulator run."
+    },
+    "generator_version": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$",
+      "description": "Simulator generator version."
+    },
+    "configuration_version": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$",
+      "description": "Simulator configuration version."
     }
   },
   "allOf": [

@@ -68,6 +68,8 @@ class IntegratedSimulationStepEngine:
         operational_event_engine: ScenarioOperationalEventEngine,
         machine_state_machine: MachineStateMachine | None = None,
         production_aggregation_seconds: int = 30,
+        baseline_telemetry_interval_seconds: int = 5,
+        incident_telemetry_interval_seconds: int = 5,
     ) -> None:
         if production_aggregation_seconds <= 0:
             raise ValueError("production_aggregation_seconds must be positive")
@@ -80,7 +82,12 @@ class IntegratedSimulationStepEngine:
         self.telemetry_engine = telemetry_engine
         self.operational_event_engine = operational_event_engine
         self.machine_state_machine = machine_state_machine or MachineStateMachine()
+        if baseline_telemetry_interval_seconds <= 0 or incident_telemetry_interval_seconds <= 0:
+            raise ValueError("Telemetry intervals must be positive")
         self.production_aggregation_seconds = production_aggregation_seconds
+        self.baseline_telemetry_interval_seconds = baseline_telemetry_interval_seconds
+        self.incident_telemetry_interval_seconds = incident_telemetry_interval_seconds
+        self._telemetry_elapsed_seconds = 0
         self._active_scenarios: dict[str, ScenarioInstance] = {}
         self._active_production_lines: dict[str, ActiveProductionLine] = {}
         self._latest_fault_event_by_machine: dict[str, str] = {}
@@ -140,13 +147,21 @@ class IntegratedSimulationStepEngine:
             telemetry_engine=telemetry_engine,
             operational_event_engine=operational_event_engine,
             production_aggregation_seconds=aggregation,
+            baseline_telemetry_interval_seconds=int(
+                generation_config["time"]["telemetry"]["baseline_interval_seconds"]
+            ),
+            incident_telemetry_interval_seconds=int(
+                generation_config["time"]["telemetry"]["incident_interval_seconds"]
+            ),
         )
 
     def register_production_plan(
         self,
         plan: GeneratedOrderPlan,
     ) -> tuple[ProductionEvent, ...]:
-        self.context.current_time = plan.planned_start_time.astimezone(timezone.utc)
+        planned_start = plan.planned_start_time.astimezone(timezone.utc)
+        if self.context.current_time < planned_start:
+            self.context.current_time = planned_start
         order, batches, created = self._instantiate_plan(plan)
         events: list[ProductionEvent] = list(created)
         events.append(self.production_engine.release_order(self.context, order))
@@ -201,7 +216,20 @@ class IntegratedSimulationStepEngine:
         current_time = self.context.current_time
 
         operational_events = self._advance_scenarios(current_time)
-        telemetry_events = self._generate_machine_telemetry(current_time)
+        self._telemetry_elapsed_seconds += seconds
+        telemetry_interval = (
+            self.incident_telemetry_interval_seconds
+            if self._active_scenarios
+            else self.baseline_telemetry_interval_seconds
+        )
+        telemetry_due = self._telemetry_elapsed_seconds >= telemetry_interval
+        telemetry_events = (
+            self._generate_machine_telemetry(current_time)
+            if telemetry_due
+            else []
+        )
+        if telemetry_due:
+            self._telemetry_elapsed_seconds = 0
 
         production_events: list[ProductionEvent] = []
         for line_id, execution in list(self._active_production_lines.items()):

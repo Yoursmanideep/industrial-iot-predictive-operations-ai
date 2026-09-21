@@ -105,17 +105,29 @@ def classify_duplicates(df):
 
 
 def add_late_arrival_flag(df):
-    max_event_time = df.agg(F.max("event_time").alias("max_event_time")).first()[0]
-    if max_event_time is None:
-        return df.withColumn("is_late_arrival", F.lit(False))
     threshold_expr = F.expr(f"INTERVAL {LATE_ARRIVAL_THRESHOLD_MINUTES} MINUTES")
-    return df.withColumn(
-        "is_late_arrival",
-        F.col("event_time") < F.lit(max_event_time) - threshold_expr,
+    batch_max = F.max("event_time").over(Window.partitionBy("ingestion_batch_id"))
+    return (
+        df.withColumn("_batch_max_event_time", batch_max)
+        .withColumn(
+            "is_late_arrival",
+            F.when(
+                F.col("_batch_max_event_time").isNull(),
+                F.lit(False),
+            ).otherwise(
+                F.col("event_time") < F.col("_batch_max_event_time") - threshold_expr
+            ),
+        )
+        .drop("_batch_max_event_time")
     )
 
 
 def enrich_master_keys(df):
+    if "product_id" not in df.columns:
+        df = df.withColumn("product_id", json_string("event_payload_json", "product_id"))
+    if "machine_type" not in df.columns:
+        df = df.withColumn("machine_type", json_string("event_payload_json", "machine_type"))
+
     machines = spark.table(MASTER_MACHINE_TABLE).select(
         "machine_id", "machine_sk", "line_sk", "machine_type_code",
         F.col("effective_from").alias("machine_effective_from"),
@@ -124,15 +136,20 @@ def enrich_master_keys(df):
     lines = spark.table(MASTER_LINE_TABLE).select(
         F.col("line_sk").alias("master_line_sk"),
         "line_id", "plant_sk",
+        F.col("effective_from").alias("line_effective_from"),
+        F.col("effective_to").alias("line_effective_to"),
     )
     plants = spark.table(MASTER_PLANT_TABLE).select(
         F.col("plant_sk").alias("master_plant_sk"),
         "plant_id",
+        F.col("effective_from").alias("plant_effective_from"),
+        F.col("effective_to").alias("plant_effective_to"),
     )
-    products = spark.table(MASTER_PRODUCT_TABLE).select("product_id", "product_sk")
-
-    if "product_id" not in df.columns:
-        df = df.withColumn("product_id", json_string("event_payload_json", "product_id"))
+    products = spark.table(MASTER_PRODUCT_TABLE).select(
+        "product_id", "product_sk",
+        F.col("effective_from").alias("product_effective_from"),
+        F.col("effective_to").alias("product_effective_to"),
+    )
 
     out = (
         df.join(
@@ -147,9 +164,38 @@ def enrich_master_keys(df):
         )
         .drop(machines.machine_id)
     )
-    out = out.join(lines, out.line_id == lines.line_id, "left").drop(lines.line_id)
-    out = out.join(plants, out.plant_id == plants.plant_id, "left").drop(plants.plant_id)
-    out = out.join(products, out.product_id == products.product_id, "left").drop(products.product_id)
+    out = out.join(
+        lines,
+        (out.line_id == lines.line_id)
+        & (F.to_date(out.event_time) >= F.col("line_effective_from"))
+        & (
+            F.col("line_effective_to").isNull()
+            | (F.to_date(out.event_time) <= F.col("line_effective_to"))
+        ),
+        "left",
+    ).drop(lines.line_id)
+
+    out = out.join(
+        plants,
+        (out.plant_id == plants.plant_id)
+        & (F.to_date(out.event_time) >= F.col("plant_effective_from"))
+        & (
+            F.col("plant_effective_to").isNull()
+            | (F.to_date(out.event_time) <= F.col("plant_effective_to"))
+        ),
+        "left",
+    ).drop(plants.plant_id)
+
+    out = out.join(
+        products,
+        (out.product_id == products.product_id)
+        & (F.to_date(out.event_time) >= F.col("product_effective_from"))
+        & (
+            F.col("product_effective_to").isNull()
+            | (F.to_date(out.event_time) <= F.col("product_effective_to"))
+        ),
+        "left",
+    ).drop(products.product_id)
     return out
 
 
@@ -176,6 +222,12 @@ def reject_rows(df):
             F.col("line_sk").isNotNull() &
             (F.col("line_sk") != F.col("master_line_sk")),
             "MACHINE_LINE_MISMATCH",
+        )
+        .when(
+            F.col("machine_sk").isNotNull() &
+            F.col("machine_type_code").isNotNull() &
+            (F.col("machine_type") != F.col("machine_type_code")),
+            "MACHINE_TYPE_MISMATCH",
         )
         .when(
             F.col("master_line_sk").isNotNull() &
@@ -393,6 +445,7 @@ master_failure_count = quality_rejected.where(
         "LINE_MASTER_NOT_FOUND",
         "PRODUCT_MASTER_NOT_FOUND",
         "MACHINE_LINE_MISMATCH",
+        "MACHINE_TYPE_MISMATCH",
         "LINE_PLANT_MISMATCH",
     )
 ).count()

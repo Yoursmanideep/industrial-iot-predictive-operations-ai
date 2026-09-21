@@ -16,6 +16,10 @@ model Model
     ref table Downtime
     ref table Telemetry
     ref table OperationalEvent
+    ref table MachineFailureRisk
+    ref table MLModelHealth
+    ref table MLFeatureImportance
+    ref table MLFeatureDrift
     ref table PlantAccess
 
     ref role 'Plant RLS'

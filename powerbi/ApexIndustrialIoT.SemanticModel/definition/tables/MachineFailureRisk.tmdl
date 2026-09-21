@@ -1,0 +1,91 @@
+table MachineFailureRisk
+    measure 'Critical ML Risk Machines' = CALCULATE(DISTINCTCOUNT(MachineFailureRisk[machine_sk]), MachineFailureRisk[risk_band] = "CRITICAL")
+        formatString: #,##0
+    measure 'High ML Risk Machines' = CALCULATE(DISTINCTCOUNT(MachineFailureRisk[machine_sk]), MachineFailureRisk[risk_band] IN {"HIGH","CRITICAL"})
+        formatString: #,##0
+    measure 'Average Failure Risk %' = AVERAGE(MachineFailureRisk[failure_risk_score])
+        formatString: 0.0%
+    measure 'Latest Failure Risk %' = MAXX(TOPN(1, MachineFailureRisk, MachineFailureRisk[feature_time_utc], DESC, MachineFailureRisk[scored_at_utc], DESC), MachineFailureRisk[failure_risk_score])
+        formatString: 0.0%
+    column prediction_id
+        dataType: string
+        isHidden
+        summarizeBy: none
+        sourceColumn: prediction_id
+    column feature_id
+        dataType: string
+        isHidden
+        summarizeBy: none
+        sourceColumn: feature_id
+    column date_sk
+        dataType: int64
+        isHidden
+        summarizeBy: none
+        sourceColumn: date_sk
+    column plant_sk
+        dataType: int64
+        isHidden
+        summarizeBy: none
+        sourceColumn: plant_sk
+    column line_sk
+        dataType: int64
+        isHidden
+        summarizeBy: none
+        sourceColumn: line_sk
+    column machine_sk
+        dataType: int64
+        isHidden
+        summarizeBy: none
+        sourceColumn: machine_sk
+    column feature_time_utc
+        dataType: dateTime
+        summarizeBy: none
+        sourceColumn: feature_time_utc
+    column scored_at_utc
+        dataType: dateTime
+        summarizeBy: none
+        sourceColumn: scored_at_utc
+    column model_name
+        dataType: string
+        summarizeBy: none
+        sourceColumn: model_name
+    column model_version
+        dataType: string
+        summarizeBy: none
+        sourceColumn: model_version
+    column feature_version
+        dataType: string
+        summarizeBy: none
+        sourceColumn: feature_version
+    column prediction_horizon_minutes
+        dataType: int64
+        summarizeBy: sum
+        sourceColumn: prediction_horizon_minutes
+    column failure_risk_score
+        dataType: decimal
+        summarizeBy: average
+        sourceColumn: failure_risk_score
+    column risk_band
+        dataType: string
+        summarizeBy: none
+        sourceColumn: risk_band
+    column inference_mode
+        dataType: string
+        summarizeBy: none
+        sourceColumn: inference_mode
+    column endpoint_reference
+        dataType: string
+        isHidden
+        summarizeBy: none
+        sourceColumn: endpoint_reference
+    column source_run_id
+        dataType: string
+        isHidden
+        summarizeBy: none
+        sourceColumn: source_run_id
+    partition MachineFailureRisk = entity
+        mode: directLake
+        source
+            entityName: fact_machine_failure_prediction
+            schemaName: gold
+            expressionSource: DL_Warehouse

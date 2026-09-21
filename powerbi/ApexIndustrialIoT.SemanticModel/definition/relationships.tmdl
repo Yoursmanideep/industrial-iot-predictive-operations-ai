@@ -101,3 +101,19 @@ relationship 'OperationalEvent to Line'
 relationship 'OperationalEvent to Machine'
     fromColumn: OperationalEvent.machine_sk
     toColumn: Machine.machine_sk
+
+relationship 'MachineFailureRisk to Date'
+    fromColumn: MachineFailureRisk.date_sk
+    toColumn: Date.date_sk
+
+relationship 'MachineFailureRisk to Plant'
+    fromColumn: MachineFailureRisk.plant_sk
+    toColumn: Plant.plant_sk
+
+relationship 'MachineFailureRisk to Line'
+    fromColumn: MachineFailureRisk.line_sk
+    toColumn: Line.line_sk
+
+relationship 'MachineFailureRisk to Machine'
+    fromColumn: MachineFailureRisk.machine_sk
+    toColumn: Machine.machine_sk

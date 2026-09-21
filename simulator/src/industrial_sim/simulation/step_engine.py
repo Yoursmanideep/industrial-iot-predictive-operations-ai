@@ -83,6 +83,7 @@ class IntegratedSimulationStepEngine:
         self.production_aggregation_seconds = production_aggregation_seconds
         self._active_scenarios: dict[str, ScenarioInstance] = {}
         self._active_production_lines: dict[str, ActiveProductionLine] = {}
+        self._latest_fault_event_by_machine: dict[str, str] = {}
         self._telemetry_factory = TelemetryEventFactory()
 
     @classmethod
@@ -214,6 +215,7 @@ class IntegratedSimulationStepEngine:
                 self._execute_line(line_id, execution, elapsed, current_time)
             )
 
+        self._cleanup_terminal_scenarios()
         return SimulationTickResult(
             event_time=current_time,
             telemetry_events=tuple(telemetry_events),
@@ -254,6 +256,9 @@ class IntegratedSimulationStepEngine:
             if generated:
                 self.context.generation_sequence += len(generated) - 1
                 events.extend(generated)
+                for generated_event in generated:
+                    if getattr(generated_event, "event_type", None) == "MachineFaulted":
+                        self._latest_fault_event_by_machine[machine_id] = generated_event.event_id
 
             if progress.stage is ScenarioStage.FAILURE:
                 if machine.state is not MachineState.FAULT:
@@ -288,8 +293,6 @@ class IntegratedSimulationStepEngine:
                             current_time,
                             "SCENARIO_RECOVERY",
                         )
-            if instance.status in {ScenarioStatus.FAILED, ScenarioStatus.AVOIDED, ScenarioStatus.RESOLVED}:
-                self._active_scenarios.pop(machine_id, None)
         return events
 
     def _generate_machine_telemetry(
@@ -406,6 +409,10 @@ class IntegratedSimulationStepEngine:
                 scenario_id = scenario.scenario_id
                 scenario_instance_id = str(scenario.scenario_instance_id)
                 scenario_quality_multiplier *= scenario_progress.quality_multiplier
+                fault_event_id = (
+                    fault_event_id
+                    or self._latest_fault_event_by_machine.get(machine_id)
+                )
             product_context = self.production_context_engine.build(
                 plant_id=runtime.machine.plant_id,
                 line_id=line_id,
@@ -500,6 +507,16 @@ class IntegratedSimulationStepEngine:
             else:
                 self._active_production_lines.pop(line_id, None)
         return events
+
+    def _cleanup_terminal_scenarios(self) -> None:
+        for machine_id, instance in list(self._active_scenarios.items()):
+            if instance.status in {
+                ScenarioStatus.FAILED,
+                ScenarioStatus.AVOIDED,
+                ScenarioStatus.RESOLVED,
+            }:
+                self._active_scenarios.pop(machine_id, None)
+                self._runtime(machine_id).machine.active_scenario_instance_id = None
 
     def _instantiate_plan(self, plan: GeneratedOrderPlan):
         order, batches, events = self._production_generator().instantiate(

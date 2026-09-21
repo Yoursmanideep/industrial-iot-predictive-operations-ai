@@ -374,6 +374,8 @@ CREATE TABLE gold.fact_maintenance_event (
     line_sk BIGINT NULL,
     machine_sk BIGINT NULL,
     work_order_id VARCHAR(60) NULL,
+    technician_sk BIGINT NULL,
+    spare_part_sk BIGINT NULL,
     technician_id VARCHAR(40) NULL,
     event_type VARCHAR(100) NOT NULL,
     maintenance_type VARCHAR(30) NULL,

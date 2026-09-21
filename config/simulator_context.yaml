@@ -1,0 +1,65 @@
+version: 1.0.0
+
+context:
+  business_timezone: Asia/Kolkata
+  canonical_timezone: UTC
+
+environment:
+  ambient_temperature_c:
+    baseline_c: 28.0
+    daily_amplitude_c: 5.0
+    seasonal_amplitude_c: 3.0
+    seasonal_period_days: 365.0
+    plant_offsets_c:
+      PLT-CHN-01: 1.0
+      PLT-PUN-01: -1.5
+      PLT-CBE-01: 0.5
+    machine_local_variation_c: 0.7
+  utility:
+    nominal_power_factor: 1.0
+    normal_variation_pct: 4.0
+    interruption_probability_per_hour: 0.01
+    interruption_duration_seconds_range: [5, 60]
+
+shift:
+  schedules:
+    SH1:
+      start_local: "06:00"
+      end_local: "14:00"
+    SH2:
+      start_local: "14:00"
+      end_local: "22:00"
+    SH3:
+      start_local: "22:00"
+      end_local: "06:00"
+  workload_multiplier:
+    SH1: 0.88
+    SH2: 1.00
+    SH3: 0.72
+
+workload:
+  minimum_factor: 0.0
+  maximum_factor: 1.20
+  base_line_utilization: 0.82
+  product_mix_effect_range: [-0.12, 0.12]
+  machine_age_effect:
+    enabled: true
+    reference_age_years: 5.0
+    maximum_penalty: 0.08
+  health_effect:
+    full_health_factor: 1.0
+    minimum_health_factor: 0.40
+    maximum_penalty: 0.18
+  changeover_penalty:
+    setup_duration_minutes: 25
+    average_factor: 0.88
+  starved_penalty_factor: 0.55
+  blocked_penalty_factor: 0.45
+
+production:
+  order_window_days: 7
+  planned_quantity_range_units: [100, 2500]
+  target_orders_per_plant_per_day: [30, 60]
+  line_capacity_utilization_target: 0.82
+  product_cycle_time_floor_seconds: 1.0
+  product_cycle_time_ceiling_seconds: 600.0

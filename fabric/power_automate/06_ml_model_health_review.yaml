@@ -1,0 +1,50 @@
+version: 1.0.0
+
+flow:
+  name: IndustrialIoT_ML_Model_Health_Review
+  purpose: route model quality, drift and endpoint health breaches for human review
+
+trigger:
+  type: ActivatorCustomAction
+  source: IndustrialIoT_ML_Model_Health_Review
+
+steps:
+  - name: Deduplicate
+    action: lookup
+    key: review_key
+    datastore: Dataverse
+    duplicate_action: terminate_successfully
+
+  - name: CreateGovernanceReview
+    action: create_row
+    entity: MLModelHealthReview
+    fields:
+      review_key: dynamic.model_name + "|" + dynamic.model_version + "|" + dynamic.metric_name + "|" + dynamic.monitor_window_end_utc
+      model_name: dynamic.model_name
+      model_version: dynamic.model_version
+      issue_type: dynamic.issue_type
+      metric_name: dynamic.metric_name
+      metric_value: dynamic.metric_value
+      threshold_value: dynamic.threshold_value
+      status: OPEN
+      created_at_utc: dynamic.event_time_utc
+
+  - name: NotifyDataScience
+    action: send_teams_message
+    destination: Data Science / Reliability Engineering
+    message: ML model health review required.
+
+  - name: NotifyOperations
+    action: send_teams_message
+    destination: Plant Operations
+    message: Predictive-maintenance model governance review has been raised.
+
+reliability:
+  retries: 3
+  retry_backoff_seconds: 30
+  human_review_required: true
+  automatic_retraining: false
+  automatic_model_promotion: false
+
+security:
+  credentials_in_git: false

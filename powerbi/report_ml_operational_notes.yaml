@@ -1,0 +1,24 @@
+version: 1.0.0
+
+predictive_maintenance:
+  decision_support_only: true
+  critical_risk_action: maintenance_review
+  high_risk_action: maintenance_review
+  model_health_action: governance_review
+  automatic_machine_stop: false
+  automatic_model_promotion: false
+
+visual_semantics:
+  failure_risk_score:
+    display_as: percentage
+  risk_band:
+    order: [LOW, MEDIUM, HIGH, CRITICAL]
+  model_health:
+    breach_status: BREACH
+  feature_drift:
+    critical_status: CRITICAL
+    warning_status: WARN
+
+security:
+  plant_scoped_prediction_data: true
+  global_model_governance_metrics: true

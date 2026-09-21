@@ -1,0 +1,226 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Industrial IoT Eventstream Unified Event",
+  "type": "object",
+  "additionalProperties": true,
+  "required": [
+    "event_id",
+    "event_type",
+    "schema_version",
+    "event_time",
+    "ingestion_time",
+    "source_system",
+    "plant_id",
+    "line_id",
+    "machine_id",
+    "machine_type",
+    "operating_state",
+    "simulator_run_id",
+    "generation_sequence"
+  ],
+  "properties": {
+    "event_id": {
+      "type": "string"
+    },
+    "event_type": {
+      "type": "string"
+    },
+    "schema_version": {
+      "type": "string"
+    },
+    "event_time": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "ingestion_time": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "source_system": {
+      "type": "string",
+      "const": "simulator"
+    },
+    "plant_id": {
+      "type": "string"
+    },
+    "line_id": {
+      "type": "string"
+    },
+    "machine_id": {
+      "type": "string"
+    },
+    "machine_type": {
+      "type": "string"
+    },
+    "operating_state": {
+      "type": "string"
+    },
+    "correlation_id": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "causation_id": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "alarm_code": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "severity": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "fault_code": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "failure_mode_code": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "temperature_c": {
+      "type": [
+        "number",
+        "null"
+      ]
+    },
+    "vibration_mm_s": {
+      "type": [
+        "number",
+        "null"
+      ]
+    },
+    "pressure_bar": {
+      "type": [
+        "number",
+        "null"
+      ]
+    },
+    "power_kw": {
+      "type": [
+        "number",
+        "null"
+      ]
+    },
+    "spindle_rpm": {
+      "type": [
+        "number",
+        "null"
+      ]
+    },
+    "production_rate_unit_min": {
+      "type": [
+        "number",
+        "null"
+      ]
+    },
+    "throughput_unit_min": {
+      "type": [
+        "number",
+        "null"
+      ]
+    },
+    "quality_score_pct": {
+      "type": [
+        "number",
+        "null"
+      ]
+    },
+    "actual_quantity": {
+      "type": [
+        "number",
+        "null"
+      ]
+    },
+    "good_quantity": {
+      "type": [
+        "number",
+        "null"
+      ]
+    },
+    "rejected_quantity": {
+      "type": [
+        "number",
+        "null"
+      ]
+    },
+    "loss_quantity": {
+      "type": [
+        "number",
+        "null"
+      ]
+    },
+    "loss_category": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "loss_reason_code": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "production_order_id": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "batch_id": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "product_id": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "scenario_id": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "scenario_instance_id": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "generated_at_utc": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "deterministic_seed": {
+      "type": "integer"
+    },
+    "generator_version": {
+      "type": "string"
+    },
+    "configuration_version": {
+      "type": "string"
+    },
+    "generation_sequence": {
+      "type": "integer",
+      "minimum": 1
+    }
+  }
+}

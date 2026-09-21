@@ -12,7 +12,7 @@ from industrial_sim.context.production_context import ProductionContextEngine
 from industrial_sim.context.shift import ShiftResolver
 from industrial_sim.context.workload import WorkloadInputs, WorkloadModel
 from industrial_sim.domain.machine import MachineState
-from industrial_sim.domain.scenario import ScenarioInstance
+from industrial_sim.domain.scenario import ScenarioInstance, ScenarioStage, ScenarioStatus
 from industrial_sim.engine.context import SimulationContext
 from industrial_sim.events.operational import OperationalEventFactory
 from industrial_sim.machines.base import MachineBehaviorContext
@@ -145,6 +145,7 @@ class IntegratedSimulationStepEngine:
         self,
         plan: GeneratedOrderPlan,
     ) -> tuple[ProductionEvent, ...]:
+        self.context.current_time = plan.planned_start_time.astimezone(timezone.utc)
         order, batches, created = self._instantiate_plan(plan)
         events: list[ProductionEvent] = list(created)
         events.append(self.production_engine.release_order(self.context, order))

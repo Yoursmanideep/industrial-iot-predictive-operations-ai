@@ -29,7 +29,7 @@ benchmark = spark.createDataFrame(rows)
 
 evaluation = (
     benchmark
-    .withColumn("retrieved_documents", F.array())
+    .withColumn("retrieved_documents", F.lit(None).cast("array<string>"))
     .withColumn("retrieval_score", F.lit(None).cast("double"))
     .withColumn("citation_document_match", F.lit(None).cast("boolean"))
     .withColumn("citation_chunk_match", F.lit(None).cast("boolean"))

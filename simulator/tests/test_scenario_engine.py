@@ -7,6 +7,7 @@ from industrial_sim.scenarios.catalog import load_scenario_catalog
 from industrial_sim.scenarios.deterministic import deterministic_scenario_instance_id
 from industrial_sim.scenarios.engine import ScenarioEngine
 
+
 CONFIG_DIR = Path(__file__).resolve().parents[2] / "config"
 RUN_ID = UUID("12345678-1234-5678-1234-567812345678")
 START = datetime(2026, 9, 21, 6, 0, tzinfo=timezone.utc)
@@ -37,6 +38,28 @@ def test_duration_is_deterministic_and_within_catalog_bounds() -> None:
     duration_minutes = (first.planned_end_at - START).total_seconds() / 60
     assert first.scenario_instance_id == second.scenario_instance_id
     assert definition.progression_min_minutes <= duration_minutes <= definition.progression_max_minutes
+
+
+def test_catalog_scenarios_are_mapped_to_known_machine_types() -> None:
+    catalog = load_scenario_catalog(CONFIG_DIR / "scenario_catalog.yaml")
+    assert {d.machine_type_code for d in catalog.definitions.values()} == {
+        "CNC", "HPR", "ROB", "CON", "CMP", "FRN", "INS", "PKG", "PAL"
+    }
+    assert all(definition.affected_signals for definition in catalog.definitions.values())
+
+
+def test_only_one_primary_scenario_can_be_active_per_machine() -> None:
+    scenario_engine = engine()
+    scenario_engine.create_instance(RUN_ID, "CHN-L01-CNC01", "SCN-CNC-BRG", START, 1)
+    with pytest.raises(ValueError):
+        scenario_engine.create_instance(RUN_ID, "CHN-L01-CNC01", "SCN-CNC-OVH", START, 2)
+
+
+def test_progression_rejects_time_before_scenario_start() -> None:
+    scenario_engine = engine()
+    instance = scenario_engine.create_instance(RUN_ID, "CHN-L01-CNC01", "SCN-CNC-BRG", START, 1)
+    with pytest.raises(ValueError):
+        scenario_engine.advance(instance, START - timedelta(seconds=1))
 
 
 def test_progression_reaches_expected_stages() -> None:

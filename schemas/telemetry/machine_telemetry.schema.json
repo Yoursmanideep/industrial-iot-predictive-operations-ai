@@ -1,0 +1,852 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/Yoursmanideep/industrial-iot-predictive-operations-ai/blob/main/schemas/telemetry/machine_telemetry.schema.json",
+  "title": "Machine Telemetry Event",
+  "description": "Canonical streaming telemetry contract for the Industrial IoT Predictive Operations & AI Intelligence Platform.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "event_id",
+    "event_type",
+    "schema_version",
+    "event_time",
+    "ingestion_time",
+    "source_system",
+    "plant_id",
+    "line_id",
+    "machine_id",
+    "machine_type",
+    "operating_state"
+  ],
+  "properties": {
+    "event_id": {
+      "type": "string",
+      "pattern": "^EVT-[0-9a-fA-F-]{36}$",
+      "description": "Globally unique immutable event identifier."
+    },
+    "event_type": {
+      "const": "MachineTelemetry"
+    },
+    "schema_version": {
+      "type": "string",
+      "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$",
+      "description": "Semantic version of this telemetry contract."
+    },
+    "event_time": {
+      "type": "string",
+      "format": "date-time",
+      "description": "UTC time when the physical measurement occurred."
+    },
+    "ingestion_time": {
+      "type": "string",
+      "format": "date-time",
+      "description": "UTC time when the platform received the event."
+    },
+    "source_system": {
+      "type": "string",
+      "minLength": 1,
+      "description": "System that produced the event."
+    },
+    "correlation_id": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "minLength": 1
+    },
+    "causation_id": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "minLength": 1
+    },
+    "plant_id": {
+      "type": "string",
+      "pattern": "^PLT-[A-Z]{3}-[0-9]{2}$"
+    },
+    "line_id": {
+      "type": "string",
+      "pattern": "^[A-Z]{3}-L[0-9]{2}$"
+    },
+    "machine_id": {
+      "type": "string",
+      "pattern": "^[A-Z]{3}-L[0-9]{2}-[A-Z]{3}[0-9]{2}$"
+    },
+    "machine_type": {
+      "type": "string",
+      "enum": [
+        "CNC",
+        "HYDRAULIC_PRESS",
+        "INDUSTRIAL_ROBOT",
+        "CONVEYOR",
+        "COMPRESSOR",
+        "FURNACE",
+        "INSPECTION",
+        "PACKAGING",
+        "PALLETIZER"
+      ]
+    },
+    "operating_state": {
+      "type": "string",
+      "enum": [
+        "RUNNING",
+        "IDLE",
+        "SETUP",
+        "STARVED",
+        "BLOCKED",
+        "FAULT",
+        "MAINTENANCE",
+        "OFFLINE",
+        "RECOVERY"
+      ]
+    },
+    "temperature_c": {
+      "type": [
+        "number",
+        "null"
+      ],
+      "minimum": -40,
+      "maximum": 250,
+      "description": "Machine/equipment temperature in degrees Celsius.",
+      "x-unit": "degC",
+      "x-normal-range": [
+        10,
+        70
+      ],
+      "x-warning-range": [
+        70,
+        90
+      ],
+      "x-critical-range": [
+        90,
+        120
+      ],
+      "x-invalid-range": "< -40 or > 250"
+    },
+    "vibration_mm_s": {
+      "type": [
+        "number",
+        "null"
+      ],
+      "minimum": 0,
+      "maximum": 100,
+      "description": "Vibration velocity in mm/s RMS.",
+      "x-unit": "mm_s",
+      "x-normal-range": [
+        0,
+        4.5
+      ],
+      "x-warning-range": [
+        4.5,
+        7
+      ],
+      "x-critical-range": [
+        7,
+        15
+      ],
+      "x-invalid-range": "< 0 or > 100"
+    },
+    "pressure_bar": {
+      "type": [
+        "number",
+        "null"
+      ],
+      "minimum": 0,
+      "maximum": 500,
+      "description": "General machine/process pressure in bar.",
+      "x-unit": "bar",
+      "x-normal-range": [
+        60,
+        140
+      ],
+      "x-warning-range": [
+        40,
+        60
+      ],
+      "x-critical-range": [
+        0,
+        40
+      ],
+      "x-invalid-range": "< 0 or > 500"
+    },
+    "spindle_rpm": {
+      "type": [
+        "number",
+        "null"
+      ],
+      "minimum": 0,
+      "maximum": 30000,
+      "description": "CNC spindle rotational speed.",
+      "x-unit": "rpm",
+      "x-normal-range": [
+        500,
+        12000
+      ],
+      "x-warning-range": [
+        12000,
+        18000
+      ],
+      "x-critical-range": [
+        18000,
+        30000
+      ],
+      "x-invalid-range": "< 0 or > 30000"
+    },
+    "power_kw": {
+      "type": [
+        "number",
+        "null"
+      ],
+      "minimum": 0,
+      "maximum": 1000,
+      "description": "Electrical power consumption.",
+      "x-unit": "kW",
+      "x-normal-range": [
+        0,
+        60
+      ],
+      "x-warning-range": [
+        60,
+        100
+      ],
+      "x-critical-range": [
+        100,
+        250
+      ],
+      "x-invalid-range": "< 0 or > 1000"
+    },
+    "production_rate_unit_min": {
+      "type": [
+        "number",
+        "null"
+      ],
+      "minimum": 0,
+      "maximum": 1000,
+      "description": "Production rate in units per minute.",
+      "x-unit": "unit_min",
+      "x-normal-range": [
+        0,
+        100
+      ],
+      "x-warning-range": [
+        100,
+        160
+      ],
+      "x-critical-range": [
+        160,
+        300
+      ],
+      "x-invalid-range": "< 0 or > 1000"
+    },
+    "quality_score_pct": {
+      "type": [
+        "number",
+        "null"
+      ],
+      "minimum": 0,
+      "maximum": 100,
+      "description": "Quality score percentage.",
+      "x-unit": "percent",
+      "x-normal-range": [
+        95,
+        100
+      ],
+      "x-warning-range": [
+        90,
+        95
+      ],
+      "x-critical-range": [
+        0,
+        90
+      ],
+      "x-invalid-range": "< 0 or > 100"
+    },
+    "feed_rate_mm_min": {
+      "type": [
+        "number",
+        "null"
+      ],
+      "minimum": 0,
+      "maximum": 10000,
+      "description": "CNC feed rate in mm/min.",
+      "x-unit": "mm_min",
+      "x-normal-range": [
+        100,
+        2500
+      ],
+      "x-warning-range": [
+        2500,
+        4000
+      ],
+      "x-critical-range": [
+        4000,
+        7000
+      ],
+      "x-invalid-range": "< 0 or > 10000"
+    },
+    "hydraulic_pressure_bar": {
+      "type": [
+        "number",
+        "null"
+      ],
+      "minimum": 0,
+      "maximum": 500,
+      "description": "Hydraulic circuit pressure in bar.",
+      "x-unit": "bar",
+      "x-normal-range": [
+        120,
+        180
+      ],
+      "x-warning-range": [
+        90,
+        120
+      ],
+      "x-critical-range": [
+        0,
+        90
+      ],
+      "x-invalid-range": "< 0 or > 500"
+    },
+    "force_kn": {
+      "type": [
+        "number",
+        "null"
+      ],
+      "minimum": 0,
+      "maximum": 5000,
+      "description": "Press force in kilonewtons.",
+      "x-unit": "kN",
+      "x-normal-range": [
+        100,
+        1000
+      ],
+      "x-warning-range": [
+        1000,
+        1500
+      ],
+      "x-critical-range": [
+        1500,
+        3000
+      ],
+      "x-invalid-range": "< 0 or > 5000"
+    },
+    "cycle_time_s": {
+      "type": [
+        "number",
+        "null"
+      ],
+      "minimum": 0,
+      "maximum": 3600,
+      "description": "Machine cycle time in seconds.",
+      "x-unit": "s",
+      "x-normal-range": [
+        1,
+        60
+      ],
+      "x-warning-range": [
+        60,
+        120
+      ],
+      "x-critical-range": [
+        120,
+        600
+      ],
+      "x-invalid-range": "< 0 or > 3600"
+    },
+    "motor_temperature_c": {
+      "type": [
+        "number",
+        "null"
+      ],
+      "minimum": -40,
+      "maximum": 250,
+      "description": "Motor temperature in degrees Celsius.",
+      "x-unit": "degC",
+      "x-normal-range": [
+        25,
+        70
+      ],
+      "x-warning-range": [
+        70,
+        90
+      ],
+      "x-critical-range": [
+        90,
+        120
+      ],
+      "x-invalid-range": "< -40 or > 250"
+    },
+    "torque_nm": {
+      "type": [
+        "number",
+        "null"
+      ],
+      "minimum": 0,
+      "maximum": 5000,
+      "description": "Motor/joint torque in N·m.",
+      "x-unit": "N_m",
+      "x-normal-range": [
+        0,
+        350
+      ],
+      "x-warning-range": [
+        350,
+        500
+      ],
+      "x-critical-range": [
+        500,
+        1000
+      ],
+      "x-invalid-range": "< 0 or > 5000"
+    },
+    "position_error_mm": {
+      "type": [
+        "number",
+        "null"
+      ],
+      "minimum": 0,
+      "maximum": 100,
+      "description": "Robot positioning error in millimetres.",
+      "x-unit": "mm",
+      "x-normal-range": [
+        0,
+        0.5
+      ],
+      "x-warning-range": [
+        0.5,
+        1
+      ],
+      "x-critical-range": [
+        1,
+        5
+      ],
+      "x-invalid-range": "< 0 or > 100"
+    },
+    "motor_current_a": {
+      "type": [
+        "number",
+        "null"
+      ],
+      "minimum": 0,
+      "maximum": 1000,
+      "description": "Motor current in amperes.",
+      "x-unit": "A",
+      "x-normal-range": [
+        0,
+        80
+      ],
+      "x-warning-range": [
+        80,
+        120
+      ],
+      "x-critical-range": [
+        120,
+        250
+      ],
+      "x-invalid-range": "< 0 or > 1000"
+    },
+    "belt_speed_m_s": {
+      "type": [
+        "number",
+        "null"
+      ],
+      "minimum": 0,
+      "maximum": 20,
+      "description": "Conveyor belt speed in metres per second.",
+      "x-unit": "m_s",
+      "x-normal-range": [
+        0.2,
+        2.5
+      ],
+      "x-warning-range": [
+        2.5,
+        4
+      ],
+      "x-critical-range": [
+        4,
+        8
+      ],
+      "x-invalid-range": "< 0 or > 20"
+    },
+    "discharge_pressure_bar": {
+      "type": [
+        "number",
+        "null"
+      ],
+      "minimum": 0,
+      "maximum": 500,
+      "description": "Compressor discharge pressure in bar.",
+      "x-unit": "bar",
+      "x-normal-range": [
+        6,
+        12
+      ],
+      "x-warning-range": [
+        4,
+        6
+      ],
+      "x-critical-range": [
+        0,
+        4
+      ],
+      "x-invalid-range": "< 0 or > 500"
+    },
+    "rpm": {
+      "type": [
+        "number",
+        "null"
+      ],
+      "minimum": 0,
+      "maximum": 30000,
+      "description": "General machine rotational speed.",
+      "x-unit": "rpm",
+      "x-normal-range": [
+        500,
+        6000
+      ],
+      "x-warning-range": [
+        6000,
+        9000
+      ],
+      "x-critical-range": [
+        9000,
+        15000
+      ],
+      "x-invalid-range": "< 0 or > 30000"
+    },
+    "chamber_temperature_c": {
+      "type": [
+        "number",
+        "null"
+      ],
+      "minimum": 0,
+      "maximum": 2500,
+      "description": "Furnace chamber temperature.",
+      "x-unit": "degC",
+      "x-normal-range": [
+        700,
+        1100
+      ],
+      "x-warning-range": [
+        1100,
+        1250
+      ],
+      "x-critical-range": [
+        1250,
+        1500
+      ],
+      "x-invalid-range": "< 0 or > 2500"
+    },
+    "fuel_flow_rate": {
+      "type": [
+        "number",
+        "null"
+      ],
+      "minimum": 0,
+      "maximum": 1000,
+      "description": "Furnace fuel flow rate.",
+      "x-unit": "unit_min",
+      "x-normal-range": [
+        10,
+        80
+      ],
+      "x-warning-range": [
+        80,
+        120
+      ],
+      "x-critical-range": [
+        120,
+        250
+      ],
+      "x-invalid-range": "< 0 or > 1000"
+    },
+    "pressure_mbar": {
+      "type": [
+        "number",
+        "null"
+      ],
+      "minimum": 0,
+      "maximum": 5000,
+      "description": "Furnace process pressure in mbar.",
+      "x-unit": "mbar",
+      "x-normal-range": [
+        900,
+        1100
+      ],
+      "x-warning-range": [
+        850,
+        900
+      ],
+      "x-critical-range": [
+        0,
+        850
+      ],
+      "x-invalid-range": "< 0 or > 5000"
+    },
+    "inspection_cycle_time_s": {
+      "type": [
+        "number",
+        "null"
+      ],
+      "minimum": 0,
+      "maximum": 3600,
+      "description": "Inspection equipment cycle time.",
+      "x-unit": "s",
+      "x-normal-range": [
+        1,
+        30
+      ],
+      "x-warning-range": [
+        30,
+        60
+      ],
+      "x-critical-range": [
+        60,
+        300
+      ],
+      "x-invalid-range": "< 0 or > 3600"
+    },
+    "measurement_deviation_mm": {
+      "type": [
+        "number",
+        "null"
+      ],
+      "minimum": 0,
+      "maximum": 100,
+      "description": "Measured deviation from target dimension.",
+      "x-unit": "mm",
+      "x-normal-range": [
+        0,
+        0.1
+      ],
+      "x-warning-range": [
+        0.1,
+        0.25
+      ],
+      "x-critical-range": [
+        0.25,
+        1
+      ],
+      "x-invalid-range": "< 0 or > 100"
+    },
+    "defect_probability_pct": {
+      "type": [
+        "number",
+        "null"
+      ],
+      "minimum": 0,
+      "maximum": 100,
+      "description": "Modelled probability of a defect in percent.",
+      "x-unit": "percent",
+      "x-normal-range": [
+        0,
+        5
+      ],
+      "x-warning-range": [
+        5,
+        15
+      ],
+      "x-critical-range": [
+        15,
+        80
+      ],
+      "x-invalid-range": "< 0 or > 100"
+    },
+    "equipment_temperature_c": {
+      "type": [
+        "number",
+        "null"
+      ],
+      "minimum": -40,
+      "maximum": 250,
+      "description": "Inspection equipment temperature.",
+      "x-unit": "degC",
+      "x-normal-range": [
+        15,
+        45
+      ],
+      "x-warning-range": [
+        45,
+        60
+      ],
+      "x-critical-range": [
+        60,
+        90
+      ],
+      "x-invalid-range": "< -40 or > 250"
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "machine_type": {
+            "const": "CNC"
+          }
+        }
+      },
+      "then": {
+        "required": [
+          "spindle_rpm",
+          "vibration_mm_s",
+          "temperature_c",
+          "pressure_bar",
+          "power_kw",
+          "feed_rate_mm_min",
+          "production_rate_unit_min",
+          "quality_score_pct"
+        ]
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "machine_type": {
+            "const": "HYDRAULIC_PRESS"
+          }
+        }
+      },
+      "then": {
+        "required": [
+          "hydraulic_pressure_bar",
+          "temperature_c",
+          "force_kn",
+          "cycle_time_s",
+          "power_kw",
+          "production_rate_unit_min",
+          "quality_score_pct"
+        ]
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "machine_type": {
+            "const": "INDUSTRIAL_ROBOT"
+          }
+        }
+      },
+      "then": {
+        "required": [
+          "motor_temperature_c",
+          "torque_nm",
+          "vibration_mm_s",
+          "position_error_mm",
+          "cycle_time_s",
+          "power_kw",
+          "production_rate_unit_min"
+        ]
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "machine_type": {
+            "const": "CONVEYOR"
+          }
+        }
+      },
+      "then": {
+        "required": [
+          "motor_current_a",
+          "belt_speed_m_s",
+          "vibration_mm_s",
+          "temperature_c",
+          "power_kw",
+          "production_rate_unit_min"
+        ]
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "machine_type": {
+            "const": "COMPRESSOR"
+          }
+        }
+      },
+      "then": {
+        "required": [
+          "discharge_pressure_bar",
+          "temperature_c",
+          "vibration_mm_s",
+          "rpm",
+          "power_kw"
+        ]
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "machine_type": {
+            "const": "FURNACE"
+          }
+        }
+      },
+      "then": {
+        "required": [
+          "chamber_temperature_c",
+          "fuel_flow_rate",
+          "pressure_mbar",
+          "power_kw",
+          "cycle_time_s",
+          "quality_score_pct"
+        ]
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "machine_type": {
+            "const": "INSPECTION"
+          }
+        }
+      },
+      "then": {
+        "required": [
+          "inspection_cycle_time_s",
+          "measurement_deviation_mm",
+          "defect_probability_pct",
+          "equipment_temperature_c"
+        ]
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "machine_type": {
+            "const": "PACKAGING"
+          }
+        }
+      },
+      "then": {
+        "required": [
+          "cycle_time_s",
+          "production_rate_unit_min",
+          "motor_current_a",
+          "temperature_c",
+          "power_kw"
+        ]
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "machine_type": {
+            "const": "PALLETIZER"
+          }
+        }
+      },
+      "then": {
+        "required": [
+          "cycle_time_s",
+          "motor_temperature_c",
+          "torque_nm",
+          "vibration_mm_s",
+          "power_kw"
+        ]
+      }
+    }
+  ]
+}

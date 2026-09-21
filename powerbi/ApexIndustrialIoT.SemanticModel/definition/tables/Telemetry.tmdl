@@ -1,0 +1,81 @@
+table Telemetry
+    measure 'Telemetry Event Count' = COUNTROWS(Telemetry)
+        formatString: #,##0
+    measure 'Average Vibration mm/s' = AVERAGE(Telemetry[vibration_mm_s])
+        formatString: 0.00
+    measure 'Average Temperature C' = AVERAGE(Telemetry[temperature_c])
+        formatString: 0.0
+    measure 'Average Power kW' = AVERAGE(Telemetry[power_kw])
+        formatString: 0.0
+    column event_id
+        dataType: string
+        isHidden
+        summarizeBy: none
+        sourceColumn: event_id
+    column date_sk
+        dataType: int64
+        isHidden
+        summarizeBy: none
+        sourceColumn: date_sk
+    column shift_sk
+        dataType: int64
+        isHidden
+        summarizeBy: none
+        sourceColumn: shift_sk
+    column plant_sk
+        dataType: int64
+        isHidden
+        summarizeBy: none
+        sourceColumn: plant_sk
+    column line_sk
+        dataType: int64
+        isHidden
+        summarizeBy: none
+        sourceColumn: line_sk
+    column machine_sk
+        dataType: int64
+        isHidden
+        summarizeBy: none
+        sourceColumn: machine_sk
+    column event_time_utc
+        dataType: dateTime
+        summarizeBy: none
+        sourceColumn: event_time_utc
+    column operating_state
+        dataType: string
+        summarizeBy: none
+        sourceColumn: operating_state
+    column temperature_c
+        dataType: decimal
+        summarizeBy: average
+        sourceColumn: temperature_c
+    column vibration_mm_s
+        dataType: decimal
+        summarizeBy: average
+        sourceColumn: vibration_mm_s
+    column power_kw
+        dataType: decimal
+        summarizeBy: average
+        sourceColumn: power_kw
+    column production_rate_unit_min
+        dataType: decimal
+        summarizeBy: average
+        sourceColumn: production_rate_unit_min
+    column quality_score_pct
+        dataType: decimal
+        summarizeBy: average
+        sourceColumn: quality_score_pct
+    column scenario_id
+        dataType: string
+        summarizeBy: none
+        sourceColumn: scenario_id
+    column scenario_instance_id
+        dataType: string
+        summarizeBy: none
+        sourceColumn: scenario_instance_id
+    partition Telemetry = entity
+        mode: directLake
+        source
+            entityName: fact_machine_telemetry
+            schemaName: gold
+            expressionSource: DL_Warehouse

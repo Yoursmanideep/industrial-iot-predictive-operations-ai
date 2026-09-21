@@ -9,6 +9,7 @@ from uuid import UUID
 from industrial_sim.engine.context import SimulationContext
 from industrial_sim.production.catalog import ProductionCatalog
 from industrial_sim.production.engine import ProductionExecutionEngine
+from industrial_sim.production.identity import deterministic_production_order_id
 
 
 @dataclass(frozen=True)
@@ -21,6 +22,7 @@ class GeneratedOrderPlan:
     planned_start_time: datetime
     planned_end_time: datetime
     batch_count: int
+    production_sequence: int
 
 
 class EnterpriseProductionGenerator:
@@ -96,19 +98,17 @@ class EnterpriseProductionGenerator:
                 )
                 end = start + timedelta(seconds=duration_seconds)
 
-                order, _ = self.execution_engine.create_order(
-                    context=context,
-                    plant_id=plant_id,
-                    line_id=line_id,
-                    product_id=product_id,
-                    planned_quantity=quantity,
-                    planned_start_time=start,
-                    production_sequence=sequence,
+                order_id = deterministic_production_order_id(
+                    context.simulator_run_id,
+                    plant_id,
+                    line_id,
+                    start,
+                    sequence,
                 )
                 next_available[line_id] = end + timedelta(minutes=rng.randint(5, 20))
                 plans.append(
                     GeneratedOrderPlan(
-                        production_order_id=order.production_order_id,
+                        production_order_id=order_id,
                         plant_id=plant_id,
                         line_id=line_id,
                         product_id=product_id,
@@ -116,6 +116,7 @@ class EnterpriseProductionGenerator:
                         planned_start_time=start,
                         planned_end_time=end,
                         batch_count=batch_count,
+                    production_sequence=sequence,
                     )
                 )
         return tuple(plans)
@@ -132,7 +133,7 @@ class EnterpriseProductionGenerator:
             product_id=plan.product_id,
             planned_quantity=plan.planned_quantity,
             planned_start_time=plan.planned_start_time,
-            production_sequence=1,
+            production_sequence=plan.production_sequence,
         )
         batches = self.execution_engine.create_batches(
             context=context,

@@ -1,0 +1,64 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Fabric Ingestion Checkpoint",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "idempotency_key",
+    "ingestion_batch_id",
+    "simulator_run_id",
+    "status",
+    "accepted_event_count",
+    "updated_at_utc"
+  ],
+  "properties": {
+    "idempotency_key": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "ingestion_batch_id": {
+      "type": "string",
+      "pattern": "^IBT-[0-9a-fA-F]{64}$"
+    },
+    "simulator_run_id": {
+      "type": "string",
+      "pattern": "^RUN-[0-9a-fA-F-]{36}$"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "PLANNED",
+        "LOADING",
+        "COMPLETED",
+        "FAILED",
+        "QUARANTINED",
+        "SKIPPED_DUPLICATE"
+      ]
+    },
+    "accepted_event_count": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "rejected_event_count": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "source_file_sha256": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "updated_at_utc": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "error_code": {
+      "type": [
+        "string",
+        "null"
+      ]
+    }
+  }
+}

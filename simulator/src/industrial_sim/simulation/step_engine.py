@@ -100,6 +100,8 @@ class IntegratedSimulationStepEngine:
         machines: dict[str, MachineRuntime],
         production_engine: ProductionExecutionEngine,
         repository_root: str | Path,
+        baseline_telemetry_interval_seconds: int | None = None,
+        incident_telemetry_interval_seconds: int | None = None,
     ) -> "IntegratedSimulationStepEngine":
         root = Path(repository_root)
         context_config = yaml.safe_load(
@@ -147,11 +149,15 @@ class IntegratedSimulationStepEngine:
             telemetry_engine=telemetry_engine,
             operational_event_engine=operational_event_engine,
             production_aggregation_seconds=aggregation,
-            baseline_telemetry_interval_seconds=int(
-                generation_config["time"]["telemetry"]["baseline_interval_seconds"]
+            baseline_telemetry_interval_seconds=(
+                int(generation_config["time"]["telemetry"]["baseline_interval_seconds"])
+                if baseline_telemetry_interval_seconds is None
+                else baseline_telemetry_interval_seconds
             ),
-            incident_telemetry_interval_seconds=int(
-                generation_config["time"]["telemetry"]["incident_interval_seconds"]
+            incident_telemetry_interval_seconds=(
+                int(generation_config["time"]["telemetry"]["incident_interval_seconds"])
+                if incident_telemetry_interval_seconds is None
+                else incident_telemetry_interval_seconds
             ),
         )
 

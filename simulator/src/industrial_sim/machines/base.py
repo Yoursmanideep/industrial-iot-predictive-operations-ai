@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from datetime import datetime
 from typing import Protocol
 
 from industrial_sim.domain.machine import Machine, MachineState
@@ -14,6 +15,7 @@ class MachineBehaviorContext:
     health_factor: float
     scenario_stage: str | None = None
     scenario_severity: float = 0.0
+    event_time: datetime | None = None
 
 
 @dataclass(frozen=True)

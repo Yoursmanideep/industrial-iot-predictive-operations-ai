@@ -207,11 +207,10 @@ class EnterpriseSimulationRunner:
                     "event_count": stream_manifest["validation"]["total_count"],
                     "valid_event_count": stream_manifest["validation"]["valid_count"],
                     "quarantined_event_count": stream_manifest["validation"]["quarantined_count"],
-                    "event_manifest": str(manifest_path),
-                    "validation_manifest": str(manifest_path).replace(
-                        "run_event_manifest.json",
-                        "validation_manifest.json",
+                    "event_manifest": str(
+                        Path(manifest_path).with_name("run_event_manifest.json")
                     ),
+                    "validation_manifest": str(manifest_path),
                 },
                 indent=2,
                 sort_keys=True,

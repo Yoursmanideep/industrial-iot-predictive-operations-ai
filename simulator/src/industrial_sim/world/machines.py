@@ -54,7 +54,7 @@ class MachineWorldLoader:
                 machine = Machine(
                     identity=identity,
                     state=initial_state,
-                    state_since=datetime(2026, 1, 1, tzinfo=timezone.utc),
+                    state_since=None,
                 )
                 runtimes[machine_id] = MachineRuntime(
                     machine=machine,

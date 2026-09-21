@@ -1,0 +1,42 @@
+version: 1.0.0
+
+pipeline:
+  name: IndustrialIoT_ValidatedToBronze
+  purpose: replay_safe_bronze_ingestion
+
+parameters:
+  source_partition_path: required
+  ingestion_batch_id: required
+  source_file_sha256: required
+  simulator_run_id: required
+  event_type: required
+  event_date: required
+  plant_id: required
+
+activities:
+  - name: ValidateBatchMetadata
+    action: verify_manifest_and_source_hash
+  - name: BronzeRawLanding
+    action: copy_to_onelake_files
+    destination_root: Files/bronze
+  - name: BronzeDeltaUpsert
+    action: run_fabric_spark_notebook
+    notebook: fabric/notebooks/01_bronze_ingestion.py
+  - name: CheckpointCommit
+    action: update_control_ingestion_batch_checkpoint
+    success_state: COMPLETED
+
+failure_handling:
+  source_hash_mismatch: quarantine
+  event_id_payload_conflict: quarantine
+  notebook_failure: retry_then_failed
+  checkpoint_must_not_be_completed_before_bronze_delta_commit: true
+
+eventhouse:
+  telemetry_destination: MachineTelemetry
+  operational_destination: MachineOperationalEvent
+  production_destination: ProductionEvent
+
+secrets:
+  storage: environment_or_managed_identity
+  git_storage_allowed: false

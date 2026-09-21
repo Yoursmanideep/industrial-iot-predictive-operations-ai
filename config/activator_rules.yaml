@@ -1,0 +1,110 @@
+version: 1.0.0
+
+activator:
+  name: IndustrialIoT_Operational_Activator
+  source: Eventstream:IndustrialIoT_Eventstream
+  object_type: IndustrialMachine
+  object_key: machine_id
+  event_identity: event_id
+
+rules:
+  - id: ACT-MACHINE-FAULT
+    name: Machine Fault Critical
+    rule_type: event
+    condition:
+      event_type: MachineFaulted
+    severity: CRITICAL
+    action:
+      type: custom_action
+      custom_action: IndustrialIoT_Critical_Incident_Response
+    cooldown_minutes: 10
+
+  - id: ACT-CRITICAL-ALARM
+    name: Critical Alarm
+    rule_type: event
+    condition:
+      event_type: AlarmRaised
+      severity: CRITICAL
+    action:
+      type: custom_action
+      custom_action: IndustrialIoT_Critical_Incident_Response
+    cooldown_minutes: 10
+
+  - id: ACT-COMMS-LOSS
+    name: Communication Loss
+    rule_type: event
+    condition:
+      event_type: CommunicationLost
+    action:
+      type: custom_action
+      custom_action: IndustrialIoT_Communication_Incident_Response
+    cooldown_minutes: 15
+
+  - id: ACT-TEMP-CRITICAL
+    name: Critical Temperature
+    rule_type: event
+    condition:
+      event_type: MachineTelemetry
+      temperature_c_gte: 90.0
+    action:
+      type: custom_action
+      custom_action: IndustrialIoT_Critical_Incident_Response
+    cooldown_minutes: 10
+
+  - id: ACT-VIBRATION-CRITICAL
+    name: Critical Vibration
+    rule_type: event
+    condition:
+      event_type: MachineTelemetry
+      vibration_mm_s_gte: 8.0
+    action:
+      type: custom_action
+      custom_action: IndustrialIoT_Critical_Incident_Response
+    cooldown_minutes: 10
+
+  - id: ACT-PRODUCTION-LOSS
+    name: Material Production Loss
+    rule_type: event
+    condition:
+      event_type: ProductionLossRecorded
+      loss_quantity_gt: 0
+    action:
+      type: custom_action
+      custom_action: IndustrialIoT_Production_Loss_Response
+    cooldown_minutes: 5
+
+resolution:
+  machine_recovered_event: MachineRecovered
+  communication_restored_event: CommunicationRestored
+  alarm_cleared_event: AlarmCleared
+  resolution_does_not_delete_incident: true
+
+action_inputs:
+  required:
+    - event_id
+    - event_type
+    - event_time
+    - plant_id
+    - line_id
+    - machine_id
+    - machine_type
+    - severity
+    - alarm_code
+    - fault_code
+    - failure_mode_code
+    - production_order_id
+    - loss_quantity
+    - scenario_id
+    - scenario_instance_id
+  optional:
+    - event_payload_json
+
+deduplication:
+  business_key: event_id
+  retry_action: idempotent
+  duplicate_activation_action: skip
+
+operational_notes:
+  thresholds_are_synthetic_defaults: true
+  rule_preview_before_production: required
+  monitor_rule_latency_and_action_failures: required

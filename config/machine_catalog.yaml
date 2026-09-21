@@ -1,0 +1,132 @@
+machine_types:
+  CNC:
+    code: CNC
+    default_count_per_line: 4
+    telemetry:
+      - spindle_rpm
+      - vibration_mm_s
+      - temperature_c
+      - pressure_bar
+      - power_kw
+      - feed_rate_mm_min
+      - production_rate_unit_min
+      - quality_score_pct
+    failure_modes:
+      - CNC-BRG
+      - CNC-OVH
+      - CNC-TOOL
+      - CNC-IMB
+
+  HYDRAULIC_PRESS:
+    code: HPR
+    default_count_per_line: 2
+    telemetry:
+      - hydraulic_pressure_bar
+      - temperature_c
+      - force_kn
+      - cycle_time_s
+      - power_kw
+      - production_rate_unit_min
+      - quality_score_pct
+    failure_modes:
+      - HPR-LEAK
+      - HPR-OVH
+      - HPR-ACT
+
+  INDUSTRIAL_ROBOT:
+    code: ROB
+    default_count_per_line: 3
+    telemetry:
+      - motor_temperature_c
+      - torque_nm
+      - vibration_mm_s
+      - position_error_mm
+      - cycle_time_s
+      - power_kw
+      - production_rate_unit_min
+    failure_modes:
+      - ROB-JNT
+      - ROB-MTR
+      - ROB-POS
+
+  CONVEYOR:
+    code: CON
+    default_count_per_line: 3
+    telemetry:
+      - motor_current_a
+      - belt_speed_m_s
+      - vibration_mm_s
+      - temperature_c
+      - power_kw
+      - throughput_unit_min
+    failure_modes:
+      - CON-OVL
+      - CON-BLT
+      - CON-BLK
+
+  COMPRESSOR:
+    code: CMP
+    default_count_per_line: 2
+    telemetry:
+      - discharge_pressure_bar
+      - temperature_c
+      - vibration_mm_s
+      - rpm
+      - power_kw
+    failure_modes:
+      - CMP-BRG
+      - CMP-PRS
+      - CMP-OVH
+
+  FURNACE:
+    code: FRN
+    default_count_per_line: 1
+    telemetry:
+      - chamber_temperature_c
+      - fuel_flow_rate
+      - pressure_mbar
+      - power_kw
+      - cycle_time_s
+      - quality_score_pct
+    failure_modes:
+      - FRN-TMP
+      - FRN-FLW
+      - FRN-PRS
+
+  INSPECTION:
+    code: INS
+    default_count_per_line: 1
+    telemetry:
+      - inspection_cycle_time_s
+      - measurement_deviation_mm
+      - defect_probability_pct
+      - equipment_temperature_c
+    failure_modes:
+      - INS-CAL
+      - INS-COM
+
+  PACKAGING:
+    code: PKG
+    default_count_per_line: 1
+    telemetry:
+      - cycle_time_s
+      - throughput_unit_min
+      - motor_current_a
+      - temperature_c
+      - power_kw
+    failure_modes:
+      - PKG-JAM
+      - PKG-MTR
+
+  PALLETIZER:
+    code: PAL
+    default_count_per_line: 1
+    telemetry:
+      - cycle_time_s
+      - motor_temperature_c
+      - torque_nm
+      - vibration_mm_s
+      - power_kw
+    failure_modes:
+      - PAL-JNT
+      - PAL-MTR

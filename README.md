@@ -16,8 +16,17 @@ The project is designed around meaningful engineering complexity across real-tim
 
 - `config/` — enterprise configuration and controlled vocabularies
 - `data_reference/` — reference datasets
-- `docs/architecture/` — architecture decision and design documentation
+- `docs/architecture/` — enterprise architecture decisions
+- `schemas/` — canonical data and ingestion contracts
+- `simulator/` — deterministic industrial IoT simulator
+- `fabric/` — Microsoft Fabric ingestion, Bronze and Eventhouse engineering artifacts
 
 ## Engineering principle
 
 Every component must have a defined business or engineering purpose. Avoid technology for technology's sake.
+
+## Current progression
+
+Stages 3.5–3.9 establish the deterministic simulator, synchronized execution, enterprise runner and validation/quarantine boundary.
+
+Stage 3.10 establishes the Microsoft Fabric ingestion control plane.

@@ -22,6 +22,23 @@ class ProductionCatalog:
     lines: tuple[str, ...]
     machines_by_line_type: dict[str, dict[str, tuple[tuple[str, int], ...]]]
 
+    def route_machine_ids(self, line_id: str, product_id: str) -> tuple[str, ...]:
+        product = self.product(product_id)
+        try:
+            line_machines = self.machines_by_line_type[line_id]
+        except KeyError as exc:
+            raise ProductionCatalogError(f"Unknown line_id: {line_id}") from exc
+
+        selected: list[str] = []
+        for machine_type in product.route:
+            machines = line_machines.get(machine_type, ())
+            if not machines:
+                raise ProductionCatalogError(
+                    f"No {machine_type} machine available on {line_id}"
+                )
+            selected.append(machines[0][0])
+        return tuple(selected)
+
     def product(self, product_id: str) -> ProductDefinition:
         try:
             return self.products[product_id]

@@ -126,6 +126,61 @@ CREATE TABLE gold.dim_product (
     is_current BIT NOT NULL
 );
 
+CREATE TABLE gold.dim_operator (
+    operator_sk BIGINT NOT NULL,
+    operator_id VARCHAR(30) NOT NULL,
+    operator_name VARCHAR(150) NOT NULL,
+    plant_sk BIGINT NOT NULL,
+    team_code VARCHAR(30) NOT NULL,
+    skill_level VARCHAR(20) NOT NULL,
+    status VARCHAR(20) NOT NULL,
+    effective_from DATE NOT NULL,
+    effective_to DATE NULL,
+    is_current BIT NOT NULL
+);
+
+CREATE TABLE gold.dim_technician (
+    technician_sk BIGINT NOT NULL,
+    technician_id VARCHAR(30) NOT NULL,
+    technician_name VARCHAR(150) NOT NULL,
+    plant_sk BIGINT NOT NULL,
+    specialization VARCHAR(100) NOT NULL,
+    skill_level VARCHAR(20) NOT NULL,
+    status VARCHAR(20) NOT NULL,
+    effective_from DATE NOT NULL,
+    effective_to DATE NULL,
+    is_current BIT NOT NULL
+);
+
+CREATE TABLE gold.dim_supplier (
+    supplier_sk BIGINT NOT NULL,
+    supplier_id VARCHAR(30) NOT NULL,
+    supplier_name VARCHAR(150) NOT NULL,
+    supplier_type VARCHAR(50) NOT NULL,
+    country VARCHAR(80) NOT NULL,
+    lead_time_days INT NOT NULL,
+    status VARCHAR(20) NOT NULL,
+    effective_from DATE NOT NULL,
+    effective_to DATE NULL,
+    is_current BIT NOT NULL
+);
+
+CREATE TABLE gold.dim_spare_part (
+    spare_part_sk BIGINT NOT NULL,
+    part_id VARCHAR(40) NOT NULL,
+    part_name VARCHAR(150) NOT NULL,
+    part_category VARCHAR(100) NOT NULL,
+    part_uom VARCHAR(20) NOT NULL,
+    standard_unit_cost_inr DECIMAL(18,2) NOT NULL,
+    minimum_stock_quantity DECIMAL(18,4) NOT NULL,
+    reorder_quantity DECIMAL(18,4) NOT NULL,
+    primary_supplier_sk BIGINT NOT NULL,
+    status VARCHAR(20) NOT NULL,
+    effective_from DATE NOT NULL,
+    effective_to DATE NULL,
+    is_current BIT NOT NULL
+);
+
 CREATE TABLE gold.dim_failure_mode (
     failure_mode_sk BIGINT NOT NULL,
     failure_mode_code VARCHAR(50) NOT NULL,
@@ -227,6 +282,7 @@ CREATE TABLE gold.fact_machine_operational_event (
     new_state VARCHAR(30) NULL,
     alarm_sk BIGINT NULL,
     failure_mode_sk BIGINT NULL,
+    operator_sk BIGINT NULL,
     severity VARCHAR(30) NULL,
     fault_code VARCHAR(60) NULL,
     operator_id VARCHAR(40) NULL,

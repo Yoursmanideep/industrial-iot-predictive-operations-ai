@@ -100,11 +100,11 @@ def test_failure_path_supports_maintenance_and_recovery() -> None:
     scenario_engine.advance(instance, instance.planned_end_at)
     assert instance.stage is ScenarioStage.FAILURE
 
-    # Corrective workflow moves the scenario through maintenance and recovery.
-    instance.stage = ScenarioStage.MAINTENANCE
+    maintenance_start = scenario_engine.begin_maintenance(instance, instance.planned_end_at + timedelta(minutes=5))
     maintenance = scenario_engine.complete_maintenance(instance, instance.planned_end_at + timedelta(minutes=30))
     recovery = scenario_engine.complete_recovery(instance, instance.planned_end_at + timedelta(minutes=45))
 
+    assert maintenance_start.to_stage is ScenarioStage.MAINTENANCE
     assert maintenance.to_stage is ScenarioStage.RECOVERY
     assert recovery.to_stage is ScenarioStage.BASELINE
     assert instance.status is ScenarioStatus.RESOLVED

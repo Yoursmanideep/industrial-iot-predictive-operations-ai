@@ -1,0 +1,16 @@
+role 'Plant RLS'
+    modelPermission: read
+
+    tablePermission Plant =
+        ```
+        VAR AllowedPlants =
+            CALCULATETABLE(
+                VALUES(PlantAccess[plant_id]),
+                FILTER(
+                    PlantAccess,
+                    LOWER(PlantAccess[user_principal_name]) = LOWER(USERPRINCIPALNAME())
+                        && PlantAccess[is_active] = TRUE()
+                )
+            )
+        RETURN Plant[plant_id] IN AllowedPlants
+        ```

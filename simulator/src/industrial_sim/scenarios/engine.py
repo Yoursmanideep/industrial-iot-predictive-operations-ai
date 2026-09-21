@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from datetime import datetime, timedelta
-from uuid import UUID, uuid4
+from uuid import UUID
 
 from industrial_sim.domain.scenario import (
     ScenarioInstance,
@@ -12,7 +12,10 @@ from industrial_sim.domain.scenario import (
     ScenarioTransition,
 )
 from industrial_sim.scenarios.catalog import ScenarioCatalog
-from industrial_sim.scenarios.deterministic import choose_duration_minutes
+from industrial_sim.scenarios.deterministic import (
+    choose_duration_minutes,
+    deterministic_scenario_instance_id,
+)
 
 
 @dataclass
@@ -38,8 +41,15 @@ class ScenarioEngine:
             definition.progression_min_minutes,
             definition.progression_max_minutes,
         )
+        deterministic_id = scenario_instance_id or deterministic_scenario_instance_id(
+            simulator_run_id,
+            machine_id,
+            scenario_id,
+            started_at,
+            generation_sequence,
+        )
         return ScenarioInstance(
-            scenario_instance_id=scenario_instance_id or uuid4(),
+            scenario_instance_id=deterministic_id,
             simulator_run_id=simulator_run_id,
             scenario_id=scenario_id,
             machine_id=machine_id,

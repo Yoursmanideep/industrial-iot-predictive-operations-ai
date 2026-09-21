@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import hashlib
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
@@ -24,11 +25,7 @@ class IngestionExecutionResult:
 class FabricIngestionAdapter:
     """Replay-safe Bronze landing adapter with a pluggable Fabric transport boundary."""
 
-    def __init__(
-        self,
-        checkpoint_store: FileCheckpointStore,
-        bronze_root: str | Path,
-    ) -> None:
+    def __init__(self, checkpoint_store: FileCheckpointStore, bronze_root: str | Path) -> None:
         self.checkpoint_store = checkpoint_store
         self.bronze_root = Path(bronze_root)
 
@@ -41,22 +38,13 @@ class FabricIngestionAdapter:
         destination = self._destination_for(manifest)
 
         if existing and existing.get("status") == "COMPLETED":
-            if existing.get("source_file_sha256") == manifest.source_file_sha256:
-                return IngestionExecutionResult(
-                    ingestion_batch_id=manifest.ingestion_batch_id,
-                    status="SKIPPED_DUPLICATE",
-                    accepted_event_count=int(existing.get("accepted_event_count", 0)),
-                    duplicate_event_count=manifest.event_count,
-                    conflict_event_count=0,
-                    destination_path=existing.get("destination_path") or str(destination),
-                )
             return IngestionExecutionResult(
                 ingestion_batch_id=manifest.ingestion_batch_id,
-                status="QUARANTINED",
-                accepted_event_count=0,
-                duplicate_event_count=0,
-                conflict_event_count=manifest.event_count,
-                destination_path=None,
+                status="SKIPPED_DUPLICATE",
+                accepted_event_count=int(existing.get("accepted_event_count", 0)),
+                duplicate_event_count=manifest.event_count,
+                conflict_event_count=0,
+                destination_path=existing.get("destination_path") or str(destination),
             )
 
         source_path = Path(manifest.source_file_path)
@@ -76,6 +64,30 @@ class FabricIngestionAdapter:
             )
             raise FileNotFoundError(source_path)
 
+        actual_hash = hashlib.sha256(source_path.read_bytes()).hexdigest()
+        if actual_hash != manifest.source_file_sha256:
+            self.checkpoint_store.put_batch(
+                IngestionCheckpoint(
+                    idempotency_key=idempotency_key,
+                    ingestion_batch_id=manifest.ingestion_batch_id,
+                    simulator_run_id=manifest.simulator_run_id,
+                    status="QUARANTINED",
+                    accepted_event_count=0,
+                    rejected_event_count=manifest.event_count,
+                    source_file_sha256=actual_hash,
+                    updated_at_utc=datetime.now(timezone.utc),
+                    error_code="SOURCE_HASH_MISMATCH",
+                )
+            )
+            return IngestionExecutionResult(
+                ingestion_batch_id=manifest.ingestion_batch_id,
+                status="QUARANTINED",
+                accepted_event_count=0,
+                duplicate_event_count=0,
+                conflict_event_count=manifest.event_count,
+                destination_path=None,
+            )
+
         destination.parent.mkdir(parents=True, exist_ok=True)
         self.checkpoint_store.put_batch(
             IngestionCheckpoint(
@@ -91,7 +103,7 @@ class FabricIngestionAdapter:
             )
         )
 
-        pending: list[tuple[dict, str]] = []
+        pending: list[dict] = []
         duplicates = 0
         conflicts = 0
         for line in source_path.read_text(encoding="utf-8").splitlines():
@@ -102,7 +114,7 @@ class FabricIngestionAdapter:
             existing_hash = self.checkpoint_store.snapshot()["events"].get(event_id)
             payload_hash = event_payload_hash(payload)
             if existing_hash is None:
-                pending.append((payload, payload_hash))
+                pending.append(payload)
             elif existing_hash == payload_hash:
                 duplicates += 1
             else:
@@ -120,6 +132,7 @@ class FabricIngestionAdapter:
                     source_file_sha256=manifest.source_file_sha256,
                     updated_at_utc=datetime.now(timezone.utc),
                     error_code="EVENT_ID_PAYLOAD_CONFLICT",
+                    destination_path=None,
                 )
             )
             return IngestionExecutionResult(
@@ -132,33 +145,31 @@ class FabricIngestionAdapter:
             )
 
         temp_destination = destination.with_suffix(destination.suffix + ".partial")
-        with temp_destination.open("w", encoding="utf-8") as target:
-            for payload, _ in pending:
-                target.write(
-                    json.dumps(payload, separators=(",", ":"), sort_keys=True) + "\n"
-                )
+        temp_destination.write_text(
+            source_path.read_text(encoding="utf-8"),
+            encoding="utf-8",
+        )
 
         if destination.exists():
             destination.unlink()
         temp_destination.replace(destination)
 
-        for payload, _ in pending:
+        for payload in pending:
             self.checkpoint_store.register_event(payload["event_id"], payload)
 
-        checkpoint = IngestionCheckpoint(
-            idempotency_key=idempotency_key,
-            ingestion_batch_id=manifest.ingestion_batch_id,
-            simulator_run_id=manifest.simulator_run_id,
-            status="COMPLETED",
-            accepted_event_count=len(pending),
-            rejected_event_count=0,
-            source_file_sha256=manifest.source_file_sha256,
-            updated_at_utc=datetime.now(timezone.utc),
+        self.checkpoint_store.put_batch(
+            IngestionCheckpoint(
+                idempotency_key=idempotency_key,
+                ingestion_batch_id=manifest.ingestion_batch_id,
+                simulator_run_id=manifest.simulator_run_id,
+                status="COMPLETED",
+                accepted_event_count=len(pending),
+                rejected_event_count=0,
+                source_file_sha256=manifest.source_file_sha256,
+                updated_at_utc=datetime.now(timezone.utc),
+                destination_path=str(destination),
+            )
         )
-        checkpoint_dict = checkpoint.to_dict()
-        checkpoint_dict["destination_path"] = str(destination)
-        self.checkpoint_store._document["batches"][idempotency_key] = checkpoint_dict
-        self.checkpoint_store._save()
 
         return IngestionExecutionResult(
             ingestion_batch_id=manifest.ingestion_batch_id,
@@ -175,5 +186,6 @@ class FabricIngestionAdapter:
             / f"event_type={manifest.event_type}"
             / f"event_date={manifest.event_date}"
             / f"plant_id={manifest.plant_id}"
+            / f"ingestion_batch_id={manifest.ingestion_batch_id}"
             / Path(manifest.source_file_path).name
         )

@@ -24,6 +24,8 @@ MASTER_LINE_TABLE = "mdm.dim_line"
 MASTER_PLANT_TABLE = "mdm.dim_plant"
 MASTER_PRODUCT_TABLE = "mdm.dim_product"
 LATE_ARRIVAL_THRESHOLD_MINUTES = 15
+SOURCE_EVENT_DATE_START = None  # YYYY-MM-DD or None
+SOURCE_EVENT_DATE_END = None    # YYYY-MM-DD or None
 
 spark.conf.set("spark.sql.session.timeZone", "UTC")
 
@@ -49,6 +51,8 @@ def json_bool(column: str, key: str):
 
 
 def ensure_tables() -> None:
+    spark.sql("CREATE SCHEMA IF NOT EXISTS silver")
+    spark.sql("CREATE SCHEMA IF NOT EXISTS control")
     if not table_exists(REJECTED_TABLE):
         spark.createDataFrame(
             [],
@@ -66,8 +70,13 @@ def ensure_tables() -> None:
 
 
 def read_bronze():
+    source = spark.table(BRONZE_TABLE)
+    if SOURCE_EVENT_DATE_START is not None:
+        source = source.where(F.col("event_date") >= F.to_date(F.lit(SOURCE_EVENT_DATE_START)))
+    if SOURCE_EVENT_DATE_END is not None:
+        source = source.where(F.col("event_date") <= F.to_date(F.lit(SOURCE_EVENT_DATE_END)))
     return (
-        spark.table(BRONZE_TABLE)
+        source
         .select(
             "event_id", "event_type", "schema_version", "event_time", "ingestion_time",
             "source_system", "plant_id", "line_id", "machine_id", "simulator_run_id",
@@ -461,7 +470,7 @@ audit = spark.createDataFrame([(
     late_count,
     master_failure_count,
 )], "silver_run_id string, source_row_count long, duplicate_row_count long, conflict_event_count long, accepted_row_count long, rejected_row_count long, late_arrival_count long, master_reference_failure_count long")
-audit = audit.withColumn("processing_started_at_utc", started_at)
+audit = audit.withColumn("processing_started_at_utc", F.lit(started_at))
 audit = audit.withColumn("processing_completed_at_utc", F.current_timestamp())
 audit = audit.withColumn("source_table", F.lit(BRONZE_TABLE))
 source_window = bronze.agg(

@@ -1,8 +1,9 @@
 from __future__ import annotations
 
 import csv
+import hashlib
 from dataclasses import dataclass
-from datetime import date, datetime, timezone
+from datetime import date
 from pathlib import Path
 
 from industrial_sim.domain.machine import Machine, MachineIdentity, MachineState
@@ -22,7 +23,12 @@ class MachineWorldLoader:
     def __init__(self, machine_csv: str | Path) -> None:
         self.machine_csv = Path(machine_csv)
 
-    def load(self, initial_state: MachineState = MachineState.RUNNING) -> dict[str, MachineRuntime]:
+    def load(
+        self,
+        initial_state: MachineState = MachineState.RUNNING,
+        initial_state_distribution: dict[str, float] | None = None,
+        deterministic_seed: int = 20260921,
+    ) -> dict[str, MachineRuntime]:
         if not self.machine_csv.is_file():
             raise FileNotFoundError(self.machine_csv)
 
@@ -51,9 +57,15 @@ class MachineWorldLoader:
                     line_id=line_id,
                     machine_type=machine_type,
                 )
+                state = self._select_initial_state(
+                    machine_id,
+                    initial_state,
+                    initial_state_distribution,
+                    deterministic_seed,
+                )
                 machine = Machine(
                     identity=identity,
-                    state=initial_state,
+                    state=state,
                     state_since=None,
                 )
                 runtimes[machine_id] = MachineRuntime(
@@ -62,6 +74,28 @@ class MachineWorldLoader:
                     installation_date=date.fromisoformat(row["installation_date"]),
                     criticality=row["criticality"],
                 )
+
+    @staticmethod
+    def _select_initial_state(
+        machine_id: str,
+        default_state: MachineState,
+        distribution: dict[str, float] | None,
+        seed: int,
+    ) -> MachineState:
+        if not distribution:
+            return default_state
+        if abs(sum(distribution.values()) - 1.0) > 1e-9:
+            raise ValueError("Initial-state distribution must sum to 1.0")
+        raw = f"{seed}|initial_state|{machine_id}".encode("utf-8")
+        fraction = int.from_bytes(hashlib.sha256(raw).digest()[:8], "big") / float(2**64 - 1)
+        cumulative = 0.0
+        for state_name, probability in distribution.items():
+            if probability < 0:
+                raise ValueError("Initial-state probabilities cannot be negative")
+            cumulative += probability
+            if fraction <= cumulative:
+                return MachineState(state_name)
+        return MachineState(list(distribution)[-1])
 
         if len(runtimes) != 270:
             raise ValueError(f"Expected 270 machines, loaded {len(runtimes)}")

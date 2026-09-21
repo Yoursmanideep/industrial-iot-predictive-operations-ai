@@ -8,6 +8,7 @@ Stage 3.14 introduced the PBIP/PBIR report project.
 Stage 3.15 introduced the Eventstream/Eventhouse/Activator hot operational path.
 Stage 3.16 introduces the predictive-maintenance ML lifecycle.
 Stage 3.17 introduces ML monitoring, explainability and operational decision workflows.
+Stage 3.18 introduces the GenAI/RAG intelligence layer with governed knowledge ingestion, embeddings, Azure AI Search retrieval, grounded answers and RAG evaluation.
 
 Structure:
 
@@ -33,3 +34,13 @@ ML outputs:
 - IndustrialIoTMLPrediction
 
 Stage 3.16 stores model contracts, training code and deployment definitions in Git. Fabric stores the experiment runs and registered model versions in the workspace.
+
+GenAI outputs:
+
+- ml.rag_knowledge_chunks
+- ml.rag_knowledge_embeddings
+- ml.rag_evaluation_results
+- gold.fact_rag_answer_audit
+- gold.fact_rag_evaluation
+- mart.v_rag_answer_audit
+- mart.v_rag_evaluation_health

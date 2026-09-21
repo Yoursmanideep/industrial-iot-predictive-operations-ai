@@ -63,7 +63,8 @@ def retrieve(question, machine_type=None, top_k=5):
     )
     filters = ["active eq true"]
     if machine_type:
-        filters.append(f"machine_type_code eq '{machine_type}' or machine_type_code eq null")
+        safe_type = machine_type.replace("'", "''")
+        filters.append(f"(machine_type_code eq '{safe_type}' or machine_type_code eq null)")
     search_filter = " and ".join(filters)
 
     results = search_client.search(
@@ -96,15 +97,13 @@ def retrieve(question, machine_type=None, top_k=5):
 def load_machine_context(machine_id):
     if not machine_id:
         return None
-    return (
+    rows = (
         spark.table("mart.v_genai_machine_context_latest")
         .where(F.col("machine_id") == F.lit(machine_id))
         .limit(1)
         .collect()
-    )[0].asDict() if spark.table("mart.v_genai_machine_context_latest")
-        .where(F.col("machine_id") == F.lit(machine_id))
-        .limit(1)
-        .count() else None
+    )
+    return rows[0].asDict() if rows else None
 
 
 def load_incidents(machine_id):
@@ -120,6 +119,27 @@ def load_incidents(machine_id):
             .collect()
         )
     ]
+
+
+def validate_citations(parsed, retrieved):
+    allowed = {
+        (item["chunk_id"], item["document_id"], item["document_version"], item["source_locator"])
+        for item in retrieved
+    }
+    valid = []
+    for citation in parsed.get("citations", []):
+        key = (
+            citation.get("chunk_id"),
+            citation.get("document_id"),
+            citation.get("document_version"),
+            citation.get("source_locator"),
+        )
+        if key in allowed:
+            valid.append(citation)
+    parsed["citations"] = valid
+    if parsed.get("answer_status") == "GROUNDED" and not valid:
+        parsed["answer_status"] = "INSUFFICIENT_EVIDENCE"
+    return parsed
 
 
 def answer(question, machine_id=None, machine_type=None):
@@ -148,7 +168,10 @@ def answer(question, machine_id=None, machine_type=None):
         ],
     )
 
-    parsed = json.loads(response.choices[0].message.content)
+    parsed = validate_citations(
+        json.loads(response.choices[0].message.content),
+        retrieved,
+    )
     return {
         "answer_id": "RAG-" + str(uuid.uuid4()),
         "question": question,

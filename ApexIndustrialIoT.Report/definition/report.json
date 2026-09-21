@@ -1,0 +1,21 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/report/3.3.0/schema.json",
+  "themeCollection": {},
+  "settings": {
+    "useEnhancedTooltips": true,
+    "useStylableVisualContainerHeader": true,
+    "defaultFilterActionIsDataFilter": true,
+    "defaultDrillFilterOtherVisuals": true,
+    "pagesPosition": "Bottom"
+  },
+  "annotations": [
+    {
+      "name": "stage",
+      "value": "3.14"
+    },
+    {
+      "name": "designIntent",
+      "value": "Industrial operations executive and plant reporting"
+    }
+  ]
+}

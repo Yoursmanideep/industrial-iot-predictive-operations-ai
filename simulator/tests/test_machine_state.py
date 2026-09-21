@@ -1,4 +1,4 @@
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 
 import pytest
 
@@ -51,3 +51,23 @@ def test_same_state_transition_is_rejected() -> None:
             datetime(2026, 9, 21, 6, 0, tzinfo=timezone.utc),
             "NO_OP",
         )
+
+
+def test_transition_cannot_move_backwards_in_time() -> None:
+    machine = build_machine()
+    engine = MachineStateMachine()
+    first_time = datetime(2026, 9, 21, 6, 0, tzinfo=timezone.utc)
+    second_time = first_time + timedelta(seconds=5)
+    engine.transition(machine, MachineState.RUNNING, first_time, "STARTUP_COMPLETE")
+
+    assert second_time > first_time
+    with pytest.raises(ValueError):
+        engine.transition(
+            machine,
+            MachineState.IDLE,
+            first_time - timedelta(seconds=1),
+            "CLOCK_ERROR",
+        )
+
+    assert machine.state is MachineState.RUNNING
+    assert machine.state_since == first_time

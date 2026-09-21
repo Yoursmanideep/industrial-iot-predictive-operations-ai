@@ -62,6 +62,21 @@ entities:
       event_time_utc: datetime
       status: enum(NEW,REVIEWED,CLOSED)
 
+  MLModelHealthReview:
+    purpose: governance record for predictive model performance or drift breaches
+    alternate_key: review_key
+    fields:
+      review_key: string
+      model_name: string
+      model_version: string
+      issue_type: enum(PERFORMANCE_BREACH,DATA_DRIFT_REVIEW,ENDPOINT_REVIEW)
+      metric_name: string
+      metric_value: decimal
+      threshold_value: decimal
+      status: enum(OPEN,ACKNOWLEDGED,RESOLVED)
+      created_at_utc: datetime
+      resolved_at_utc: datetime
+
 security:
   row_access: plant_scope
   credentials_in_git: false

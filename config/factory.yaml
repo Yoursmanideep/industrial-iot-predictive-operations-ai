@@ -1,0 +1,96 @@
+project:
+  name: Industrial IoT Predictive Operations & AI Intelligence Platform
+  short_name: IIoT-POAI
+  enterprise: Apex Industrial Manufacturing
+  timezone: Asia/Kolkata
+  currency: INR
+
+scale:
+  plants: 3
+  lines_per_plant: 5
+  machines_per_line: 18
+  total_machines: 270
+
+plants:
+  - plant_id: PLT-CHN-01
+    name: Chennai Manufacturing Plant
+    city: Chennai
+    state: Tamil Nadu
+    country: India
+    production_areas:
+      - area_id: CHN-PA01
+        name: Production Area A
+      - area_id: CHN-PA02
+        name: Production Area B
+      - area_id: CHN-PA03
+        name: Production Area C
+      - area_id: CHN-PA04
+        name: Production Area D
+      - area_id: CHN-PA05
+        name: Production Area E
+  - plant_id: PLT-PUN-01
+    name: Pune Manufacturing Plant
+    city: Pune
+    state: Maharashtra
+    country: India
+    production_areas:
+      - area_id: PUN-PA01
+        name: Production Area A
+      - area_id: PUN-PA02
+        name: Production Area B
+      - area_id: PUN-PA03
+        name: Production Area C
+      - area_id: PUN-PA04
+        name: Production Area D
+      - area_id: PUN-PA05
+        name: Production Area E
+  - plant_id: PLT-CBE-01
+    name: Coimbatore Manufacturing Plant
+    city: Coimbatore
+    state: Tamil Nadu
+    country: India
+    production_areas:
+      - area_id: CBE-PA01
+        name: Production Area A
+      - area_id: CBE-PA02
+        name: Production Area B
+      - area_id: CBE-PA03
+        name: Production Area C
+      - area_id: CBE-PA04
+        name: Production Area D
+      - area_id: CBE-PA05
+        name: Production Area E
+
+line_pattern:
+  lines_per_plant:
+    - L01
+    - L02
+    - L03
+    - L04
+    - L05
+
+shift_pattern:
+  shifts:
+    - shift_id: SH1
+      name: First Shift
+      start_local: "06:00"
+      end_local: "14:00"
+    - shift_id: SH2
+      name: Second Shift
+      start_local: "14:00"
+      end_local: "22:00"
+    - shift_id: SH3
+      name: Third Shift
+      start_local: "22:00"
+      end_local: "06:00"
+
+operating_states:
+  - RUNNING
+  - IDLE
+  - SETUP
+  - STARVED
+  - BLOCKED
+  - FAULT
+  - MAINTENANCE
+  - OFFLINE
+  - RECOVERY

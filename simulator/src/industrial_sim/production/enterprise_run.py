@@ -98,8 +98,14 @@ def generate_production_plan(
             all_batches += len(batches)
             events.append(execution_engine.release_order(context, order))
             events.append(execution_engine.start_order(context, order))
+            batch_cursor = plan.planned_start_time
+            cycle_seconds = generator.catalog.product(plan.product_id).standard_cycle_time_seconds
             for batch in batches:
+                context.current_time = batch_cursor
                 events.extend(execution_engine.start_batch(context, order, batch))
+                batch_cursor += timedelta(
+                    seconds=max(1.0, batch.planned_quantity * cycle_seconds / 0.82)
+                )
             all_events.extend(events)
         cursor += timedelta(days=1)
 

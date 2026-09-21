@@ -1,0 +1,73 @@
+version: 1.0.0
+
+report:
+  name: Apex Industrial IoT Operations
+  semantic_model: ApexIndustrialIoT
+  audience:
+    - plant_operations
+    - manufacturing_leadership
+    - reliability_engineering
+    - maintenance
+    - quality
+
+pages:
+  - page: Executive Overview
+    purpose: enterprise KPI overview across plants and production lines
+    primary_measures:
+      - OEE %
+      - Availability %
+      - Performance %
+      - Quality %
+      - Good Units
+      - Rejected Units
+      - Unplanned Downtime Minutes
+    slicers:
+      - Date.calendar_date
+      - Plant.plant_name
+      - Shift.shift_name
+
+  - page: Plant Operations
+    purpose: compare operating performance by plant and line
+    visuals:
+      - OEE by plant and line
+      - downtime by category
+      - production yield by product
+      - machine fault count
+    drilldown:
+      - Plant → Line → Machine
+
+  - page: Machine Health
+    purpose: inspect recent telemetry and machine operating state
+    visuals:
+      - latest machine state
+      - vibration trend
+      - temperature trend
+      - power trend
+      - quality score
+      - scenario/failure context
+
+  - page: Downtime & Reliability
+    purpose: analyze planned and unplanned downtime drivers
+    visuals:
+      - downtime minutes by category
+      - fault count by failure mode
+      - Pareto of downtime causes
+      - machine downtime heatmap
+
+  - page: Production & Quality
+    purpose: connect production volume with yield and rejection
+    visuals:
+      - actual vs good vs rejected units
+      - production yield
+      - quality event volume
+      - defect distribution
+
+security:
+  rls_role: Plant RLS
+  plant_scope: user_mapping
+
+interaction_rules:
+  cross_filter_direction: oneDirection
+  avoid_visual_average_of_pct_kpis: true
+  drillthrough_machine_level: enabled
+  tooltip_lineage_context: enabled

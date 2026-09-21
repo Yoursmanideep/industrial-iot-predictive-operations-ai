@@ -1,0 +1,40 @@
+version: 1.0.0
+
+flow:
+  name: IndustrialIoT_Communication_Incident_Response
+  trigger:
+    type: Activator_CustomAction
+    source: IndustrialIoT_Operational_Activator
+  purpose: route_machine_communication_loss
+
+steps:
+  - name: Deduplicate
+    action: lookup_existing_incident
+    key: event_id
+    on_duplicate: terminate_success
+  - name: CreateIncident
+    action: create_dataverse_row
+    entity: IndustrialIoTIncident
+    fields:
+      incident_key: event_id
+      status: OPEN
+      severity: MEDIUM
+      event_type: CommunicationLost
+      plant_id: plant_id
+      line_id: line_id
+      machine_id: machine_id
+      event_time_utc: event_time
+  - name: NotifyOperations
+    action: send_teams_message
+    recipient_group: Plant Operations
+    content_template: "Machine communication lost | {plant_id} | {line_id} | {machine_id}"
+  - name: ScheduleEscalationCheck
+    action: call_child_flow
+    child_flow: IndustrialIoT_Unresolved_Incident_Escalation
+
+retry:
+  max_attempts: 3
+  backoff_seconds: 30
+
+security:
+  credentials_in_git: false

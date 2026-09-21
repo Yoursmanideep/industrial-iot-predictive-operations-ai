@@ -28,7 +28,7 @@ class QuarantineWriter:
 
         record = {
             "quarantine_id": f"QRT-{uuid5(NAMESPACE_URL, str(payload.get('event_id') or payload))}",
-            "quarantined_at_utc": payload.get("event_time") or datetime(1970, 1, 1, tzinfo=timezone.utc).isoformat(),
+            "quarantine_reference_time_utc": payload.get("event_time") or datetime(1970, 1, 1, tzinfo=timezone.utc).isoformat(),
             "reason_codes": [error.code for error in result.errors],
             "validation_errors": [error.to_dict() for error in result.errors],
             "event_id": payload.get("event_id"),

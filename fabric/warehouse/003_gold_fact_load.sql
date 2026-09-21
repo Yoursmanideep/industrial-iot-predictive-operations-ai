@@ -306,14 +306,22 @@ BEGIN
             state_code, downtime_category, is_planned, interval_start_utc, interval_end_utc,
             duration_seconds
         )
-        VALUES (
-            source.start_event_id, source.end_event_id, source.date_sk, source.shift_sk,
-            source.plant_sk, source.line_sk, source.machine_sk, source.state_code,
-            source.downtime_category, source.is_planned, source.overlap_start, source.overlap_end,
-            DATEDIFF(millisecond, source.overlap_start, source.overlap_end) / 1000.0
-        );
+        WHEN MATCHED THEN
+            UPDATE SET
+                target.end_event_id = source.end_event_id,
+                target.date_sk = source.date_sk,
+                target.plant_sk = source.plant_sk,
+                target.line_sk = source.line_sk,
+                target.machine_sk = source.machine_sk,
+                target.state_code = source.state_code,
+                target.downtime_category = source.downtime_category,
+                target.is_planned = source.is_planned,
+                target.interval_start_utc = source.overlap_start,
+                target.interval_end_utc = source.overlap_end,
+                target.duration_seconds =
+                    DATEDIFF(millisecond, source.overlap_start, source.overlap_end) / 1000.0
 
-    -- Production loss fact is a narrow analytical subset of production losses.
+        -- Production loss fact is a narrow analytical subset of production losses.
     MERGE gold.fact_production_loss AS target
     USING (
         SELECT

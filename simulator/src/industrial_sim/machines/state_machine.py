@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from datetime import datetime
 
 from industrial_sim.domain.machine import Machine, MachineState, MachineStateTransition
@@ -67,11 +67,9 @@ DEFAULT_ALLOWED_TRANSITIONS: dict[MachineState, frozenset[MachineState]] = {
 
 @dataclass
 class MachineStateMachine:
-    allowed_transitions: dict[MachineState, frozenset[MachineState]] = None  # type: ignore[assignment]
-
-    def __post_init__(self) -> None:
-        if self.allowed_transitions is None:
-            self.allowed_transitions = DEFAULT_ALLOWED_TRANSITIONS
+    allowed_transitions: dict[MachineState, frozenset[MachineState]] = field(
+        default_factory=lambda: dict(DEFAULT_ALLOWED_TRANSITIONS)
+    )
 
     def can_transition(
         self,
@@ -87,6 +85,8 @@ class MachineStateMachine:
         event_time: datetime,
         reason_code: str,
     ) -> MachineStateTransition:
+        if machine.state_since is not None and event_time < machine.state_since:
+            raise ValueError("event_time cannot precede machine.state_since.")
         if not self.can_transition(machine.state, to_state):
             raise ValueError(
                 f"Invalid machine state transition: {machine.state} -> {to_state}"

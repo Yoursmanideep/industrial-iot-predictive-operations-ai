@@ -6,6 +6,7 @@ from delta.tables import DeltaTable
 
 SOURCE_PATH = "Files/ingress/validated/event_type=telemetry/event_date=2026-09-21/plant_id=PLT-CHN-01/telemetry.jsonl"
 INGESTION_BATCH_ID = "IBT-REPLACE_ME"
+SOURCE_FILE_SHA256 = "REPLACE_WITH_MANIFEST_SHA256"
 BRONZE_TABLE = "bronze_iot_event"
 CHECKPOINT_TABLE = "control_ingestion_batch_checkpoint"
 QUARANTINE_PATH = "Files/quarantine/fabric-ingestion"
@@ -67,8 +68,18 @@ def ingest_partition(source_path: str, batch_id: str) -> dict:
         F.col("event_payload_json"),
     ).withColumn("event_date", F.to_date("event_time"))
 
-    existing = spark.table(BRONZE_TABLE).select("event_id", "payload_sha256")
-    joined = staged.join(existing, "event_id", "left").withColumnRenamed("payload_sha256", "existing_payload_sha256")
+    existing = spark.table(BRONZE_TABLE).select(
+        F.col("event_id").alias("existing_event_id"),
+        F.col("payload_sha256").alias("existing_payload_sha256"),
+    )
+    joined = (
+        staged.join(
+            existing,
+            staged.event_id == existing.existing_event_id,
+            "left",
+        )
+        .drop("existing_event_id")
+    )
     conflicts = joined.where(
         F.col("existing_payload_sha256").isNotNull() &
         (F.col("existing_payload_sha256") != F.col("payload_sha256"))
@@ -93,7 +104,7 @@ def ingest_partition(source_path: str, batch_id: str) -> dict:
         [(
             batch_id,
             staged.select("simulator_run_id").first()[0],
-            None,
+            SOURCE_FILE_SHA256,
             staged.count(),
             accepted_count,
             conflict_count,

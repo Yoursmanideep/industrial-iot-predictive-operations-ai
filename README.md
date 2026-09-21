@@ -14,12 +14,13 @@ The project is designed around meaningful engineering complexity across real-tim
 
 ## Repository structure
 
-- `config/` — enterprise configuration and controlled vocabularies
-- `data_reference/` — reference datasets
-- `docs/architecture/` — enterprise architecture decisions
-- `schemas/` — canonical data and ingestion contracts
-- `simulator/` — deterministic industrial IoT simulator
-- `fabric/` — Microsoft Fabric ingestion, Bronze and Eventhouse engineering artifacts
+- config/ — enterprise configuration and controlled vocabularies
+- data_reference/ — reference datasets
+- docs/ — architecture, data-engineering, simulator, real-time and ML documentation
+- schemas/ — canonical data, ingestion and ML contracts
+- simulator/ — deterministic industrial IoT simulator
+- fabric/ — Microsoft Fabric ingestion, Silver, Gold, real-time and ML engineering artifacts
+- powerbi/ — source-controlled semantic model and report artifacts
 
 ## Engineering principle
 
@@ -27,19 +28,12 @@ Every component must have a defined business or engineering purpose. Avoid techn
 
 ## Current progression
 
-Stages 3.5–3.9 establish the deterministic simulator, synchronized execution, enterprise runner and validation/quarantine boundary.
-
-Stage 3.10 establishes the Microsoft Fabric ingestion control plane.
-
-## Current progression
+Stage 3.5–3.9 established the deterministic simulator, synchronized execution, enterprise runner and validation/quarantine boundary.
 
 Stage 3.10 established replay-safe Fabric ingestion into Bronze.
-Stage 3.11 establishes Bronze-to-Silver normalization, deduplication, SCD2 master validation and Silver quality auditing.
-
-Stage 3.12 establishes the SQL-first Fabric Warehouse Gold layer, conformed star-schema dimensions, production/downtime facts, OEE calculations and Power BI mart views.
-
-Stage 3.13 establishes the Power BI semantic model, Direct Lake TMDL definition, KPI measures, dynamic plant RLS and report blueprint.
-
-Stage 3.14 establishes the source-controlled PBIP/PBIR report project with executive, plant, machine-health, reliability, production/quality and drill-through reporting pages.
-
-Stage 3.15 establishes the real-time Eventstream/Eventhouse/Activator path, KQL operational monitoring, Power Automate workflows and the optional simulator-to-Eventstream live bridge.
+Stage 3.11 established Bronze-to-Silver normalization, deduplication, SCD2 master validation and Silver quality auditing.
+Stage 3.12 established the SQL-first Fabric Warehouse Gold layer, conformed star-schema dimensions, production/downtime facts, OEE calculations and Power BI mart views.
+Stage 3.13 established the Power BI semantic model, Direct Lake TMDL definition, KPI measures, dynamic plant RLS and report blueprint.
+Stage 3.14 established the source-controlled PBIP/PBIR report project with executive, plant, machine-health, reliability, production/quality and drill-through reporting pages.
+Stage 3.15 established the real-time Eventstream/Eventhouse/Activator path, KQL operational monitoring, Power Automate workflows and the optional simulator-to-Eventstream live bridge.
+Stage 3.16 establishes the predictive-maintenance ML lifecycle: 5-minute features, causal 60-minute failure labels, chronological validation, MLflow experiment/model registration, Fabric PREDICT batch scoring, Warehouse prediction persistence and preview real-time model-endpoint integration.

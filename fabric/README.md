@@ -2,34 +2,33 @@
 
 Stage 3.10 introduced replay-safe validated ingestion into Bronze.
 Stage 3.11 introduced curated Silver Delta processing.
-Stage 3.12 introduces the SQL-first Warehouse Gold analytical model.
+Stage 3.12 introduced the SQL-first Warehouse Gold analytical model.
+Stage 3.13 introduced the Power BI semantic model and Plant RLS.
+Stage 3.14 introduced the PBIP/PBIR report project.
+Stage 3.15 introduced the Eventstream/Eventhouse/Activator hot operational path.
+Stage 3.16 introduces the predictive-maintenance ML lifecycle.
 
 Structure:
 
 - ingestion/ — deterministic batch identity, checkpoints, scanning and replay-safe Bronze landing
-- notebooks/ — Bronze and Silver Spark transformations
+- notebooks/ — Bronze, Silver and ML Spark notebooks
 - sql/ — ingestion, Silver and Warehouse control models
-- kql/ — Eventhouse destination schema
+- kql/ — Eventhouse destination schemas and real-time queries
 - pipelines/ — deployment contracts
+- dataflows/ — Power Query functions for ML endpoint enrichment
 - silver/ — Silver-layer documentation and contract tests
-- warehouse/ — staging contracts, Gold star schema, load procedures, OEE and KPI views
+- warehouse/ — Gold star schema, facts, OEE, KPI and ML prediction views
+- ml/ — ML contract tests
+- realtime/ — hot-path and ML endpoint contracts
 
-Gold outputs:
+ML outputs:
 
-- gold dimensions for date, shift, plant, area, line, machine, product, people, parts and governed reference codes
-- gold.fact_machine_telemetry
-- gold.fact_machine_operational_event
-- gold.fact_downtime_interval
-- gold.fact_production_event
-- gold.fact_production_loss
-- gold.fact_maintenance_event
-- gold.fact_quality_event
-- gold.fact_oee_daily
-- mart KPI and consumption views
+- ml.machine_failure_features
+- ml.machine_failure_training
+- ml.machine_failure_prediction
+- ml.machine_failure_training_run
+- gold.fact_machine_failure_prediction
+- mart.v_machine_failure_risk_latest
+- IndustrialIoTMLPrediction
 
-Next layer: Power BI semantic model and enterprise reporting.
-Stage 3.13 adds the source-controlled Power BI semantic model, Direct Lake TMDL definition, KPI measures and Plant RLS.
-
-Stage 3.14 adds the PBIP/PBIR Power BI report project, operational pages, drill-through, tooltip, KPI visuals and report interaction contract.
-
-Stage 3.15 adds the real-time Eventstream/Eventhouse/Activator path, KQL hot queries, Power Automate incident workflows and optional live simulator publishing.
+Stage 3.16 stores model contracts, training code and deployment definitions in Git. Fabric stores the experiment runs and registered model versions in the workspace.

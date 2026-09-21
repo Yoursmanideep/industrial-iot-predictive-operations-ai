@@ -35,3 +35,5 @@ Stage 3.10 establishes the Microsoft Fabric ingestion control plane.
 
 Stage 3.10 established replay-safe Fabric ingestion into Bronze.
 Stage 3.11 establishes Bronze-to-Silver normalization, deduplication, SCD2 master validation and Silver quality auditing.
+
+Stage 3.12 establishes the SQL-first Fabric Warehouse Gold layer, conformed star-schema dimensions, production/downtime facts, OEE calculations and Power BI mart views.

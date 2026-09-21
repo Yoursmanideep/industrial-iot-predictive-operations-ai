@@ -1,0 +1,169 @@
+# Controlled reference values for the Industrial IoT platform
+
+status_values:
+  - ACTIVE
+  - INACTIVE
+
+machine_criticality_values:
+  - LOW
+  - MEDIUM
+  - HIGH
+
+skill_levels:
+  - LEVEL_1
+  - LEVEL_2
+  - LEVEL_3
+  - LEVEL_4
+  - LEVEL_5
+
+supplier_types:
+  - OEM
+  - AUTHORIZED_DISTRIBUTOR
+  - LOCAL_VENDOR
+  - RAW_MATERIAL_SUPPLIER
+  - UTILITY_PROVIDER
+
+shift_ids:
+  SH1:
+    name: First Shift
+    start_local: '06:00'
+    end_local: '14:00'
+    crosses_midnight: false
+  SH2:
+    name: Second Shift
+    start_local: '14:00'
+    end_local: '22:00'
+    crosses_midnight: false
+  SH3:
+    name: Third Shift
+    start_local: '22:00'
+    end_local: '06:00'
+    crosses_midnight: true
+
+loss_categories:
+  - DOWNTIME
+  - SLOWDOWN
+  - SCRAP
+  - QUALITY
+  - MATERIAL
+  - PLANNING
+  - OTHER
+
+production_pause_reasons:
+  MATERIAL_STARVATION:
+    reason_name: Material Starvation
+    reason_domain: PAUSE
+    loss_category: MATERIAL
+  PLANNED_CHANGEOVER:
+    reason_name: Planned Changeover
+    reason_domain: PAUSE
+    loss_category: PLANNING
+  QUALITY_HOLD:
+    reason_name: Quality Hold
+    reason_domain: PAUSE
+    loss_category: QUALITY
+  MACHINE_FAULT:
+    reason_name: Machine Fault
+    reason_domain: PAUSE
+    loss_category: DOWNTIME
+  OPERATOR_SHORTAGE:
+    reason_name: Operator Shortage
+    reason_domain: PAUSE
+    loss_category: PLANNING
+  UTILITY_INTERRUPTION:
+    reason_name: Utility Interruption
+    reason_domain: PAUSE
+    loss_category: DOWNTIME
+
+production_loss_reasons:
+  SLOW_CYCLE:
+    reason_name: Slow Cycle
+    reason_domain: LOSS
+    loss_category: SLOWDOWN
+  MACHINE_DOWNTIME:
+    reason_name: Machine Downtime
+    reason_domain: LOSS
+    loss_category: DOWNTIME
+  PROCESS_SCRAP:
+    reason_name: Process Scrap
+    reason_domain: LOSS
+    loss_category: SCRAP
+  QUALITY_DEFECT:
+    reason_name: Quality Defect
+    reason_domain: LOSS
+    loss_category: QUALITY
+  MATERIAL_SHORTAGE:
+    reason_name: Material Shortage
+    reason_domain: LOSS
+    loss_category: MATERIAL
+  SCHEDULE_VARIANCE:
+    reason_name: Schedule Variance
+    reason_domain: LOSS
+    loss_category: PLANNING
+
+alarm_codes:
+  VIBRATION_HIGH:
+    alarm_name: Vibration High
+    alarm_category: MECHANICAL
+    default_severity: HIGH
+    trigger_signal: vibration_mm_s
+  TEMPERATURE_HIGH:
+    alarm_name: Temperature High
+    alarm_category: THERMAL
+    default_severity: HIGH
+    trigger_signal: temperature_c
+  PRESSURE_LOW:
+    alarm_name: Pressure Low
+    alarm_category: PRESSURE
+    default_severity: HIGH
+    trigger_signal: pressure_bar
+  POWER_ABNORMAL:
+    alarm_name: Abnormal Power Consumption
+    alarm_category: ELECTRICAL
+    default_severity: MEDIUM
+    trigger_signal: power_kw
+  QUALITY_DEGRADATION:
+    alarm_name: Quality Degradation
+    alarm_category: PROCESS
+    default_severity: HIGH
+    trigger_signal: quality_score_pct
+  COMMUNICATION_LOST:
+    alarm_name: Machine Communication Lost
+    alarm_category: CONTROL
+    default_severity: HIGH
+    trigger_signal: communication_state
+
+quality_defect_codes:
+  DIMENSION_OUT_OF_SPEC:
+    defect_name: Dimension Out of Specification
+    defect_category: DIMENSIONAL
+    default_severity: HIGH
+  SURFACE_DEFECT:
+    defect_name: Surface Defect
+    defect_category: SURFACE
+    default_severity: MEDIUM
+  FUNCTIONAL_FAILURE:
+    defect_name: Functional Failure
+    defect_category: FUNCTIONAL
+    default_severity: CRITICAL
+  ASSEMBLY_ERROR:
+    defect_name: Assembly Error
+    defect_category: ASSEMBLY
+    default_severity: HIGH
+  MATERIAL_DEFECT:
+    defect_name: Material Defect
+    defect_category: MATERIAL
+    default_severity: HIGH
+  PROCESS_VARIATION:
+    defect_name: Process Variation
+    defect_category: PROCESS
+    default_severity: MEDIUM
+  COSMETIC_DEFECT:
+    defect_name: Cosmetic Defect
+    defect_category: COSMETIC
+    default_severity: LOW
+
+notes:
+  - failure_mode codes remain governed by config/failure_taxonomy.yaml
+  - machine, plant and line identities remain governed by the Stage 1 factory configuration and inventory
+  - all new master records must reference controlled values from this file

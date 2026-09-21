@@ -107,6 +107,8 @@ def main() -> int:
     print(f"ticks={result.tick_count}")
     print(f"orders_registered={result.order_count}")
     print(f"events_emitted={result.event_count}")
+    print(f"valid_events={result.valid_event_count}")
+    print(f"quarantined_events={result.quarantined_event_count}")
     print(f"simulation_start={result.simulation_start.isoformat()}")
     print(f"simulation_end={result.simulation_end.isoformat()}")
     print(f"run_manifest={result.output_manifest}")

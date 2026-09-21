@@ -1,3 +1,4 @@
+import json
 from pathlib import Path
 
 import yaml
@@ -27,8 +28,10 @@ def test_profile_signals_match_stage_2_2_catalog() -> None:
     catalog_path = Path("../../config/machine_catalog.yaml")
     profiles = yaml.safe_load(profile_path.read_text(encoding="utf-8"))["profiles"]
     catalog = yaml.safe_load(catalog_path.read_text(encoding="utf-8"))["machine_types"]
+    telemetry_schema = json.loads(schema_path.read_text(encoding="utf-8"))["properties"]
 
     assert set(profiles) == set(catalog)
 
     for machine_type, profile in profiles.items():
         assert set(profile["telemetry_signals"]) == set(catalog[machine_type]["telemetry"])
+        assert set(profile["telemetry_signals"]).issubset(telemetry_schema)

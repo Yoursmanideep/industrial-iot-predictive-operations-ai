@@ -6,10 +6,49 @@
   "height": 720,
   "width": 1280,
   "visibility": "HiddenInViewMode",
+  "filterConfig": {
+    "filters": [
+      {
+        "name": "Filter6fc2b4d9e7a3c365d850",
+        "field": {
+          "Column": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "Machine"
+              }
+            },
+            "Property": "machine_id"
+          }
+        },
+        "type": "Categorical",
+        "howCreated": "Drillthrough"
+      }
+    ]
+  },
+  "pageBinding": {
+    "name": "Pod",
+    "type": "Drillthrough",
+    "parameters": [
+      {
+        "name": "Param_Filter6fc2b4d9e7a3c365d850",
+        "boundFilter": "Filter6fc2b4d9e7a3c365d850",
+        "fieldExpr": {
+          "Column": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "Machine"
+              }
+            },
+            "Property": "machine_id"
+          }
+        }
+      }
+    ]
+  },
   "annotations": [
     {
       "name": "intendedUse",
-      "value": "machine-level drillthrough target; bind Machine[machine_id] during deployment"
+      "value": "Drillthrough from machine-level visuals using Machine[machine_id]"
     }
   ]
 }

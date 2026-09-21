@@ -1,0 +1,74 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.9.0/schema.json",
+  "name": "aa11bb22cc33dd44ee55",
+  "position": {
+    "x": 20,
+    "y": 20,
+    "z": 1000,
+    "height": 160,
+    "width": 380,
+    "tabOrder": 1000
+  },
+  "visual": {
+    "visualType": "cardVisual",
+    "query": {
+      "queryState": {
+        "Data": {
+          "projections": [
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "OEE"
+                    }
+                  },
+                  "Property": "OEE %"
+                }
+              },
+              "queryRef": "OEE.OEE %",
+              "nativeQueryRef": "OEE %",
+              "active": true
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "Telemetry"
+                    }
+                  },
+                  "Property": "Average Temperature C"
+                }
+              },
+              "queryRef": "Telemetry.Average Temperature C",
+              "nativeQueryRef": "Average Temperature C",
+              "active": true
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "Telemetry"
+                    }
+                  },
+                  "Property": "Average Vibration mm/s"
+                }
+              },
+              "queryRef": "Telemetry.Average Vibration mm/s",
+              "nativeQueryRef": "Average Vibration mm/s",
+              "active": true
+            }
+          ]
+        }
+      }
+    }
+  },
+  "annotations": [
+    {
+      "name": "businessPurpose",
+      "value": "Machine tooltip summary"
+    }
+  ]
+}

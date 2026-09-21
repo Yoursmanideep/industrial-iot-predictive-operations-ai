@@ -384,9 +384,9 @@ class ProductionExecutionEngine:
                 )
             )
 
-        if order.remaining_quantity <= 1e-9 and all(
+        if order.remaining_quantity <= 1e-9 and order.batches and all(
             current.status is BatchStatus.COMPLETED
-            for current in getattr(order, "_batches", [])
+            for current in order.batches
         ):
             order.status = ProductionOrderStatus.COMPLETED
             order.actual_end_time = context.current_time
@@ -416,7 +416,7 @@ class ProductionExecutionEngine:
     ) -> None:
         if sum(batch.planned_quantity for batch in batches) != order.planned_quantity:
             raise ValueError("Attached batches do not reconcile to order quantity")
-        order._batches = batches
+        order.batches = list(batches)
 
     def pause_batch(
         self,

@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from datetime import datetime, time
+from datetime import datetime, time, timedelta
 from zoneinfo import ZoneInfo
 
 
@@ -34,22 +34,43 @@ class ShiftResolver:
 
     def resolve(self, event_time_utc: datetime) -> ShiftContext:
         local = event_time_utc.astimezone(self._timezone)
+
         for shift in self._shifts:
-            start = datetime.combine(local.date(), shift.start_local, self._timezone)
-            if shift.start_local <= shift.end_local:
+            if shift.start_local < shift.end_local:
+                start = datetime.combine(local.date(), shift.start_local, self._timezone)
                 end = datetime.combine(local.date(), shift.end_local, self._timezone)
                 if start <= local < end:
-                    return ShiftContext(shift.shift_id, str(local.date()), start, end, shift.workload_multiplier)
+                    return ShiftContext(
+                        shift_id=shift.shift_id,
+                        local_date=str(start.date()),
+                        local_start=start,
+                        local_end=end,
+                        workload_multiplier=shift.workload_multiplier,
+                    )
             else:
                 if local.time() >= shift.start_local:
-                    end = datetime.combine(local.date(), shift.end_local, self._timezone)
-                    end = end.replace(day=local.day + 1)
-                    return ShiftContext(shift.shift_id, str(local.date()), start, end, shift.workload_multiplier)
-                previous_date = local.date()
-                start_prev = datetime.combine(previous_date, shift.start_local, self._timezone).replace(day=previous_date.day - 1)
-                end_prev = datetime.combine(previous_date, shift.end_local, self._timezone)
-                if start_prev <= local < end_prev:
-                    return ShiftContext(shift.shift_id, str(local.date()), start_prev, end_prev, shift.workload_multiplier)
+                    start = datetime.combine(local.date(), shift.start_local, self._timezone)
+                    end = start + timedelta(days=1)
+                    return ShiftContext(
+                        shift_id=shift.shift_id,
+                        local_date=str(start.date()),
+                        local_start=start,
+                        local_end=end,
+                        workload_multiplier=shift.workload_multiplier,
+                    )
+
+                previous_date = local.date() - timedelta(days=1)
+                start = datetime.combine(previous_date, shift.start_local, self._timezone)
+                end = datetime.combine(local.date(), shift.end_local, self._timezone)
+                if start <= local < end:
+                    return ShiftContext(
+                        shift_id=shift.shift_id,
+                        local_date=str(start.date()),
+                        local_start=start,
+                        local_end=end,
+                        workload_multiplier=shift.workload_multiplier,
+                    )
+
         raise ValueError(f"No shift found for event time {event_time_utc.isoformat()}")
 
     @staticmethod

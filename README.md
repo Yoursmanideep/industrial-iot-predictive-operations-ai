@@ -41,3 +41,5 @@ Stage 3.12 establishes the SQL-first Fabric Warehouse Gold layer, conformed star
 Stage 3.13 establishes the Power BI semantic model, Direct Lake TMDL definition, KPI measures, dynamic plant RLS and report blueprint.
 
 Stage 3.14 establishes the source-controlled PBIP/PBIR report project with executive, plant, machine-health, reliability, production/quality and drill-through reporting pages.
+
+Stage 3.15 establishes the real-time Eventstream/Eventhouse/Activator path, KQL operational monitoring, Power Automate workflows and the optional simulator-to-Eventstream live bridge.

@@ -1,0 +1,76 @@
+version: 1.0.0
+description: Machine-type behavior configuration for the simulator state layer.
+
+profiles:
+  CNC:
+    code: CNC
+    telemetry_signals: [spindle_rpm, vibration_mm_s, temperature_c, pressure_bar, power_kw, feed_rate_mm_min, production_rate_unit_min, quality_score_pct]
+    productive_states: [RUNNING]
+    telemetry_states: [RUNNING, IDLE, SETUP, STARVED, BLOCKED, FAULT, MAINTENANCE, RECOVERY]
+    default_telemetry_interval_seconds: 5
+    max_workload_factor: 1.20
+    minimum_health_factor: 0.15
+  HYDRAULIC_PRESS:
+    code: HPR
+    telemetry_signals: [hydraulic_pressure_bar, temperature_c, force_kn, cycle_time_s, power_kw, production_rate_unit_min, quality_score_pct]
+    productive_states: [RUNNING]
+    telemetry_states: [RUNNING, IDLE, SETUP, STARVED, BLOCKED, FAULT, MAINTENANCE, RECOVERY]
+    default_telemetry_interval_seconds: 5
+    max_workload_factor: 1.15
+    minimum_health_factor: 0.15
+  INDUSTRIAL_ROBOT:
+    code: ROB
+    telemetry_signals: [motor_temperature_c, torque_nm, vibration_mm_s, position_error_mm, cycle_time_s, power_kw, production_rate_unit_min]
+    productive_states: [RUNNING]
+    telemetry_states: [RUNNING, IDLE, SETUP, STARVED, BLOCKED, FAULT, MAINTENANCE, RECOVERY]
+    default_telemetry_interval_seconds: 5
+    max_workload_factor: 1.25
+    minimum_health_factor: 0.20
+  CONVEYOR:
+    code: CON
+    telemetry_signals: [motor_current_a, belt_speed_m_s, vibration_mm_s, temperature_c, power_kw, throughput_unit_min]
+    productive_states: [RUNNING]
+    telemetry_states: [RUNNING, IDLE, SETUP, STARVED, BLOCKED, FAULT, MAINTENANCE, RECOVERY]
+    default_telemetry_interval_seconds: 5
+    max_workload_factor: 1.25
+    minimum_health_factor: 0.10
+  COMPRESSOR:
+    code: CMP
+    telemetry_signals: [discharge_pressure_bar, temperature_c, vibration_mm_s, rpm, power_kw]
+    productive_states: [RUNNING]
+    telemetry_states: [RUNNING, IDLE, SETUP, STARVED, BLOCKED, FAULT, MAINTENANCE, RECOVERY]
+    default_telemetry_interval_seconds: 5
+    max_workload_factor: 1.15
+    minimum_health_factor: 0.10
+  FURNACE:
+    code: FRN
+    telemetry_signals: [chamber_temperature_c, fuel_flow_rate, pressure_mbar, power_kw, cycle_time_s, quality_score_pct]
+    productive_states: [RUNNING]
+    telemetry_states: [RUNNING, IDLE, SETUP, STARVED, BLOCKED, FAULT, MAINTENANCE, RECOVERY]
+    default_telemetry_interval_seconds: 5
+    max_workload_factor: 1.10
+    minimum_health_factor: 0.20
+  INSPECTION:
+    code: INS
+    telemetry_signals: [inspection_cycle_time_s, measurement_deviation_mm, defect_probability_pct, equipment_temperature_c]
+    productive_states: [RUNNING]
+    telemetry_states: [RUNNING, IDLE, SETUP, STARVED, BLOCKED, FAULT, MAINTENANCE, RECOVERY]
+    default_telemetry_interval_seconds: 5
+    max_workload_factor: 1.10
+    minimum_health_factor: 0.10
+  PACKAGING:
+    code: PKG
+    telemetry_signals: [cycle_time_s, throughput_unit_min, motor_current_a, temperature_c, power_kw]
+    productive_states: [RUNNING]
+    telemetry_states: [RUNNING, IDLE, SETUP, STARVED, BLOCKED, FAULT, MAINTENANCE, RECOVERY]
+    default_telemetry_interval_seconds: 5
+    max_workload_factor: 1.20
+    minimum_health_factor: 0.10
+  PALLETIZER:
+    code: PAL
+    telemetry_signals: [cycle_time_s, motor_temperature_c, torque_nm, vibration_mm_s, power_kw]
+    productive_states: [RUNNING]
+    telemetry_states: [RUNNING, IDLE, SETUP, STARVED, BLOCKED, FAULT, MAINTENANCE, RECOVERY]
+    default_telemetry_interval_seconds: 5
+    max_workload_factor: 1.20
+    minimum_health_factor: 0.15

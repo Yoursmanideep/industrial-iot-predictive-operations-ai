@@ -137,6 +137,24 @@ class ScenarioEngine:
             reason_code="PREDICTIVE_INTERVENTION",
         )
 
+    def begin_maintenance(
+        self,
+        instance: ScenarioInstance,
+        at: datetime,
+    ) -> ScenarioTransition:
+        if instance.stage is not ScenarioStage.FAILURE:
+            raise ValueError("Corrective maintenance must begin from FAILURE")
+        if instance.status is not ScenarioStatus.FAILED:
+            raise ValueError("Corrective maintenance requires a FAILED scenario")
+        instance.stage = ScenarioStage.MAINTENANCE
+        return ScenarioTransition(
+            scenario_instance_id=instance.scenario_instance_id,
+            from_stage=ScenarioStage.FAILURE,
+            to_stage=ScenarioStage.MAINTENANCE,
+            event_time=at,
+            reason_code="CORRECTIVE_MAINTENANCE_STARTED",
+        )
+
     def complete_maintenance(
         self,
         instance: ScenarioInstance,

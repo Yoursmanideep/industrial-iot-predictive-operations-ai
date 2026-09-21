@@ -27,13 +27,13 @@ def test_direct_lake_source_and_model_references_exist() -> None:
     expression = (MODEL / "expressions.tmdl").read_text()
     model = (MODEL / "model.tmdl").read_text()
     assert "AzureStorage.DataLake" in expression
-    for table in ("Date", "Shift", "Plant", "Line", "Machine", "Product", "OEE", "Production", "Downtime", "Telemetry", "OperationalEvent", "PlantAccess"):
+    for table in ("Date", "Shift", "Plant", "Line", "Machine", "Product", "OEE", "Production", "Downtime", "Telemetry", "OperationalEvent", "MachineFailureRisk", "MLModelHealth", "MLFeatureImportance", "MLFeatureDrift", "PlantAccess"):
         assert f"ref table {table}" in model
 
 
 def test_tmdl_tables_use_direct_lake_entity_partitions() -> None:
     table_dir = MODEL / "tables"
-    required = {"Date", "Shift", "Plant", "Line", "Machine", "Product", "OEE", "Production", "Downtime", "Telemetry", "OperationalEvent", "PlantAccess"}
+    required = {"Date", "Shift", "Plant", "Line", "Machine", "Product", "OEE", "Production", "Downtime", "Telemetry", "OperationalEvent", "MachineFailureRisk", "MLModelHealth", "MLFeatureImportance", "MLFeatureDrift", "PlantAccess"}
     actual = {p.stem for p in table_dir.glob("*.tmdl")}
     assert required.issubset(actual)
     for name in required:

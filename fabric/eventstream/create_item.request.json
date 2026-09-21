@@ -1,0 +1,24 @@
+{
+  "displayName": "IndustrialIoT_Eventstream",
+  "description": "Validated industrial IoT events from the simulator routed to Eventhouse and Fabric Activator.",
+  "type": "Eventstream",
+  "definition": {
+    "parts": [
+      {
+        "path": "eventstream.json",
+        "payload": "<BASE64_ENCODE_EVENTSTREAM_JSON>",
+        "payloadType": "InlineBase64"
+      },
+      {
+        "path": "eventstreamProperties.json",
+        "payload": "<BASE64_ENCODE_PROPERTIES_JSON>",
+        "payloadType": "InlineBase64"
+      },
+      {
+        "path": ".platform",
+        "payload": "<BASE64_ENCODE_PLATFORM_JSON>",
+        "payloadType": "InlineBase64"
+      }
+    ]
+  }
+}

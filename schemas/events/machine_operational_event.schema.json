@@ -1,0 +1,400 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/Yoursmanideep/industrial-iot-predictive-operations-ai/blob/main/schemas/events/machine_operational_event.schema.json",
+  "title": "Machine Operational Event",
+  "description": "Canonical event contract for machine lifecycle, state, alarm, fault and connectivity events.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "event_id",
+    "event_type",
+    "schema_version",
+    "event_time",
+    "ingestion_time",
+    "source_system",
+    "plant_id",
+    "line_id",
+    "machine_id",
+    "machine_type"
+  ],
+  "properties": {
+    "event_id": {
+      "type": "string",
+      "pattern": "^EVT-[0-9a-fA-F-]{36}$"
+    },
+    "event_type": {
+      "type": "string",
+      "enum": [
+        "MachineStarted",
+        "MachineStopped",
+        "StateChanged",
+        "AlarmRaised",
+        "AlarmCleared",
+        "MachineFaulted",
+        "MachineRecovered",
+        "CommunicationLost",
+        "CommunicationRestored"
+      ]
+    },
+    "schema_version": {
+      "type": "string",
+      "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"
+    },
+    "event_time": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "ingestion_time": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "source_system": {
+      "type": "string",
+      "minLength": 1
+    },
+    "correlation_id": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "minLength": 1
+    },
+    "causation_id": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "minLength": 1
+    },
+    "plant_id": {
+      "type": "string",
+      "pattern": "^PLT-[A-Z]{3}-[0-9]{2}$"
+    },
+    "line_id": {
+      "type": "string",
+      "pattern": "^[A-Z]{3}-L[0-9]{2}$"
+    },
+    "machine_id": {
+      "type": "string",
+      "pattern": "^[A-Z]{3}-L[0-9]{2}-[A-Z]{3}[0-9]{2}$"
+    },
+    "machine_type": {
+      "type": "string",
+      "enum": [
+        "CNC",
+        "HYDRAULIC_PRESS",
+        "INDUSTRIAL_ROBOT",
+        "CONVEYOR",
+        "COMPRESSOR",
+        "FURNACE",
+        "INSPECTION",
+        "PACKAGING",
+        "PALLETIZER"
+      ]
+    },
+    "operating_state": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "enum": [
+        "RUNNING",
+        "IDLE",
+        "SETUP",
+        "STARVED",
+        "BLOCKED",
+        "FAULT",
+        "MAINTENANCE",
+        "OFFLINE",
+        "RECOVERY",
+        null
+      ]
+    },
+    "previous_state": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "enum": [
+        "RUNNING",
+        "IDLE",
+        "SETUP",
+        "STARVED",
+        "BLOCKED",
+        "FAULT",
+        "MAINTENANCE",
+        "OFFLINE",
+        "RECOVERY",
+        null
+      ]
+    },
+    "new_state": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "enum": [
+        "RUNNING",
+        "IDLE",
+        "SETUP",
+        "STARVED",
+        "BLOCKED",
+        "FAULT",
+        "MAINTENANCE",
+        "OFFLINE",
+        "RECOVERY",
+        null
+      ]
+    },
+    "alarm_code": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "pattern": "^[A-Z0-9_-]{2,50}$"
+    },
+    "alarm_name": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "minLength": 1
+    },
+    "severity": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "enum": [
+        "INFO",
+        "LOW",
+        "MEDIUM",
+        "HIGH",
+        "CRITICAL",
+        null
+      ]
+    },
+    "fault_code": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "pattern": "^[A-Z0-9_-]{2,50}$"
+    },
+    "failure_mode_code": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "pattern": "^[A-Z0-9_-]{2,50}$"
+    },
+    "message": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "minLength": 1
+    },
+    "trigger_source": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "enum": [
+        "SENSOR",
+        "RULE_ENGINE",
+        "OPERATOR",
+        "PLATFORM",
+        "MAINTENANCE_SYSTEM",
+        "SIMULATOR",
+        null
+      ]
+    },
+    "estimated_duration_seconds": {
+      "type": [
+        "number",
+        "null"
+      ],
+      "minimum": 0
+    },
+    "is_planned": {
+      "type": [
+        "boolean",
+        "null"
+      ]
+    },
+    "communication_gap_seconds": {
+      "type": [
+        "number",
+        "null"
+      ],
+      "minimum": 0
+    },
+    "operator_id": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "pattern": "^OPR-[0-9]{5,}$"
+    },
+    "work_order_id": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "pattern": "^WO-[0-9a-fA-F-]{36}$"
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "event_type": {
+            "const": "MachineStarted"
+          }
+        }
+      },
+      "then": {
+        "required": [
+          "new_state"
+        ],
+        "properties": {
+          "new_state": {
+            "const": "RUNNING"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "event_type": {
+            "const": "MachineStopped"
+          }
+        }
+      },
+      "then": {
+        "required": [
+          "previous_state",
+          "new_state"
+        ]
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "event_type": {
+            "const": "StateChanged"
+          }
+        }
+      },
+      "then": {
+        "required": [
+          "previous_state",
+          "new_state"
+        ]
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "event_type": {
+            "const": "AlarmRaised"
+          }
+        }
+      },
+      "then": {
+        "required": [
+          "alarm_code",
+          "alarm_name",
+          "severity",
+          "operating_state"
+        ]
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "event_type": {
+            "const": "AlarmCleared"
+          }
+        }
+      },
+      "then": {
+        "required": [
+          "alarm_code",
+          "alarm_name"
+        ]
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "event_type": {
+            "const": "MachineFaulted"
+          }
+        }
+      },
+      "then": {
+        "required": [
+          "fault_code",
+          "severity",
+          "operating_state"
+        ],
+        "properties": {
+          "operating_state": {
+            "const": "FAULT"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "event_type": {
+            "const": "MachineRecovered"
+          }
+        }
+      },
+      "then": {
+        "required": [
+          "previous_state",
+          "new_state"
+        ],
+        "properties": {
+          "new_state": {
+            "const": "RECOVERY"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "event_type": {
+            "const": "CommunicationLost"
+          }
+        }
+      },
+      "then": {
+        "required": [
+          "message"
+        ]
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "event_type": {
+            "const": "CommunicationRestored"
+          }
+        }
+      },
+      "then": {
+        "required": [
+          "communication_gap_seconds"
+        ]
+      }
+    }
+  ]
+}

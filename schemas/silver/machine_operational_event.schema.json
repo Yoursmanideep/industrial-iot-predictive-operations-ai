@@ -1,0 +1,150 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Silver Machine Operational Event",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "event_id",
+    "event_time",
+    "ingestion_time",
+    "plant_id",
+    "line_id",
+    "machine_id",
+    "event_type",
+    "ingestion_batch_id",
+    "event_date",
+    "is_late_arrival"
+  ],
+  "properties": {
+    "event_id": {
+      "type": "string"
+    },
+    "event_time": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "ingestion_time": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "plant_id": {
+      "type": "string"
+    },
+    "line_id": {
+      "type": "string"
+    },
+    "machine_id": {
+      "type": "string"
+    },
+    "machine_type": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "operating_state": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "previous_state": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "new_state": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "alarm_code": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "severity": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "fault_code": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "failure_mode_code": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "operator_id": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "work_order_id": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "correlation_id": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "causation_id": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "simulator_run_id": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "scenario_id": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "scenario_instance_id": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "generation_sequence": {
+      "type": [
+        "integer",
+        "null"
+      ]
+    },
+    "ingestion_batch_id": {
+      "type": "string"
+    },
+    "event_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "is_late_arrival": {
+      "type": "boolean"
+    },
+    "processed_at_utc": {
+      "type": "string",
+      "format": "date-time"
+    }
+  }
+}

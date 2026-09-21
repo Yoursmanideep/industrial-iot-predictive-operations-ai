@@ -1,15 +1,24 @@
 # Microsoft Fabric Layer
 
-Stage 3.10 introduces the Fabric ingestion control plane.
+Stage 3.10 introduced replay-safe validated ingestion into Bronze.
+
+Stage 3.11 introduces curated Silver Delta processing.
 
 Structure:
 
-- ingestion/ — deterministic batch identity, checkpoints, scanning, planning and replay-safe Bronze landing
-- notebooks/ — Fabric Spark Bronze Delta ingestion
-- sql/ — ingestion control tables
-- kql/ — Eventhouse destination schema
-- pipelines/ — deployment contract for validated-to-Bronze flow
+- `ingestion/` — deterministic batch identity, checkpoints, scanning and replay-safe Bronze landing
+- `notebooks/` — Bronze and Silver Spark transformations
+- `sql/` — ingestion and Silver control models
+- `kql/` — Eventhouse destination schema
+- `pipelines/` — deployment contracts
+- `silver/` — Silver-layer documentation and contract tests
 
-All Fabric resource names and credentials are externalized.
+Silver outputs:
 
-Next layer: curated Silver data engineering and SQL-first Warehouse modeling.
+- `silver.machine_telemetry`
+- `silver.machine_operational_event`
+- `silver.production_event`
+- `silver.rejected_event`
+- `control.silver_load_audit`
+
+Next layer: SQL-first Warehouse/Gold modeling and analytical fact/dimension design.

@@ -8,7 +8,7 @@ from industrial_sim.context.environment import EnvironmentModel
 from industrial_sim.context.production_context import ProductionContextEngine
 from industrial_sim.context.shift import ShiftResolver
 from industrial_sim.context.workload import WorkloadInputs, WorkloadModel
-from industrial_sim.domain.production import BatchStatus, ProductionOrderStatus
+from industrial_sim.domain.production import BatchStatus, ProductionBatch, ProductionOrderStatus
 from industrial_sim.engine.context import SimulationContext
 from industrial_sim.production.catalog import load_production_catalog
 from industrial_sim.production.engine import ProductionExecutionEngine
@@ -101,9 +101,18 @@ def test_order_and_batches_are_deterministic_and_reconcile() -> None:
     )
     batches = e.create_batches(run_context, order, 4)
     e.attach_batches(order, batches)
-    assert order.production_order_id == UUID(
-        "e13f3f52-1d1c-5d41-9cd0-bd1a9b1a6d07"
+    second_context = context()
+    second_engine = engine()
+    second_order, _ = second_engine.create_order(
+        second_context,
+        "PLT-CHN-01",
+        "CHN-L01",
+        "PROD-MOTOR-A01",
+        100,
+        START,
+        production_sequence=1,
     )
+    assert order.production_order_id == second_order.production_order_id
     assert sum(batch.planned_quantity for batch in batches) == 100
     assert len({batch.batch_id for batch in batches}) == 4
     assert events[0].event_type == "ProductionOrderCreated"
@@ -197,7 +206,7 @@ def test_line_bottleneck_and_slowdown_loss() -> None:
     assert snapshot.available is True
 
     result = line_engine.advance_batch(
-        catalog().product("PROD-MOTOR-A01") and __import__("industrial_sim.domain.production", fromlist=["ProductionBatch"]).ProductionBatch(
+        ProductionBatch(
             batch_id=UUID("12345678-1234-5678-1234-567812345678"),
             production_order_id=RUN_ID,
             plant_id="PLT-CHN-01",

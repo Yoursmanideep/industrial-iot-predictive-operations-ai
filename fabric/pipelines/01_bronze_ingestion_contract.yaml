@@ -22,8 +22,8 @@ activities:
   - name: BronzeDeltaUpsert
     action: run_fabric_spark_notebook
     notebook: fabric/notebooks/01_bronze_ingestion.py
-  - name: CheckpointCommit
-    action: update_control_ingestion_batch_checkpoint
+  - name: CheckpointVerification
+    action: verify_control_ingestion_batch_checkpoint
     success_state: COMPLETED
 
 failure_handling:

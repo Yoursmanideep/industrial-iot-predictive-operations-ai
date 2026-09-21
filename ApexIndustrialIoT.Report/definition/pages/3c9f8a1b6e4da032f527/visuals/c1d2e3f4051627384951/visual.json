@@ -1,0 +1,63 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.9.0/schema.json",
+  "name": "c1d2e3f4051627384951",
+  "position": {
+    "x": 650,
+    "y": 20,
+    "z": 1000,
+    "height": 500,
+    "width": 610,
+    "tabOrder": 1000
+  },
+  "visual": {
+    "visualType": "lineChart",
+    "query": {
+      "queryState": {
+        "Category": {
+          "projections": [
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "Date"
+                    }
+                  },
+                  "Property": "calendar_date"
+                }
+              },
+              "queryRef": "Date.calendar_date",
+              "nativeQueryRef": "calendar_date",
+              "active": true
+            }
+          ]
+        },
+        "Y": {
+          "projections": [
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "Telemetry"
+                    }
+                  },
+                  "Property": "Average Vibration mm/s"
+                }
+              },
+              "queryRef": "Telemetry.Average Vibration mm/s",
+              "nativeQueryRef": "Average Vibration mm/s",
+              "active": true
+            }
+          ]
+        }
+      }
+    }
+  },
+  "annotations": [
+    {
+      "name": "businessPurpose",
+      "value": "Machine vibration trend"
+    }
+  ]
+}

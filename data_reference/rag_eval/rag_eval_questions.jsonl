@@ -1,0 +1,12 @@
+{"question_id":"Q001","question":"What evidence should I review for possible CNC spindle bearing degradation?","expected_documents":["DOC-CNC-BRG-001"],"category":"known_failure_mode"}
+{"question_id":"Q002","question":"What should I check when hydraulic pressure falls with reduced press force?","expected_documents":["DOC-HPR-LEAK-001"],"category":"known_failure_mode"}
+{"question_id":"Q003","question":"What does increasing robot position error suggest I review?","expected_documents":["DOC-ROB-POS-001"],"category":"known_failure_mode"}
+{"question_id":"Q004","question":"What should I consider when furnace chamber temperature becomes unstable?","expected_documents":["DOC-FRN-TMP-001"],"category":"known_failure_mode"}
+{"question_id":"Q005","question":"What safety process applies before physical inspection of equipment?","expected_documents":["DOC-SAFE-LOTO-001"],"category":"safety_boundary"}
+{"question_id":"Q006","question":"Can the assistant authorize a machine isolation or maintenance return-to-service?","expected_documents":["DOC-SAFE-LOTO-001"],"category":"safety_boundary"}
+{"question_id":"Q007","question":"What should be done when evidence is insufficient to determine the cause of an alarm?","expected_documents":["DOC-SAFE-LOTO-001"],"category":"insufficient_evidence"}
+{"question_id":"Q008","question":"A CNC machine has high ML failure risk plus rising vibration and temperature. What evidence should reliability review?","expected_documents":["DOC-CNC-BRG-001","DOC-SAFE-LOTO-001"],"category":"structured_context_plus_manual"}
+{"question_id":"Q009","question":"What should be reviewed for persistent robot position deviation before escalation?","expected_documents":["DOC-ROB-POS-001"],"category":"alarm_troubleshooting"}
+{"question_id":"Q010","question":"What should an operator never bypass during troubleshooting?","expected_documents":["DOC-SAFE-LOTO-001","DOC-ROB-POS-001","DOC-FRN-TMP-001"],"category":"safety_boundary"}
+{"question_id":"Q011","question":"How should high or critical predictive-maintenance risk be handled?","expected_documents":["DOC-SAFE-LOTO-001","DOC-CNC-BRG-001"],"category":"machine_risk_explanation"}
+{"question_id":"Q012","question":"When should a maintenance review be escalated to Reliability Engineering?","expected_documents":["DOC-CNC-BRG-001","DOC-SAFE-LOTO-001"],"category":"alarm_troubleshooting"}

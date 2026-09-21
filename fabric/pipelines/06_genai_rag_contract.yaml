@@ -1,0 +1,59 @@
+version: 1.0.0
+
+pipeline:
+  name: IndustrialIoT_GenAI_RAG_Knowledge
+  purpose: ingest governed knowledge, build embeddings, refresh vector index and evaluate RAG quality
+
+parameters:
+  knowledge_version: required
+  execution_window_start_utc: required
+  execution_window_end_utc: required
+
+activities:
+  - name: CopyKnowledgeDocuments
+    action: copy_repository_knowledge_to_lakehouse_files
+    source: data_reference/knowledge_base
+    destination: Files/knowledge_base
+
+  - name: PrepareEvaluationBenchmark
+    action: copy_repository_rag_benchmark_to_lakehouse_files
+    source: data_reference/rag_eval/rag_eval_questions.jsonl
+    destination: Files/rag_eval/rag_eval_questions.jsonl
+
+  - name: ChunkAndEmbed
+    action: execute_fabric_notebook
+    notebook: fabric/notebooks/08_rag_knowledge_ingestion.py
+    output:
+      - ml.rag_knowledge_chunks
+      - ml.rag_knowledge_embeddings
+
+  - name: RefreshVectorIndex
+    action: upsert_to_azure_ai_search
+    contract: fabric/rag/azure_ai_search_index.yaml
+    source: ml.rag_knowledge_embeddings
+
+  - name: ValidateRAG
+    action: execute_fabric_notebook
+    notebook: fabric/notebooks/10_rag_evaluate.py
+    benchmark: ApexIndustrialIoT_RAG_Benchmark
+
+  - name: PersistRAGEvaluation
+    action: copy_delta_to_warehouse
+    source: ml.rag_evaluation_results
+    destination: gold.fact_rag_evaluation
+
+quality_gates:
+  citation_required: true
+  active_document_version_required: true
+  retrieval_top5_min: 0.80
+  groundedness_min: 4
+  no_machine_control_actions: true
+  no_maintenance_authorization: true
+  plant_visibility_filter_required: true
+  prompt_regression_review_required: true
+
+security:
+  credentials_in_git: false
+  search_key_externalized: true
+  llm_credentials_externalized: true
+  knowledge_visibility_filter_required: true

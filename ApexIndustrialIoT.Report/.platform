@@ -1,0 +1,12 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/gitIntegration/platformProperties/2.0.0/schema.json",
+  "metadata": {
+    "type": "Report",
+    "displayName": "Apex Industrial IoT Operations",
+    "description": "Industrial IoT predictive operations reporting"
+  },
+  "config": {
+    "version": "2.0",
+    "logicalId": "7e7d7e67-0ef9-4d8f-a4bc-b7a1eaf23140"
+  }
+}

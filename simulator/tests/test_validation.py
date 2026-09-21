@@ -153,3 +153,42 @@ def test_quarantine_metadata_is_deterministic(tmp_path: Path) -> None:
     assert len(lines) == 2
     assert '"quarantine_id":"QRT-' in lines[0]
     assert '"original_payload":' in lines[0]
+
+
+def test_validated_stream_writer_routes_invalid_event_to_quarantine(tmp_path: Path) -> None:
+    from industrial_sim.validation.stream import ValidatedEventStreamWriter
+
+    writer = ValidatedEventStreamWriter(
+        schema_root=SCHEMA_ROOT,
+        output_root=tmp_path,
+    )
+
+    valid = make_event(
+        "ProductionOrderCreated",
+        1,
+        product_id="PROD-MOTOR-A01",
+        planned_quantity=100,
+        quantity_uom="unit",
+        planned_start_time=START,
+        planned_end_time=START + timedelta(hours=1),
+    )
+    invalid = make_event(
+        "ProductionOrderReleased",
+        2,
+        product_id="PROD-MOTOR-A01",
+        planned_quantity=100,
+        quantity_uom="invalid",
+    )
+
+    writer.write([valid, invalid])
+    writer.close()
+    manifest_path = writer.write_manifest()
+
+    manifest = __import__("json").loads(
+        manifest_path.read_text(encoding="utf-8")
+    )
+    assert manifest["validation"]["valid_count"] == 1
+    assert manifest["validation"]["quarantined_count"] == 1
+    assert (tmp_path / "run_event_manifest.json").is_file()
+    quarantine_files = list((tmp_path / "quarantine").rglob("quarantine.jsonl"))
+    assert len(quarantine_files) == 1

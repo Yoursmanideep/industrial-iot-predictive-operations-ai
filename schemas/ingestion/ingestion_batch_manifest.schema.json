@@ -1,0 +1,88 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Fabric Ingestion Batch Manifest",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "ingestion_batch_id",
+    "simulator_run_id",
+    "source_file_path",
+    "source_file_sha256",
+    "event_type",
+    "event_date",
+    "plant_id",
+    "event_count",
+    "first_generation_sequence",
+    "last_generation_sequence",
+    "created_at_utc"
+  ],
+  "properties": {
+    "ingestion_batch_id": {
+      "type": "string",
+      "pattern": "^IBT-[0-9a-fA-F]{64}$"
+    },
+    "simulator_run_id": {
+      "type": "string",
+      "pattern": "^RUN-[0-9a-fA-F-]{36}$"
+    },
+    "source_file_path": {
+      "type": "string",
+      "minLength": 1
+    },
+    "source_file_sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "event_type": {
+      "type": "string",
+      "enum": [
+        "telemetry",
+        "operational",
+        "production"
+      ]
+    },
+    "event_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "plant_id": {
+      "type": "string",
+      "pattern": "^PLT-[A-Z]{3}-[0-9]{2}$"
+    },
+    "event_count": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "first_generation_sequence": {
+      "type": [
+        "integer",
+        "null"
+      ],
+      "minimum": 1
+    },
+    "last_generation_sequence": {
+      "type": [
+        "integer",
+        "null"
+      ],
+      "minimum": 1
+    },
+    "created_at_utc": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "schema_version": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"
+    },
+    "destination_path": {
+      "type": [
+        "string",
+        "null"
+      ]
+    }
+  }
+}

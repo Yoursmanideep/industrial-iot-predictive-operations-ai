@@ -2,7 +2,9 @@ version: 1.0.0
 
 activator:
   name: IndustrialIoT_Predictive_Maintenance_Activator
-  source: Eventhouse:IndustrialIoTMLPrediction
+  sources:
+    prediction_stream: Eventhouse:IndustrialIoTMLPrediction
+    model_health_query: FabricWarehouse:mart.v_ml_model_health
   object_type: IndustrialMachine
   object_key: machine_id
 
@@ -33,7 +35,7 @@ rules:
     name: ML Monitoring Breach
     rule_type: event_or_property
     condition:
-      source: mart.v_ml_model_health
+      source: model_health_query
       status: BREACH
     action:
       type: custom_action

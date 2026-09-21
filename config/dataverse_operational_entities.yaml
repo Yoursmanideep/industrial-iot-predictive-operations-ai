@@ -31,11 +31,18 @@ entities:
     alternate_key: incident_key
     fields:
       incident_key: string
+      prediction_id: string
       machine_id: string
       plant_id: string
       line_id: string
+      work_item_type: enum(PREDICTIVE_ML_REVIEW,MANUAL,MODEL_REVIEW)
       recommended_priority: enum(LOW,MEDIUM,HIGH,CRITICAL)
       source: enum(ACTIVATOR,MANUAL,MODEL)
+      risk_score: decimal
+      risk_band: enum(LOW,MEDIUM,HIGH,CRITICAL)
+      model_name: string
+      model_version: string
+      feature_time_utc: datetime
       status: enum(NEW,ASSIGNED,IN_PROGRESS,COMPLETED,CANCELLED)
       work_order_id: string
       created_at_utc: datetime

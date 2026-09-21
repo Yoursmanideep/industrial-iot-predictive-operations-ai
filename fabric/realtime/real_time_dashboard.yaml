@@ -1,0 +1,103 @@
+version: 1.0.0
+
+dashboard:
+  name: Apex Industrial IoT Live Operations
+  source: Eventhouse:${FABRIC_EVENTHOUSE_NAME}/${FABRIC_EVENTHOUSE_DATABASE}
+  refresh_model: KQL_real_time
+  time_zone: UTC
+
+tiles:
+  - id: live_oee_context
+    title: Live Plant Quality / Production Context
+    query: rt_plant_realtime_kpi
+    visualization: table
+    columns:
+      - plant_id
+      - total_quantity
+      - good_quantity
+      - rejected_quantity
+      - quality_pct
+      - alarm_count
+      - fault_count
+      - communication_loss_count
+
+  - id: critical_machines
+    title: Machines at Critical/High Risk
+    query: rt_machine_risk
+    visualization: table
+    filter: risk_band in (CRITICAL,HIGH)
+    columns:
+      - plant_id
+      - line_id
+      - machine_id
+      - machine_type
+      - machine_risk_score
+      - risk_band
+      - temperature_c
+      - vibration_mm_s
+      - fault_count
+
+  - id: critical_incidents
+    title: Critical Incidents — Last 15 Minutes
+    query: rt_recent_critical_incidents
+    visualization: table
+    columns:
+      - event_time
+      - plant_id
+      - line_id
+      - machine_id
+      - event_type
+      - severity
+      - alarm_code
+      - fault_code
+      - failure_mode_code
+
+  - id: production_15m
+    title: Production — Last 15 Minutes
+    query: rt_production_15m
+    visualization: barChart
+    dimensions:
+      - plant_id
+      - line_id
+    measures:
+      - actual_quantity
+      - good_quantity
+      - rejected_quantity
+
+  - id: production_losses
+    title: Production Loss Events
+    query: rt_production_losses
+    visualization: table
+    columns:
+      - event_time
+      - plant_id
+      - line_id
+      - machine_id
+      - production_order_id
+      - loss_quantity
+      - loss_category
+      - loss_reason_code
+
+  - id: stream_health
+    title: Stream Health
+    query: rt_stream_health
+    visualization: table
+    columns:
+      - event_type
+      - event_count
+      - avg_ingestion_lag_ms
+      - p95_ingestion_lag_ms
+
+interaction:
+  filters:
+    - plant_id
+    - line_id
+    - machine_id
+    - event_type
+  machine_context:
+    drillthrough_report: ApexIndustrialIoT.Report::Machine Detail
+
+alerting:
+  activator_source: IndustrialIoT_Eventstream
+  avoid_duplicate_alerts: true
+  alert_rule_preview_required: true

@@ -11,11 +11,11 @@
   "annotations": [
     {
       "name": "stage",
-      "value": "3.14"
+      "value": "3.17"
     },
     {
       "name": "designIntent",
-      "value": "Industrial operations executive and plant reporting"
+      "value": "Industrial operations executive, plant and predictive-maintenance reporting"
     }
   ]
 }

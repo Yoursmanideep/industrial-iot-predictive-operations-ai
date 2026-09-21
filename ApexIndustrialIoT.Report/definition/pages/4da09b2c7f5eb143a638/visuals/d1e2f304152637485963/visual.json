@@ -1,0 +1,44 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.9.0/schema.json",
+  "name": "d1e2f304152637485963",
+  "position": {
+    "x": 330,
+    "y": 540,
+    "z": 1000,
+    "height": 140,
+    "width": 290,
+    "tabOrder": 1000
+  },
+  "visual": {
+    "visualType": "cardVisual",
+    "query": {
+      "queryState": {
+        "Data": {
+          "projections": [
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "OperationalEvent"
+                    }
+                  },
+                  "Property": "Fault Count"
+                }
+              },
+              "queryRef": "OperationalEvent.Fault Count",
+              "nativeQueryRef": "Fault Count",
+              "active": true
+            }
+          ]
+        }
+      }
+    }
+  },
+  "annotations": [
+    {
+      "name": "businessPurpose",
+      "value": "Fault count KPI"
+    }
+  ]
+}

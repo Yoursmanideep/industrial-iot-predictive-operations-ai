@@ -14,7 +14,7 @@ from industrial_sim.engine.context import SimulationContext
 from industrial_sim.production.catalog import load_production_catalog
 from industrial_sim.production.engine import ProductionExecutionEngine
 from industrial_sim.production.generator import EnterpriseProductionGenerator
-from industrial_sim.simulation.output import PartitionedEventStreamWriter
+from industrial_sim.validation.stream import ValidatedEventStreamWriter
 from industrial_sim.simulation.step_engine import IntegratedSimulationStepEngine
 from industrial_sim.world.machines import MachineWorldLoader
 
@@ -28,6 +28,8 @@ class SimulationRunnerResult:
     tick_count: int
     order_count: int
     event_count: int
+    valid_event_count: int
+    quarantined_event_count: int
     output_manifest: str
 
 
@@ -118,7 +120,10 @@ class EnterpriseSimulationRunner:
                 generation["time"]["telemetry"]["incident_interval_seconds"]
             ),
         )
-        writer = PartitionedEventStreamWriter(output_root)
+        writer = ValidatedEventStreamWriter(
+            schema_root=self.root / "schemas",
+            output_root=output_root,
+        )
 
         tick_seconds = (
             int(generation["time"]["live_tick_seconds"])
@@ -186,6 +191,7 @@ class EnterpriseSimulationRunner:
 
         writer.close()
         manifest_path = writer.write_manifest()
+        stream_manifest = writer.manifest()
         run_manifest_path = Path(manifest_path).with_name("simulation_run_manifest.json")
         run_manifest_path.write_text(
             json.dumps(
@@ -198,8 +204,14 @@ class EnterpriseSimulationRunner:
                     "simulation_end": end_time.astimezone(timezone.utc).isoformat(),
                     "tick_count": tick_count,
                     "order_count": order_count,
-                    "event_count": writer.manifest()["total_event_count"],
+                    "event_count": stream_manifest["validation"]["total_count"],
+                    "valid_event_count": stream_manifest["validation"]["valid_count"],
+                    "quarantined_event_count": stream_manifest["validation"]["quarantined_count"],
                     "event_manifest": str(manifest_path),
+                    "validation_manifest": str(manifest_path).replace(
+                        "run_event_manifest.json",
+                        "validation_manifest.json",
+                    ),
                 },
                 indent=2,
                 sort_keys=True,
@@ -214,6 +226,8 @@ class EnterpriseSimulationRunner:
             simulation_end=end_time,
             tick_count=tick_count,
             order_count=order_count,
-            event_count=writer.manifest()["total_event_count"],
+            event_count=stream_manifest["validation"]["total_count"],
+            valid_event_count=stream_manifest["validation"]["valid_count"],
+            quarantined_event_count=stream_manifest["validation"]["quarantined_count"],
             output_manifest=str(run_manifest_path),
         )

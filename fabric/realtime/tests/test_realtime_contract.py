@@ -68,3 +68,25 @@ def test_realtime_dashboard_and_dataverse_contracts_exist() -> None:
     assert "IndustrialIoTIncident" in entities
     assert "MaintenanceWorkItem" in entities
     assert "ProductionLossWorkItem" in entities
+
+def test_eventstream_schema_association_and_unified_schema_exist() -> None:
+    association = yaml.safe_load(
+        (ROOT / "eventstream/schema_association.yaml").read_text()
+    )
+    assert association["eventstream"]["schema_mode"] == "Extended"
+    assert association["eventstream"]["schema_file"] == "schemas/realtime/industrial_iot_eventstream.schema.json"
+
+    schema = json.loads(
+        (ROOT.parent / "schemas/realtime/industrial_iot_eventstream.schema.json").read_text()
+    )
+    for field in (
+        "event_id",
+        "event_type",
+        "event_time",
+        "machine_id",
+        "temperature_c",
+        "vibration_mm_s",
+        "fault_code",
+        "loss_quantity",
+    ):
+        assert field in schema["properties"]

@@ -1,0 +1,8 @@
+defect_sk,defect_code,defect_name,defect_category,default_severity,status
+"1","DIMENSION_OUT_OF_SPEC","Dimension Out of Specification","DIMENSIONAL","HIGH","ACTIVE"
+"2","SURFACE_DEFECT","Surface Defect","SURFACE","MEDIUM","ACTIVE"
+"3","FUNCTIONAL_FAILURE","Functional Failure","FUNCTIONAL","CRITICAL","ACTIVE"
+"4","ASSEMBLY_ERROR","Assembly Error","ASSEMBLY","HIGH","ACTIVE"
+"5","MATERIAL_DEFECT","Material Defect","MATERIAL","HIGH","ACTIVE"
+"6","PROCESS_VARIATION","Process Variation","PROCESS","MEDIUM","ACTIVE"
+"7","COSMETIC_DEFECT","Cosmetic Defect","COSMETIC","LOW","ACTIVE"

@@ -1,0 +1,56 @@
+version: 1.0.0
+
+warehouse:
+  name: ${FABRIC_WAREHOUSE_NAME}
+  environment: DEV
+  gold_schema: gold
+  mart_schema: mart
+  staging_schema: stg
+  control_schema: control
+
+sources:
+  silver_lakehouse: ${FABRIC_SILVER_LAKEHOUSE_NAME}
+  master_data_source: mdm
+
+grain:
+  fact_machine_telemetry: one_row_per_silver_telemetry_event
+  fact_machine_operational_event: one_row_per_silver_operational_event
+  fact_downtime_interval: one_state_interval_overlapping_a_shift
+  fact_production_event: one_row_per_silver_production_event
+  fact_production_loss: one_production_loss_event
+  fact_maintenance_event: one_maintenance_event
+  fact_quality_event: one_quality_event
+  fact_oee_daily: one_machine_shift_business_date
+
+business_timezone:
+  name: Asia/Kolkata
+  utc_offset_minutes: 330
+  business_day_start_local: "06:00"
+
+kpi_definitions:
+  availability: run_time_seconds / planned_production_time_seconds
+  performance: ideal_production_seconds / run_time_seconds
+  quality: good_quantity / total_quantity
+  oee: availability * performance * quality
+  planned_production_time: scheduled_shift_seconds - planned_stop_seconds
+  ideal_production_seconds: SUM(actual_quantity * standard_cycle_time_seconds)
+
+dimension_strategy:
+  mdm_surrogate_keys_reused: true
+  preserve_scd2_effective_dates: true
+  unknown_member_key: 0
+
+fact_load:
+  idempotency_key: event_id
+  duplicate_action: skip
+  source_lineage_required: true
+  merge_supported: true
+
+consumption:
+  power_bi_surface: mart
+  semantic_model_pattern: star_schema
+  direct_lake_mode_candidate: true
+
+security:
+  credentials_in_git: false
+  workspace_names_from_environment: true

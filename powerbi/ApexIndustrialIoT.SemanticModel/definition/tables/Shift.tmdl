@@ -1,0 +1,33 @@
+table Shift
+    column shift_sk
+        dataType: int64
+        isHidden
+        isKey
+        summarizeBy: none
+        sourceColumn: shift_sk
+    column shift_id
+        dataType: string
+        summarizeBy: none
+        sourceColumn: shift_id
+    column shift_name
+        dataType: string
+        summarizeBy: none
+        sourceColumn: shift_name
+    column start_local
+        dataType: string
+        summarizeBy: none
+        sourceColumn: start_local
+    column end_local
+        dataType: string
+        summarizeBy: none
+        sourceColumn: end_local
+    column crosses_midnight
+        dataType: boolean
+        summarizeBy: none
+        sourceColumn: crosses_midnight
+    partition Shift = entity
+        mode: directLake
+        source
+            entityName: dim_shift
+            schemaName: gold
+            expressionSource: DL_Warehouse

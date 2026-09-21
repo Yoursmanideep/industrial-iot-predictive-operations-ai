@@ -1,0 +1,61 @@
+version: 1.0.0
+
+entities:
+  IndustrialIoTIncident:
+    purpose: operational incident register
+    alternate_key: incident_key
+    fields:
+      incident_key: string
+      status: enum(OPEN,ACKNOWLEDGED,IN_PROGRESS,RESOLVED,CANCELLED)
+      severity: enum(LOW,MEDIUM,HIGH,CRITICAL)
+      plant_id: string
+      line_id: string
+      machine_id: string
+      machine_type: string
+      event_type: string
+      event_id: string
+      event_time_utc: datetime
+      alarm_code: string
+      fault_code: string
+      failure_mode_code: string
+      scenario_id: string
+      scenario_instance_id: string
+      escalation_level: integer
+      assigned_team: string
+      assigned_to: string
+      created_at_utc: datetime
+      updated_at_utc: datetime
+
+  MaintenanceWorkItem:
+    purpose: machine maintenance handoff from real-time alerting
+    alternate_key: incident_key
+    fields:
+      incident_key: string
+      machine_id: string
+      plant_id: string
+      line_id: string
+      recommended_priority: enum(LOW,MEDIUM,HIGH,CRITICAL)
+      source: enum(ACTIVATOR,MANUAL,MODEL)
+      status: enum(NEW,ASSIGNED,IN_PROGRESS,COMPLETED,CANCELLED)
+      work_order_id: string
+      created_at_utc: datetime
+
+  ProductionLossWorkItem:
+    purpose: production-control follow-up item
+    alternate_key: source_event_id
+    fields:
+      source_event_id: string
+      plant_id: string
+      line_id: string
+      machine_id: string
+      production_order_id: string
+      loss_quantity: decimal
+      loss_category: string
+      loss_reason_code: string
+      event_time_utc: datetime
+      status: enum(NEW,REVIEWED,CLOSED)
+
+security:
+  row_access: plant_scope
+  credentials_in_git: false
+  connection_reference_externalized: true

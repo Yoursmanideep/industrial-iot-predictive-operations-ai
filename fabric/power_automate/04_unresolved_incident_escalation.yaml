@@ -1,0 +1,36 @@
+version: 1.0.0
+
+flow:
+  name: IndustrialIoT_Unresolved_Incident_Escalation
+  trigger:
+    type: child_flow
+    source: IndustrialIoT_Communication_Incident_Response
+  purpose: escalate_unresolved_machine_incidents
+
+inputs:
+  - incident_key
+  - machine_id
+  - plant_id
+  - line_id
+
+steps:
+  - name: WaitForReviewWindow
+    action: delay
+    duration_minutes: 10
+  - name: CheckIncidentStatus
+    action: read_dataverse_row
+    entity: IndustrialIoTIncident
+    key: incident_key
+  - name: Escalate
+    condition: status equals OPEN
+    action: send_teams_message
+    recipient_group: Reliability Engineering
+    content_template: "Unresolved machine communication incident after 10 minutes | {plant_id} | {line_id} | {machine_id}"
+  - name: UpdateEscalationState
+    condition: status equals OPEN
+    action: update_dataverse_row
+    fields:
+      escalation_level: 1
+
+security:
+  credentials_in_git: false

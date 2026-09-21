@@ -1,0 +1,51 @@
+physical_master_model:
+  schemas:
+    mdm: enterprise_master_dimensions
+    ref: governed_reference_codes
+    audit: data_quality_results
+
+  surrogate_key_suffix: _sk
+  business_key_rule: immutable
+  scd2_columns:
+    - effective_from
+    - effective_to
+    - is_current
+
+  scd2_entities:
+    - production_area
+    - line
+    - machine_model
+    - machine
+    - product
+    - operator
+    - technician
+    - supplier
+    - spare_part
+
+  type1_reference_entities:
+    - shift
+
+  governed_reference_entities:
+    - failure_mode
+    - alarm_code
+    - production_reason
+    - quality_defect
+
+  hierarchy:
+    plant:
+      child: production_area
+    production_area:
+      child: line
+    line:
+      child: machine
+    machine:
+      child: telemetry_and_operations
+
+  validation:
+    duplicate_business_key: required
+    parent_key_exists: required
+    single_current_scd2_row: required
+    non_overlapping_effective_dates: required
+    controlled_code_validation: required
+    machine_type_consistency: required
+    hierarchy_consistency: required

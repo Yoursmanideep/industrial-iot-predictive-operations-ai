@@ -1,7 +1,3 @@
-relationship 'Shift Calendar to Date'
-    fromColumn: 'Shift Calendar'.business_date_sk
-    toColumn: Date.date_sk
-
 relationship 'OEE to Date'
     fromColumn: OEE.date_sk
     toColumn: Date.date_sk

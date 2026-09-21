@@ -18,7 +18,7 @@ modeling:
   imported_dimensions: false
   implicit_measures: discouraged
   foreign_keys_hidden: true
-  bi_layer: mart_plus_gold_base_tables
+  bi_layer: Gold base tables for Direct Lake; mart views for report-design reference
 
 tables:
   dimensions:

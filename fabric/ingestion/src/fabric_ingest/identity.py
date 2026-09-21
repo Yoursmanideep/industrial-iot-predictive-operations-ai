@@ -5,7 +5,7 @@ import hashlib
 
 def canonical_batch_key(
     simulator_run_id: str,
-    source_file_path: str,
+    logical_source_key: str,
     source_file_sha256: str,
     first_generation_sequence: int | None,
     last_generation_sequence: int | None,
@@ -14,7 +14,7 @@ def canonical_batch_key(
     raw = "|".join(
         (
             simulator_run_id,
-            source_file_path,
+            logical_source_key,
             source_file_sha256,
             str(first_generation_sequence or ""),
             str(last_generation_sequence or ""),

@@ -2,13 +2,28 @@ from __future__ import annotations
 
 import hashlib
 from datetime import datetime
-from uuid import UUID
+from uuid import UUID, uuid5
+
+from industrial_sim.lineage.identity import run_namespace
 
 
 def stable_fraction(*parts: object) -> float:
     raw = "|".join(str(part) for part in parts).encode("utf-8")
     integer = int.from_bytes(hashlib.sha256(raw).digest()[:8], "big")
     return integer / float(2**64 - 1)
+
+
+def deterministic_scenario_instance_id(
+    simulator_run_id: UUID,
+    machine_id: str,
+    scenario_id: str,
+    started_at: datetime,
+    generation_sequence: int,
+) -> UUID:
+    if generation_sequence < 1:
+        raise ValueError("generation_sequence must start at 1.")
+    key = "|".join((machine_id, scenario_id, started_at.isoformat(), str(generation_sequence)))
+    return uuid5(run_namespace(simulator_run_id), f"scenario-instance|{key}")
 
 
 def choose_duration_minutes(

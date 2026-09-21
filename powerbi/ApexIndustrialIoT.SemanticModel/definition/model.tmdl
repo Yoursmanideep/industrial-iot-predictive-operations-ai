@@ -1,0 +1,23 @@
+model Model
+
+    culture: en-US
+    defaultPowerBIDataSourceVersion: powerBI_V3
+    discourageImplicitMeasures
+    sourceQueryCulture: en-US
+
+    ref table Date
+    ref table Shift
+    ref table Plant
+    ref table Line
+    ref table Machine
+    ref table Product
+    ref table OEE
+    ref table Production
+    ref table Downtime
+    ref table Telemetry
+    ref table OperationalEvent
+    ref table PlantAccess
+
+    ref role 'Plant RLS'
+
+    ref cultureInfo en-US

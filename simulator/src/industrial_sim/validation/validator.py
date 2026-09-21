@@ -64,6 +64,7 @@ class SimulatorEventValidator:
         errors.extend(self._validate_business_rules(payload))
 
         result = ValidationResult.ok() if not errors else ValidationResult.invalid(errors)
+        self._advance_observed_cursor(payload)
         if result.valid:
             self._accept(payload)
         else:
@@ -134,11 +135,11 @@ class SimulatorEventValidator:
                     "generation_sequence",
                 )
             )
-        elif sequence != self.state.last_generation_sequence + 1:
+        elif sequence != self.state.last_seen_generation_sequence + 1:
             errors.append(
                 ValidationError(
                     "GENERATION_SEQUENCE_GAP",
-                    f"Expected generation_sequence={self.state.last_generation_sequence + 1}, received {sequence}",
+                    f"Expected generation_sequence={self.state.last_seen_generation_sequence + 1}, received {sequence}",
                     "generation_sequence",
                 )
             )
@@ -297,6 +298,21 @@ class SimulatorEventValidator:
                 )
 
         return errors
+
+    def _advance_observed_cursor(self, payload: dict[str, Any]) -> None:
+        sequence = payload.get("generation_sequence")
+        if isinstance(sequence, int) and not isinstance(sequence, bool):
+            self.state.last_seen_generation_sequence = sequence
+        raw_event_time = payload.get("event_time")
+        if raw_event_time:
+            try:
+                event_time = datetime.fromisoformat(
+                    str(raw_event_time).replace("Z", "+00:00")
+                )
+            except ValueError:
+                return
+            if self.state.last_event_time is None or event_time >= self.state.last_event_time:
+                self.state.last_event_time = event_time
 
     def _accept(self, payload: dict[str, Any]) -> None:
         event_id = payload["event_id"]

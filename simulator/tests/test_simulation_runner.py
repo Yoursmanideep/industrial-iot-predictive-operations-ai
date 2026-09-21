@@ -102,3 +102,20 @@ def test_runner_uses_deterministic_default_run_id(tmp_path: Path) -> None:
     assert result_a.run_id == result_b.run_id
     assert result_a.mode is RunMode.LIVE
     assert result_a.simulation_end > result_a.simulation_start
+
+
+def test_live_runner_uses_five_second_telemetry_cadence(tmp_path: Path) -> None:
+    runner = EnterpriseSimulationRunner(ROOT)
+    result = runner.run(
+        mode=RunMode.LIVE,
+        start_time=START,
+        end_time=START + timedelta(seconds=10),
+        seed=20260921,
+        run_id=RUN_ID,
+        output_root=tmp_path / "live-smoke",
+    )
+    assert result.tick_count == 2
+    manifest = (tmp_path / "live-smoke" / "run_event_manifest.json").read_text(
+        encoding="utf-8"
+    )
+    assert '"event_count": 540' in manifest

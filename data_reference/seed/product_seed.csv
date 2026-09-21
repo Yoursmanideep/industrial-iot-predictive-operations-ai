@@ -1,0 +1,13 @@
+product_sk,product_id,product_name,product_family,product_category,unit_of_measure,standard_cycle_time_seconds,standard_unit_cost_inr,status,effective_from,effective_to,is_current
+"1","PROD-MOTOR-A01","Apex Motor Assembly A01","Motor Assemblies","Electromechanical","unit","42","18500","ACTIVE","2024-01-01","","true"
+"2","PROD-MOTOR-A02","Apex Motor Assembly A02","Motor Assemblies","Electromechanical","unit","48","22400","ACTIVE","2024-01-01","","true"
+"3","PROD-PUMP-B01","Industrial Pump B01","Pump Systems","Fluid Handling","unit","55","31800","ACTIVE","2024-01-01","","true"
+"4","PROD-PUMP-B02","Industrial Pump B02","Pump Systems","Fluid Handling","unit","62","35750","ACTIVE","2024-01-01","","true"
+"5","PROD-GEAR-C01","Precision Gearbox C01","Drive Systems","Mechanical","unit","38","27600","ACTIVE","2024-01-01","","true"
+"6","PROD-GEAR-C02","Precision Gearbox C02","Drive Systems","Mechanical","unit","45","29800","ACTIVE","2024-01-01","","true"
+"7","PROD-VALVE-D01","Control Valve D01","Fluid Control","Mechanical","unit","31","12400","ACTIVE","2024-01-01","","true"
+"8","PROD-VALVE-D02","Control Valve D02","Fluid Control","unit","36","14800","","ACTIVE","2024-01-01","","true"
+"9","PROD-HOUSING-E01","Machined Housing E01","Machined Components","Precision Parts","unit","28","8400","ACTIVE","2024-01-01","","true"
+"10","PROD-HOUSING-E02","Machined Housing E02","Machined Components","Precision Parts","unit","34","9700","ACTIVE","2024-01-01","","true"
+"11","PROD-SHAFT-F01","Drive Shaft F01","Drive Components","Precision Parts","unit","25","11200","ACTIVE","2024-01-01","","true"
+"12","PROD-SHAFT-F02","Drive Shaft F02","Drive Components","Precision Parts","unit","30","12900","ACTIVE","2024-01-01","","true"

@@ -3,7 +3,7 @@ from __future__ import annotations
 import json
 from datetime import datetime, timezone
 from pathlib import Path
-from uuid import uuid4
+from uuid import NAMESPACE_URL, uuid5
 
 from industrial_sim.validation.models import ValidationResult
 
@@ -27,8 +27,8 @@ class QuarantineWriter:
             day = "unknown"
 
         record = {
-            "quarantine_id": f"QRT-{uuid4()}",
-            "quarantined_at_utc": datetime.now(timezone.utc).isoformat(),
+            "quarantine_id": f"QRT-{uuid5(NAMESPACE_URL, str(payload.get("event_id") or payload))}",
+            "quarantined_at_utc": payload.get("event_time") or datetime(1970, 1, 1, tzinfo=timezone.utc).isoformat(),
             "reason_codes": [error.code for error in result.errors],
             "validation_errors": [error.to_dict() for error in result.errors],
             "event_id": payload.get("event_id"),

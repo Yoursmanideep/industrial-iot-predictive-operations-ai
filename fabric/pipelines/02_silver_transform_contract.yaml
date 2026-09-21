@@ -1,0 +1,51 @@
+version: 1.0.0
+
+pipeline:
+  name: IndustrialIoT_BronzeToSilver
+  purpose: normalize_deduplicate_master_validate_and_curate
+
+parameters:
+  silver_run_id: required
+  source_event_date_start: optional
+  source_event_date_end: optional
+
+activities:
+  - name: CheckBronzeAvailability
+    action: verify_bronze_table_exists
+  - name: ValidateMasterReferences
+    action: verify_mdm_tables_available
+    tables:
+      - mdm.dim_plant
+      - mdm.dim_line
+      - mdm.dim_machine
+      - mdm.dim_product
+  - name: BronzeToSilver
+    action: run_fabric_spark_notebook
+    notebook: fabric/notebooks/02_bronze_to_silver.py
+  - name: VerifySilverAudit
+    action: verify_control_silver_load_audit
+    success_state: COMPLETED
+
+quality_gates:
+  duplicate_event_id_same_payload: deduplicate
+  duplicate_event_id_conflicting_payload: quarantine
+  missing_master_reference: quarantine
+  machine_line_mismatch: quarantine
+  machine_type_mismatch: quarantine
+  line_plant_mismatch: quarantine
+  production_quantity_inconsistency: quarantine
+  invalid_timestamp: quarantine
+
+late_arrival:
+  flag_only: true
+  threshold_minutes: 15
+  comparison_scope: ingestion_batch_id
+  event_time_remains_immutable: true
+
+failure_handling:
+  master_tables_unavailable: fail_closed
+  notebook_failure: retry_then_failed
+  audit_commit_required: true
+
+security:
+  credentials_in_git: false

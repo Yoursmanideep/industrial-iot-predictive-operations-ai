@@ -61,7 +61,7 @@ class EnterpriseProductionGenerator:
         day_utc = date_time.astimezone(timezone.utc).date()
         plans: list[GeneratedOrderPlan] = []
 
-        for plant_index, plant_id in enumerate(sorted(plant_ids)):
+        for plant_id in sorted(plant_ids):
             rng = self._rng(context.deterministic_seed, "orders", plant_id, day_utc.isoformat())
             order_count = rng.randint(*self.orders_range)
             plant_lines = tuple(
@@ -178,7 +178,7 @@ class EnterpriseProductionGenerator:
         route = self.catalog.product(product_id).route
         candidates = [
             line_id
-            for line_id in self.catalog.lines
+            for line_id in plant_lines
             if all(
                 machine_type in self.catalog.machines_by_line_type[line_id]
                 for machine_type in route

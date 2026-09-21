@@ -11,6 +11,7 @@ from industrial_sim.context.production_context import ProductionContextEngine
 from industrial_sim.production.batch_writer import EventBatchManifest, PartitionedProductionEventWriter
 from industrial_sim.production.catalog import load_production_catalog
 from industrial_sim.production.engine import ProductionExecutionEngine
+from industrial_sim.engine.context import SimulationContext
 from industrial_sim.production.generator import EnterpriseProductionGenerator
 
 
@@ -52,8 +53,6 @@ def generate_production_plan(
         data_root / "product_seed.csv",
         data_root / "line_seed.csv",
     )
-    from industrial_sim.engine.context import SimulationContext
-
     context = SimulationContext(
         simulator_run_id=run_id,
         deterministic_seed=deterministic_seed,
@@ -88,11 +87,19 @@ def generate_production_plan(
     all_orders = 0
     cursor = start_time
     while cursor < end_time:
-        plans = generator.generate_day(context, cursor, plant_ids)
+        plans = sorted(
+            generator.generate_day(context, cursor, plant_ids),
+            key=lambda plan: (plan.planned_start_time, plan.plant_id, plan.line_id, plan.production_sequence),
+        )
         all_orders += len(plans)
         for plan in plans:
+            context.current_time = plan.planned_start_time
             order, batches, events = generator.instantiate(context, plan)
             all_batches += len(batches)
+            events.append(execution_engine.release_order(context, order))
+            events.append(execution_engine.start_order(context, order))
+            for batch in batches:
+                events.extend(execution_engine.start_batch(context, order, batch))
             all_events.extend(events)
         cursor += timedelta(days=1)
 

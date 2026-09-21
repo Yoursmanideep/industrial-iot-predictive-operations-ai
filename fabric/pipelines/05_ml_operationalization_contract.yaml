@@ -28,6 +28,11 @@ activities:
     source: ml.machine_failure_feature_explanation
     destination: gold.fact_ml_feature_explanation
 
+  - name: PersistFeatureDrift
+    action: copy_delta_to_warehouse
+    source: ml.machine_failure_feature_drift
+    destination: gold.fact_ml_feature_drift
+
   - name: ReviewBreaches
     action: evaluate_mart
     source: mart.v_ml_model_health

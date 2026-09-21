@@ -1,0 +1,107 @@
+relationship 'Shift Calendar to Date'
+    fromColumn: 'Shift Calendar'.business_date_sk
+    toColumn: Date.date_sk
+
+relationship 'OEE to Date'
+    fromColumn: OEE.date_sk
+    toColumn: Date.date_sk
+
+relationship 'OEE to Shift'
+    fromColumn: OEE.shift_sk
+    toColumn: Shift.shift_sk
+
+relationship 'OEE to Plant'
+    fromColumn: OEE.plant_sk
+    toColumn: Plant.plant_sk
+
+relationship 'OEE to Line'
+    fromColumn: OEE.line_sk
+    toColumn: Line.line_sk
+
+relationship 'OEE to Machine'
+    fromColumn: OEE.machine_sk
+    toColumn: Machine.machine_sk
+
+relationship 'Production to Date'
+    fromColumn: Production.date_sk
+    toColumn: Date.date_sk
+
+relationship 'Production to Shift'
+    fromColumn: Production.shift_sk
+    toColumn: Shift.shift_sk
+
+relationship 'Production to Plant'
+    fromColumn: Production.plant_sk
+    toColumn: Plant.plant_sk
+
+relationship 'Production to Line'
+    fromColumn: Production.line_sk
+    toColumn: Line.line_sk
+
+relationship 'Production to Machine'
+    fromColumn: Production.machine_sk
+    toColumn: Machine.machine_sk
+
+relationship 'Production to Product'
+    fromColumn: Production.product_sk
+    toColumn: Product.product_sk
+
+relationship 'Downtime to Date'
+    fromColumn: Downtime.date_sk
+    toColumn: Date.date_sk
+
+relationship 'Downtime to Shift'
+    fromColumn: Downtime.shift_sk
+    toColumn: Shift.shift_sk
+
+relationship 'Downtime to Plant'
+    fromColumn: Downtime.plant_sk
+    toColumn: Plant.plant_sk
+
+relationship 'Downtime to Line'
+    fromColumn: Downtime.line_sk
+    toColumn: Line.line_sk
+
+relationship 'Downtime to Machine'
+    fromColumn: Downtime.machine_sk
+    toColumn: Machine.machine_sk
+
+relationship 'Telemetry to Date'
+    fromColumn: Telemetry.date_sk
+    toColumn: Date.date_sk
+
+relationship 'Telemetry to Shift'
+    fromColumn: Telemetry.shift_sk
+    toColumn: Shift.shift_sk
+
+relationship 'Telemetry to Plant'
+    fromColumn: Telemetry.plant_sk
+    toColumn: Plant.plant_sk
+
+relationship 'Telemetry to Line'
+    fromColumn: Telemetry.line_sk
+    toColumn: Line.line_sk
+
+relationship 'Telemetry to Machine'
+    fromColumn: Telemetry.machine_sk
+    toColumn: Machine.machine_sk
+
+relationship 'OperationalEvent to Date'
+    fromColumn: OperationalEvent.date_sk
+    toColumn: Date.date_sk
+
+relationship 'OperationalEvent to Shift'
+    fromColumn: OperationalEvent.shift_sk
+    toColumn: Shift.shift_sk
+
+relationship 'OperationalEvent to Plant'
+    fromColumn: OperationalEvent.plant_sk
+    toColumn: Plant.plant_sk
+
+relationship 'OperationalEvent to Line'
+    fromColumn: OperationalEvent.line_sk
+    toColumn: Line.line_sk
+
+relationship 'OperationalEvent to Machine'
+    fromColumn: OperationalEvent.machine_sk
+    toColumn: Machine.machine_sk

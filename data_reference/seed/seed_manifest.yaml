@@ -1,0 +1,38 @@
+seed_data:
+  source_machine_inventory: data_reference/machine_inventory_270.csv
+  deterministic: true
+  generation_rule: stable formulas and ordered definitions; no runtime randomness
+  counts:
+    machine_inventory: 270
+    machine_master: 270
+    machine_models: 18
+    products: 12
+    operators: 60
+    technicians: 36
+    suppliers: 18
+    spare_parts: 36
+    failure_modes: 25
+    alarm_codes: 6
+    production_reasons: 12
+    quality_defects: 7
+  validation_targets:
+    unique_machine_ids: 270
+    unique_model_codes: 18
+    unique_product_ids: 12
+    unique_operator_ids: 60
+    unique_technician_ids: 36
+    unique_supplier_ids: 18
+    unique_part_ids: 36
+    unique_failure_mode_codes: 25
+    unique_alarm_codes: 6
+    unique_reason_codes: 12
+    unique_defect_codes: 7
+  relationship_rules:
+    machine_to_model: required
+    machine_to_line: required
+    machine_type_to_model_type: must_match
+    spare_part_to_supplier: required
+    failure_mode_to_machine_type: must_match
+  note:
+    alarm machine_type_code uses ALL for shared alarm definitions.
+    Signal applicability remains constrained by the machine telemetry profile.

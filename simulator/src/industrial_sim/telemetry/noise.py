@@ -21,8 +21,21 @@ class DeterministicNoise:
         seed = int.from_bytes(hashlib.sha256(raw).digest()[:8], "big")
         return random.Random(seed)
 
-    def gaussian(self, signal: str, mean: float = 0.0, stddev: float = 1.0) -> float:
+    def gaussian(
+        self,
+        signal: str,
+        mean: float = 0.0,
+        stddev: float = 1.0,
+    ) -> float:
         return self._rng(signal).gauss(mean, stddev)
+
+    def uniform(
+        self,
+        signal: str,
+        low: float = 0.0,
+        high: float = 1.0,
+    ) -> float:
+        return self._rng(signal).uniform(low, high)
 
 
 def clamp(value: float, lower: float, upper: float) -> float:

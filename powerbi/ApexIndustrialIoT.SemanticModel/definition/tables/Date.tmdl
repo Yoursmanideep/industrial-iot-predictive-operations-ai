@@ -1,5 +1,4 @@
 table Date
-    isHidden: false
     column date_sk
         dataType: int64
         isHidden

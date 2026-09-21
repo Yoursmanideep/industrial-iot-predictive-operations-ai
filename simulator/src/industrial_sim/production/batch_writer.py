@@ -72,10 +72,17 @@ class PartitionedProductionEventWriter:
 
         first_event_time = ordered[0].event_time.isoformat() if ordered else None
         last_event_time = ordered[-1].event_time.isoformat() if ordered else None
-        return EventBatchManifest(
+        manifest = EventBatchManifest(
             event_count=count,
             partition_count=len(files),
             first_event_time=first_event_time,
             last_event_time=last_event_time,
             files=tuple(str(path) for path in files),
         )
+        manifest_path = self.output_root / "production_event_manifest.json"
+        self.output_root.mkdir(parents=True, exist_ok=True)
+        manifest_path.write_text(
+            json.dumps(manifest.to_dict(), indent=2, sort_keys=True) + "\n",
+            encoding="utf-8",
+        )
+        return manifest

@@ -66,6 +66,26 @@ pages:
       - rejected units KPI
       - production yield KPI
 
+  - page: Predictive Maintenance
+    page_id: 8be4d2f6a90123456780
+    purpose: machine failure-risk prediction, model health, feature drift and explanation
+    visuals:
+      - critical ML risk machines KPI
+      - high ML risk machines KPI
+      - average failure risk KPI
+      - actionable machine risk table
+      - failure risk history
+      - top feature importance
+      - ML model health
+      - feature drift exceptions
+    filters:
+      - Date.calendar_date
+      - Plant.plant_name
+      - Line.line_name
+      - Machine.machine_id
+      - MachineFailureRisk.risk_band
+      - MachineFailureRisk.model_version
+
   - page: Machine Detail
     page_id: 6fc2b4d9e7a3c365d850
     visibility: HiddenInViewMode

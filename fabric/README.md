@@ -29,3 +29,5 @@ Gold outputs:
 
 Next layer: Power BI semantic model and enterprise reporting.
 Stage 3.13 adds the source-controlled Power BI semantic model, Direct Lake TMDL definition, KPI measures and Plant RLS.
+
+Stage 3.14 adds the PBIP/PBIR Power BI report project, operational pages, drill-through, tooltip, KPI visuals and report interaction contract.

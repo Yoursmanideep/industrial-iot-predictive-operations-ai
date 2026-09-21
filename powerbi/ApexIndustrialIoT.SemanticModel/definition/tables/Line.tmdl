@@ -1,0 +1,31 @@
+table Line
+    column line_sk
+        dataType: int64
+        isHidden
+        isKey
+        summarizeBy: none
+        sourceColumn: line_sk
+    column line_id
+        dataType: string
+        isDefaultLabel
+        summarizeBy: none
+        sourceColumn: line_id
+    column line_name
+        dataType: string
+        summarizeBy: none
+        sourceColumn: line_name
+    column line_type
+        dataType: string
+        summarizeBy: none
+        sourceColumn: line_type
+    column plant_sk
+        dataType: int64
+        isHidden
+        summarizeBy: none
+        sourceColumn: plant_sk
+    partition Line = entity
+        mode: directLake
+        source
+            entityName: dim_line
+            schemaName: gold
+            expressionSource: DL_Warehouse

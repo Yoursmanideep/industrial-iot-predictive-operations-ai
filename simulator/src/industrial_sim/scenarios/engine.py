@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from datetime import datetime, timedelta
 from uuid import UUID
 
@@ -21,6 +21,7 @@ from industrial_sim.scenarios.deterministic import (
 @dataclass
 class ScenarioEngine:
     catalog: ScenarioCatalog
+    _active_by_machine: dict[str, UUID] = field(default_factory=dict, init=False, repr=False)
 
     def create_instance(
         self,
@@ -33,6 +34,11 @@ class ScenarioEngine:
         scenario_instance_id: UUID | None = None,
     ) -> ScenarioInstance:
         definition = self.catalog.get(scenario_id)
+        active_id = self._active_by_machine.get(machine_id)
+        if active_id is not None and active_id != scenario_instance_id:
+            raise ValueError(
+                f"Machine {machine_id} already has an active scenario: {active_id}"
+            )
         duration_minutes = choose_duration_minutes(
             simulator_run_id,
             machine_id,
@@ -48,7 +54,7 @@ class ScenarioEngine:
             started_at,
             generation_sequence,
         )
-        return ScenarioInstance(
+        instance = ScenarioInstance(
             scenario_instance_id=deterministic_id,
             simulator_run_id=simulator_run_id,
             scenario_id=scenario_id,
@@ -60,6 +66,8 @@ class ScenarioEngine:
             generation_sequence=generation_sequence,
             correlation_id=correlation_id,
         )
+        self._active_by_machine[machine_id] = deterministic_id
+        return instance
 
     def advance(
         self,
@@ -94,6 +102,7 @@ class ScenarioEngine:
         if stage is ScenarioStage.FAILURE:
             instance.status = ScenarioStatus.FAILED
             instance.actual_end_at = at
+            self._active_by_machine.pop(instance.machine_id, None)
 
         return self._progress(instance, at, terminal=stage is ScenarioStage.FAILURE), transition
 
@@ -117,6 +126,7 @@ class ScenarioEngine:
         instance.status = ScenarioStatus.AVOIDED
         instance.intervention_event_id = intervention_event_id
         instance.actual_end_at = at
+        self._active_by_machine.pop(instance.machine_id, None)
         return ScenarioTransition(
             scenario_instance_id=instance.scenario_instance_id,
             from_stage=previous,
@@ -151,6 +161,7 @@ class ScenarioEngine:
         instance.stage = ScenarioStage.BASELINE
         instance.status = ScenarioStatus.RESOLVED
         instance.actual_end_at = at
+        self._active_by_machine.pop(instance.machine_id, None)
         return ScenarioTransition(
             scenario_instance_id=instance.scenario_instance_id,
             from_stage=ScenarioStage.RECOVERY,

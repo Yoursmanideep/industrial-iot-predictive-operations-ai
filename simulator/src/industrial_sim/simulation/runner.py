@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
@@ -146,17 +147,21 @@ class EnterpriseSimulationRunner:
 
         while cursor < end_time:
             context.current_time = cursor
-            due_plans = []
-            while plan_index < len(plans) and plans[plan_index].planned_start_time <= cursor:
-                due_plans.append(plans[plan_index])
-                plan_index += 1
+            if plan_index < len(plans) and plans[plan_index].planned_start_time > cursor:
+                next_order_time = plans[plan_index].planned_start_time
+                if next_order_time < cursor + timedelta(seconds=tick_seconds):
+                    cursor = next_order_time
+                    context.current_time = cursor
 
-            for plan in due_plans:
-                registration_events = step_engine.register_production_plan(plan)
+            while plan_index < len(plans) and plans[plan_index].planned_start_time <= cursor:
+                registration_events = step_engine.register_production_plan(plans[plan_index])
                 writer.write(registration_events)
                 order_count += 1
+                plan_index += 1
 
-            result = step_engine.step(tick_seconds)
+            step_end = min(end_time, cursor + timedelta(seconds=tick_seconds))
+            step_seconds = max(1, int((step_end - cursor).total_seconds()))
+            result = step_engine.step(step_seconds)
             writer.write(result.operational_events)
             writer.write(result.telemetry_events)
             writer.write(result.production_events)
@@ -168,7 +173,7 @@ class EnterpriseSimulationRunner:
         manifest_path = writer.write_manifest()
         run_manifest_path = Path(manifest_path).with_name("simulation_run_manifest.json")
         run_manifest_path.write_text(
-            __import__("json").dumps(
+            json.dumps(
                 {
                     "simulator_run_id": f"RUN-{effective_run_id}",
                     "run_mode": mode.value,

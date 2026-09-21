@@ -34,6 +34,10 @@ tables:
     - Downtime
     - Telemetry
     - OperationalEvent
+    - MachineFailureRisk
+    - MLModelHealth
+    - MLFeatureImportance
+    - MLFeatureDrift
   security:
     - PlantAccess
 

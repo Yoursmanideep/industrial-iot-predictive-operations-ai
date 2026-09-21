@@ -1,0 +1,49 @@
+version: 1.0.0
+
+silver:
+  lakehouse: ${FABRIC_SILVER_LAKEHOUSE_NAME}
+  timezone: UTC
+  source_table: bronze_iot_event
+  control_table: control.silver_load_audit
+  rejected_table: silver.rejected_event
+  late_arrival_threshold_minutes: 15
+
+tables:
+  telemetry: silver.machine_telemetry
+  operational: silver.machine_operational_event
+  production: silver.production_event
+
+quality:
+  required_checks:
+    - required_key_completeness
+    - timestamp_parse_validity
+    - utc_timestamp_normalization
+    - event_id_deduplication
+    - payload_conflict_detection
+    - master_reference_integrity
+    - machine_line_plant_consistency
+    - production_quantity_consistency
+  invalid_action: quarantine
+  preserve_raw_payload: true
+
+deduplication:
+  business_key: event_id
+  equal_payload_action: retain_latest_ingestion
+  conflicting_payload_action: quarantine_all_matching_event_id
+
+late_arrivals:
+  reference_time: max_observed_event_time
+  process_using_event_time: true
+  flag_column: is_late_arrival
+  warning_threshold_minutes: 15
+
+master_data:
+  machine_table: mdm.dim_machine
+  line_table: mdm.dim_line
+  product_table: mdm.dim_product
+  require_match: true
+  scd2_match_by_event_time: true
+
+operational:
+  processing_timezone: UTC
+  run_audit_required: true

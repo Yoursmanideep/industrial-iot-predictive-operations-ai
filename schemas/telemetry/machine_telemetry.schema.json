@@ -739,6 +739,29 @@
       ],
       "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$",
       "description": "Simulator configuration version."
+    },
+    "throughput_unit_min": {
+      "type": [
+        "number",
+        "null"
+      ],
+      "minimum": 0,
+      "maximum": 1000,
+      "description": "Conveyor or packaging throughput in units per minute.",
+      "x-unit": "unit_min",
+      "x-normal-range": [
+        0,
+        100
+      ],
+      "x-warning-range": [
+        100,
+        160
+      ],
+      "x-critical-range": [
+        160,
+        300
+      ],
+      "x-invalid-range": "< 0 or > 1000"
     }
   },
   "allOf": [
@@ -818,7 +841,7 @@
           "vibration_mm_s",
           "temperature_c",
           "power_kw",
-          "production_rate_unit_min"
+          "throughput_unit_min"
         ]
       }
     },
@@ -887,7 +910,7 @@
       "then": {
         "required": [
           "cycle_time_s",
-          "production_rate_unit_min",
+          "throughput_unit_min",
           "motor_current_a",
           "temperature_c",
           "power_kw"

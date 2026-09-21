@@ -1,0 +1,16 @@
+# Power BI local state / cache
+**/.pbi/localSettings.json
+**/.pbi/cache.abf
+**/.pbi/AnalysisServicesWorkspaces/
+**/.pbi/.tmp/
+
+# Power BI Desktop transient files
+*.pbix~
+*.pbit~
+
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.venv/
+venv/

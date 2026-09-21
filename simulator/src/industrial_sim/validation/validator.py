@@ -173,6 +173,23 @@ class SimulatorEventValidator:
                     "ingestion_time",
                 )
             )
+        if event_time.utcoffset() is None or event_time.utcoffset().total_seconds() != 0:
+            errors.append(
+                ValidationError(
+                    "EVENT_TIME_NOT_UTC",
+                    "event_time must use UTC offset +00:00",
+                    "event_time",
+                )
+            )
+        if ingestion_time.utcoffset() is None or ingestion_time.utcoffset().total_seconds() != 0:
+            errors.append(
+                ValidationError(
+                    "INGESTION_TIME_NOT_UTC",
+                    "ingestion_time must use UTC offset +00:00",
+                    "ingestion_time",
+                )
+            )
+
         delay_ms = (ingestion_time - event_time).total_seconds() * 1000
         if delay_ms < self.ingestion_delay_min_ms or delay_ms > self.ingestion_delay_max_ms:
             errors.append(

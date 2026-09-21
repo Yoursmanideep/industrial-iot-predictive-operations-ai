@@ -76,6 +76,8 @@ class ScenarioEngine:
     ) -> tuple[ScenarioProgress, ScenarioTransition | None]:
         if instance.status not in {ScenarioStatus.ACTIVE, ScenarioStatus.INTERRUPTED}:
             return self._progress(instance, at, terminal=True), None
+        if at < instance.started_at:
+            raise ValueError("scenario evaluation time cannot precede started_at")
 
         previous = instance.stage
         progress = instance.normalized_progress(at)

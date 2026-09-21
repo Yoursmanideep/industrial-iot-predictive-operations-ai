@@ -1,0 +1,1 @@
+"""Core simulator domain types."""

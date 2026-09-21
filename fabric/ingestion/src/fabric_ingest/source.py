@@ -64,9 +64,10 @@ class ValidatedSourceScanner:
             raise ValueError(f"Incomplete validated source partition: {path}")
 
         source_hash = digest.hexdigest()
+        logical_source_key = path.relative_to(self.source_root).as_posix()
         key = canonical_batch_key(
             simulator_run_id,
-            str(path.as_posix()),
+            logical_source_key,
             source_hash,
             first_sequence,
             last_sequence,
@@ -75,7 +76,7 @@ class ValidatedSourceScanner:
         return IngestionBatchManifest(
             ingestion_batch_id=ingestion_batch_id(key),
             simulator_run_id=simulator_run_id,
-            source_file_path=str(path),
+source_file_path=str(path),
             source_file_sha256=source_hash,
             event_type=event_type,
             event_date=event_date,

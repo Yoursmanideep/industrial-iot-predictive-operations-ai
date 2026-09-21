@@ -41,13 +41,16 @@ def load_production_catalog(config_path: str | Path, product_csv: str | Path, li
             entry: dict[str, Any] = config["products"].get(product_id)
             if entry is None:
                 raise ProductionCatalogError(f"Missing route configuration for {product_id}")
+            route = tuple(entry["route"])
+            if not route:
+                raise ProductionCatalogError(f"Route cannot be empty for {product_id}")
             products[product_id] = ProductDefinition(
                 product_id=product_id,
                 product_family=row["product_family"],
                 unit_of_measure=row["unit_of_measure"],
                 standard_cycle_time_seconds=float(row["standard_cycle_time_seconds"]),
                 standard_unit_cost_inr=float(row["standard_unit_cost_inr"]),
-                route=tuple(entry["route"]),
+                route=route,
                 quality_baseline_pct=float(entry["quality_baseline_pct"]),
                 workload_factor=float(entry["workload_factor"]),
             )
@@ -76,6 +79,14 @@ def load_production_catalog(config_path: str | Path, product_csv: str | Path, li
         }
         if sum(len(items) for items in line_groups.values()) != 18:
             raise ProductionCatalogError(f"Line {line_id} must contain exactly 18 machines")
+
+    for product_id, product in products.items():
+        for line_id in lines:
+            missing_types = [machine_type for machine_type in product.route if machine_type not in machines_by_line_type[line_id]]
+            if missing_types:
+                raise ProductionCatalogError(
+                    f"Product {product_id} route is not executable on {line_id}: {missing_types}"
+                )
 
     return ProductionCatalog(
         products=products,

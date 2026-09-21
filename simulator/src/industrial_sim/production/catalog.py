@@ -5,6 +5,8 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
+from collections import defaultdict
+
 import yaml
 
 from industrial_sim.domain.production import ProductDefinition
@@ -18,6 +20,7 @@ class ProductionCatalogError(ValueError):
 class ProductionCatalog:
     products: dict[str, ProductDefinition]
     lines: tuple[str, ...]
+    machines_by_line_type: dict[str, dict[str, tuple[tuple[str, int], ...]]]
 
     def product(self, product_id: str) -> ProductDefinition:
         try:
@@ -54,4 +57,28 @@ def load_production_catalog(config_path: str | Path, product_csv: str | Path, li
         lines.extend(row["line_id"] for row in csv.DictReader(handle))
     if len(lines) != 15 or len(set(lines)) != 15:
         raise ProductionCatalogError("Expected 15 unique production lines")
-    return ProductionCatalog(products=products, lines=tuple(lines))
+
+    machines_by_line_type: dict[str, dict[str, tuple[tuple[str, int], ...]]] = {}
+    machine_csv = Path(line_csv).parent / "machine_master_seed.csv"
+    if not machine_csv.is_file():
+        raise ProductionCatalogError(f"Machine master seed not found: {machine_csv}")
+    grouped: dict[str, dict[str, list[tuple[str, int]]]] = defaultdict(lambda: defaultdict(list))
+    with machine_csv.open("r", encoding="utf-8", newline="") as handle:
+        for row in csv.DictReader(handle):
+            grouped[row["machine_id"].split("-")[0] + "-L" + row["machine_id"].split("-L")[1].split("-")[0]][row["machine_type_code"]].append(
+                (row["machine_id"], int(row["machine_sequence"]))
+            )
+    for line_id in lines:
+        line_groups = grouped.get(line_id, {})
+        machines_by_line_type[line_id] = {
+            machine_type: tuple(sorted(items, key=lambda item: (item[1], item[0])))
+            for machine_type, items in line_groups.items()
+        }
+        if sum(len(items) for items in line_groups.values()) != 18:
+            raise ProductionCatalogError(f"Line {line_id} must contain exactly 18 machines")
+
+    return ProductionCatalog(
+        products=products,
+        lines=tuple(lines),
+        machines_by_line_type=machines_by_line_type,
+    )

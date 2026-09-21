@@ -1,0 +1,34 @@
+version: 1.0.0
+
+eventstream:
+  name: IndustrialIoT_Eventstream
+  source: SimulatorCustomEndpoint
+  schema_mode: Extended
+  schema_file: schemas/realtime/industrial_iot_eventstream.schema.json
+  registry_name: IndustrialIoTEventV1
+  compatibility: backward
+
+routing:
+  default_stream: eventstream-IndustrialIoT
+  eventhouse_table: IndustrialIoTEvent
+  activator_input: IndustrialIoT_Operational_Activator
+
+required_fields_for_activator:
+  - event_id
+  - event_type
+  - event_time
+  - plant_id
+  - line_id
+  - machine_id
+  - machine_type
+  - operating_state
+  - severity
+  - alarm_code
+  - fault_code
+  - failure_mode_code
+  - temperature_c
+  - vibration_mm_s
+  - actual_quantity
+  - good_quantity
+  - rejected_quantity
+  - loss_quantity

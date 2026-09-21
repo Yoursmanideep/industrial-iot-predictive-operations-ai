@@ -1,0 +1,26 @@
+version: 1.0.0
+
+bronze_root: Files/bronze
+
+streams:
+  telemetry:
+    event_schema: schemas/telemetry/machine_telemetry.schema.json
+    destination_table: bronze_machine_telemetry
+  operational:
+    event_schema: schemas/events/machine_operational_event.schema.json
+    destination_table: bronze_machine_operational_event
+  production:
+    event_schema: schemas/events/production_event.schema.json
+    destination_table: bronze_production_event
+
+partitioning:
+  - event_type
+  - event_date
+  - plant_id
+
+raw_payload:
+  preserve_original_json: true
+  event_id_column: event_id
+  ingestion_batch_id_column: ingestion_batch_id
+  simulator_run_id_column: simulator_run_id
+  source_file_path_column: source_file_path

@@ -131,6 +131,9 @@ def enrich_master_keys(df):
     )
     products = spark.table(MASTER_PRODUCT_TABLE).select("product_id", "product_sk")
 
+    if "product_id" not in df.columns:
+        df = df.withColumn("product_id", json_string("event_payload_json", "product_id"))
+
     out = (
         df.join(
             machines,
@@ -204,7 +207,10 @@ def extract_domain_columns(df):
 
     telemetry = df.where(F.col("event_type") == "MachineTelemetry").select(
         "event_id", "event_type", "schema_version", "event_time", "ingestion_time", "source_system",
-        "plant_id", "line_id", "machine_id", "correlation_id", "causation_id", "payload_sha256",
+        "plant_id", "line_id", "machine_id",
+        json_string(payload, "correlation_id").alias("correlation_id"),
+        json_string(payload, "causation_id").alias("causation_id"),
+        "payload_sha256",
         json_string(payload, "machine_type").alias("machine_type"),
         json_string(payload, "operating_state").alias("operating_state"),
         json_double(payload, "temperature_c").alias("temperature_c"),
@@ -243,7 +249,10 @@ def extract_domain_columns(df):
         "MachineFaulted", "MachineRecovered", "CommunicationLost", "CommunicationRestored"
     )).select(
         "event_id", "event_type", "schema_version", "event_time", "ingestion_time", "source_system",
-        "plant_id", "line_id", "machine_id", "correlation_id", "causation_id", "payload_sha256",
+        "plant_id", "line_id", "machine_id",
+        json_string(payload, "correlation_id").alias("correlation_id"),
+        json_string(payload, "causation_id").alias("causation_id"),
+        "payload_sha256",
         json_string(payload, "machine_type").alias("machine_type"),
         json_string(payload, "operating_state").alias("operating_state"),
         json_string(payload, "previous_state").alias("previous_state"),
@@ -267,7 +276,10 @@ def extract_domain_columns(df):
         "ProductionCompleted", "ProductionLossRecorded"
     )).select(
         "event_id", "event_type", "schema_version", "event_time", "ingestion_time", "source_system",
-        "plant_id", "line_id", "machine_id", "correlation_id", "causation_id", "payload_sha256",
+        "plant_id", "line_id", "machine_id",
+        json_string(payload, "correlation_id").alias("correlation_id"),
+        json_string(payload, "causation_id").alias("causation_id"),
+        "payload_sha256",
         json_string(payload, "production_order_id").alias("production_order_id"),
         json_string(payload, "batch_id").alias("batch_id"),
         json_string(payload, "product_id").alias("product_id"),
@@ -376,7 +388,13 @@ write_delta(PRODUCTION_TABLE, production)
 accepted_count = accepted.count()
 late_count = accepted.where(F.col("is_late_arrival") == True).count()
 master_failure_count = quality_rejected.where(
-    F.col("rejection_code").isin("MACHINE_MASTER_NOT_FOUND", "LINE_MASTER_NOT_FOUND", "PRODUCT_MASTER_NOT_FOUND", "MACHINE_LINE_MISMATCH")
+    F.col("rejection_code").isin(
+        "MACHINE_MASTER_NOT_FOUND",
+        "LINE_MASTER_NOT_FOUND",
+        "PRODUCT_MASTER_NOT_FOUND",
+        "MACHINE_LINE_MISMATCH",
+        "LINE_PLANT_MISMATCH",
+    )
 ).count()
 rejected_count = all_rejected.count()
 

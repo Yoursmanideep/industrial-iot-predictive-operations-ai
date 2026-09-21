@@ -21,6 +21,7 @@ REJECTED_TABLE = "silver.rejected_event"
 AUDIT_TABLE = "control.silver_load_audit"
 MASTER_MACHINE_TABLE = "mdm.dim_machine"
 MASTER_LINE_TABLE = "mdm.dim_line"
+MASTER_PLANT_TABLE = "mdm.dim_plant"
 MASTER_PRODUCT_TABLE = "mdm.dim_product"
 LATE_ARRIVAL_THRESHOLD_MINUTES = 15
 
@@ -60,17 +61,21 @@ def ensure_tables() -> None:
             "silver_run_id string, processing_started_at_utc timestamp, processing_completed_at_utc timestamp, source_table string, source_window_start_utc timestamp, source_window_end_utc timestamp, source_row_count long, duplicate_row_count long, conflict_event_count long, accepted_row_count long, rejected_row_count long, late_arrival_count long, master_reference_failure_count long, status string, error_code string, details string"
         ).write.format("delta").saveAsTable(AUDIT_TABLE)
 
-    if not table_exists(MASTER_MACHINE_TABLE) or not table_exists(MASTER_LINE_TABLE) or not table_exists(MASTER_PRODUCT_TABLE):
+    if not table_exists(MASTER_MACHINE_TABLE) or not table_exists(MASTER_LINE_TABLE) or not table_exists(MASTER_PLANT_TABLE) or not table_exists(MASTER_PRODUCT_TABLE):
         raise RuntimeError("Required MDM tables are unavailable; Silver processing is fail-closed")
 
 
 def read_bronze():
-    return spark.table(BRONZE_TABLE).select(
-        "event_id", "event_type", "schema_version", "event_time", "ingestion_time",
-        "source_system", "plant_id", "line_id", "machine_id", "simulator_run_id",
-        "generation_sequence", "payload_sha256", "event_payload_json", "ingestion_batch_id"
-    ).withColumn("event_time", F.to_utc_timestamp(F.to_timestamp("event_time"), "UTC"))
-     .withColumn("ingestion_time", F.to_utc_timestamp(F.to_timestamp("ingestion_time"), "UTC"))
+    return (
+        spark.table(BRONZE_TABLE)
+        .select(
+            "event_id", "event_type", "schema_version", "event_time", "ingestion_time",
+            "source_system", "plant_id", "line_id", "machine_id", "simulator_run_id",
+            "generation_sequence", "payload_sha256", "event_payload_json", "ingestion_batch_id"
+        )
+        .withColumn("event_time", F.to_utc_timestamp(F.to_timestamp("event_time"), "UTC"))
+        .withColumn("ingestion_time", F.to_utc_timestamp(F.to_timestamp("ingestion_time"), "UTC"))
+    )
 
 
 def classify_duplicates(df):
@@ -120,6 +125,10 @@ def enrich_master_keys(df):
         F.col("line_sk").alias("master_line_sk"),
         "line_id", "plant_sk",
     )
+    plants = spark.table(MASTER_PLANT_TABLE).select(
+        F.col("plant_sk").alias("master_plant_sk"),
+        "plant_id",
+    )
     products = spark.table(MASTER_PRODUCT_TABLE).select("product_id", "product_sk")
 
     out = (
@@ -136,6 +145,7 @@ def enrich_master_keys(df):
         .drop(machines.machine_id)
     )
     out = out.join(lines, out.line_id == lines.line_id, "left").drop(lines.line_id)
+    out = out.join(plants, out.plant_id == plants.plant_id, "left").drop(plants.plant_id)
     out = out.join(products, out.product_id == products.product_id, "left").drop(products.product_id)
     return out
 
@@ -163,6 +173,12 @@ def reject_rows(df):
             F.col("line_sk").isNotNull() &
             (F.col("line_sk") != F.col("master_line_sk")),
             "MACHINE_LINE_MISMATCH",
+        )
+        .when(
+            F.col("master_line_sk").isNotNull() &
+            F.col("master_plant_sk").isNotNull() &
+            (F.col("plant_sk") != F.col("master_plant_sk")),
+            "LINE_PLANT_MISMATCH",
         )
         .when(
             F.col("actual_quantity").isNotNull() &

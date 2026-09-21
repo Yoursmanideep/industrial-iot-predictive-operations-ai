@@ -1,0 +1,355 @@
+# Stage 3.3 — Scenario Catalog
+
+scenario_framework:
+  degradation_stages:
+    - BASELINE
+    - EARLY_DEGRADATION
+    - ANOMALY
+    - CRITICAL
+    - FAILURE
+    - MAINTENANCE
+    - RECOVERY
+
+  scenario_rules:
+    scenario_instance_id_required: true
+    failure_mode_code_required_for_failure_scenarios: true
+    correlated_signal_changes_required: true
+    production_impact_required_when_failure_affects_line: true
+    quality_impact_should_be_generated_when_process_condition_can_affect_quality: true
+    maintenance_outcome_must_be_recorded: true
+
+scenarios:
+  - scenario_id: SCN-CNC-BRG
+    failure_mode_code: CNC-BRG
+    machine_type_code: CNC
+    description: Spindle bearing degradation
+    trigger: gradual_health_decline
+    progression_minutes: [120, 720]
+    affected_signals:
+      - vibration_mm_s
+      - temperature_c
+      - power_kw
+      - spindle_rpm
+      - quality_score_pct
+    behavior:
+      vibration_trend: increasing
+      temperature_trend: increasing
+      power_trend: increasing
+      rpm_stability: decreasing
+      quality_trend: decreasing
+    production_effect: reduced_rate_then_fault
+    maintenance_type: PREDICTIVE_OR_CORRECTIVE
+
+  - scenario_id: SCN-CNC-OVH
+    failure_mode_code: CNC-OVH
+    machine_type_code: CNC
+    description: CNC overheating
+    trigger: thermal_stress
+    progression_minutes: [20, 180]
+    affected_signals:
+      - temperature_c
+      - power_kw
+      - spindle_rpm
+    behavior:
+      temperature_trend: sharp_increase
+      power_trend: moderate_increase
+      rpm_stability: decreasing
+    production_effect: rate_reduction_then_fault
+
+  - scenario_id: SCN-CNC-TOOL
+    failure_mode_code: CNC-TOOL
+    machine_type_code: CNC
+    description: Cutting tool wear
+    trigger: cumulative_workload
+    progression_minutes: [180, 1440]
+    affected_signals:
+      - vibration_mm_s
+      - production_rate_unit_min
+      - quality_score_pct
+    behavior:
+      vibration_trend: gradual_increase
+      production_trend: gradual_decrease
+      quality_trend: gradual_decrease
+    production_effect: slow_down
+
+  - scenario_id: SCN-CNC-IMB
+    failure_mode_code: CNC-IMB
+    machine_type_code: CNC
+    description: Spindle imbalance
+    trigger: mechanical_instability
+    progression_minutes: [30, 300]
+    affected_signals:
+      - vibration_mm_s
+      - spindle_rpm
+      - power_kw
+    behavior:
+      vibration_pattern: oscillatory_increase
+      rpm_stability: decreasing
+      power_variance: increasing
+    production_effect: quality_and_rate_degradation
+
+  - scenario_id: SCN-HPR-LEAK
+    failure_mode_code: HPR-LEAK
+    machine_type_code: HPR
+    description: Hydraulic pressure leak
+    trigger: pressure_decay
+    progression_minutes: [30, 360]
+    affected_signals:
+      - hydraulic_pressure_bar
+      - force_kn
+      - cycle_time_s
+    behavior:
+      pressure_trend: decreasing
+      force_trend: decreasing
+      cycle_time_trend: increasing
+    production_effect: slow_down_then_stop
+
+  - scenario_id: SCN-HPR-OVH
+    failure_mode_code: HPR-OVH
+    machine_type_code: HPR
+    description: Hydraulic overheating
+    trigger: sustained_load
+    progression_minutes: [45, 300]
+    affected_signals:
+      - temperature_c
+      - hydraulic_pressure_bar
+      - power_kw
+    production_effect: rate_reduction
+
+  - scenario_id: SCN-HPR-ACT
+    failure_mode_code: HPR-ACT
+    machine_type_code: HPR
+    description: Actuator degradation
+    trigger: repeated_cycle_stress
+    progression_minutes: [240, 1440]
+    affected_signals:
+      - force_kn
+      - cycle_time_s
+      - production_rate_unit_min
+    production_effect: slow_down_and_quality_loss
+
+  - scenario_id: SCN-ROB-JNT
+    failure_mode_code: ROB-JNT
+    machine_type_code: ROB
+    description: Robot joint degradation
+    trigger: cumulative_cycles
+    progression_minutes: [180, 1440]
+    affected_signals:
+      - torque_nm
+      - vibration_mm_s
+      - cycle_time_s
+    production_effect: rate_reduction
+
+  - scenario_id: SCN-ROB-MTR
+    failure_mode_code: ROB-MTR
+    machine_type_code: ROB
+    description: Robot motor overheating
+    trigger: thermal_load
+    progression_minutes: [20, 240]
+    affected_signals:
+      - motor_temperature_c
+      - power_kw
+      - torque_nm
+    production_effect: stop
+
+  - scenario_id: SCN-ROB-POS
+    failure_mode_code: ROB-POS
+    machine_type_code: ROB
+    description: Robot position deviation
+    trigger: calibration_or_joint_drift
+    progression_minutes: [60, 720]
+    affected_signals:
+      - position_error_mm
+      - cycle_time_s
+      - production_rate_unit_min
+    production_effect: quality_degradation
+
+  - scenario_id: SCN-CON-OVL
+    failure_mode_code: CON-OVL
+    machine_type_code: CON
+    description: Conveyor motor overload
+    trigger: elevated_load_or_blockage
+    progression_minutes: [5, 60]
+    affected_signals:
+      - motor_current_a
+      - power_kw
+      - temperature_c
+    production_effect: blocked_line
+
+  - scenario_id: SCN-CON-BLT
+    failure_mode_code: CON-BLT
+    machine_type_code: CON
+    description: Conveyor belt degradation
+    trigger: cumulative_wear
+    progression_minutes: [240, 2160]
+    affected_signals:
+      - belt_speed_m_s
+      - vibration_mm_s
+      - production_rate_unit_min
+    production_effect: slow_down
+
+  - scenario_id: SCN-CON-BLK
+    failure_mode_code: CON-BLK
+    machine_type_code: CON
+    description: Conveyor blockage
+    trigger: discrete_blockage
+    progression_minutes: [1, 15]
+    affected_signals:
+      - throughput_unit_min
+      - motor_current_a
+    production_effect: immediate_stop
+
+  - scenario_id: SCN-CMP-BRG
+    failure_mode_code: CMP-BRG
+    machine_type_code: CMP
+    description: Compressor bearing degradation
+    trigger: gradual_mechanical_wear
+    progression_minutes: [240, 1440]
+    affected_signals:
+      - vibration_mm_s
+      - temperature_c
+      - power_kw
+    production_effect: utility_capacity_reduction
+
+  - scenario_id: SCN-CMP-PRS
+    failure_mode_code: CMP-PRS
+    machine_type_code: CMP
+    description: Compressor pressure instability
+    trigger: pressure_control_instability
+    progression_minutes: [15, 180]
+    affected_signals:
+      - discharge_pressure_bar
+      - rpm
+      - power_kw
+    production_effect: line_slowdown
+
+  - scenario_id: SCN-CMP-OVH
+    failure_mode_code: CMP-OVH
+    machine_type_code: CMP
+    description: Compressor overheating
+    trigger: sustained_operation
+    progression_minutes: [30, 360]
+    affected_signals:
+      - temperature_c
+      - power_kw
+      - vibration_mm_s
+    production_effect: utility_degradation
+
+  - scenario_id: SCN-FRN-TMP
+    failure_mode_code: FRN-TMP
+    machine_type_code: FRN
+    description: Furnace temperature instability
+    trigger: thermal_control_failure
+    progression_minutes: [10, 120]
+    affected_signals:
+      - chamber_temperature_c
+      - power_kw
+      - quality_score_pct
+    production_effect: quality_hold_or_stop
+
+  - scenario_id: SCN-FRN-FLW
+    failure_mode_code: FRN-FLW
+    machine_type_code: FRN
+    description: Furnace fuel-flow abnormality
+    trigger: utility_or_control_deviation
+    progression_minutes: [15, 180]
+    affected_signals:
+      - fuel_flow_rate
+      - chamber_temperature_c
+      - quality_score_pct
+    production_effect: slow_down_or_quality_loss
+
+  - scenario_id: SCN-FRN-PRS
+    failure_mode_code: FRN-PRS
+    machine_type_code: FRN
+    description: Furnace pressure abnormality
+    trigger: process_pressure_deviation
+    progression_minutes: [5, 90]
+    affected_signals:
+      - pressure_mbar
+      - chamber_temperature_c
+    production_effect: stop_or_quality_hold
+
+  - scenario_id: SCN-INS-CAL
+    failure_mode_code: INS-CAL
+    machine_type_code: INS
+    description: Inspection calibration drift
+    trigger: cumulative_drift
+    progression_minutes: [480, 4320]
+    affected_signals:
+      - measurement_deviation_mm
+      - defect_probability_pct
+    production_effect: false_quality_signal_or_hold
+
+  - scenario_id: SCN-INS-COM
+    failure_mode_code: INS-COM
+    machine_type_code: INS
+    description: Inspection communication fault
+    trigger: connectivity_degradation
+    progression_minutes: [1, 30]
+    affected_signals:
+      - inspection_cycle_time_s
+      - equipment_temperature_c
+    production_effect: inspection_capacity_reduction
+
+  - scenario_id: SCN-PKG-JAM
+    failure_mode_code: PKG-JAM
+    machine_type_code: PKG
+    description: Packaging jam
+    trigger: discrete_material_or_alignment_event
+    progression_minutes: [1, 10]
+    affected_signals:
+      - cycle_time_s
+      - production_rate_unit_min
+      - motor_current_a
+    production_effect: immediate_stop
+
+  - scenario_id: SCN-PKG-MTR
+    failure_mode_code: PKG-MTR
+    machine_type_code: PKG
+    description: Packaging motor fault
+    trigger: electrical_or_thermal_failure
+    progression_minutes: [10, 120]
+    affected_signals:
+      - motor_current_a
+      - power_kw
+      - temperature_c
+    production_effect: stop
+
+  - scenario_id: SCN-PAL-JNT
+    failure_mode_code: PAL-JNT
+    machine_type_code: PAL
+    description: Palletizer joint degradation
+    trigger: cumulative_cycles
+    progression_minutes: [240, 2160]
+    affected_signals:
+      - torque_nm
+      - vibration_mm_s
+      - cycle_time_s
+    production_effect: slow_down
+
+  - scenario_id: SCN-PAL-MTR
+    failure_mode_code: PAL-MTR
+    machine_type_code: PAL
+    description: Palletizer motor overheating
+    trigger: thermal_load
+    progression_minutes: [20, 240]
+    affected_signals:
+      - motor_temperature_c
+      - power_kw
+      - torque_nm
+    production_effect: stop
+
+incident_resolution:
+  maintenance_selection:
+    predictive_trigger_available: true
+    corrective_trigger_available: true
+    emergency_trigger_available: true
+  repair_outcomes:
+    full_recovery_probability_class: HIGH
+    partial_recovery_probability_class: MEDIUM
+    repeated_issue_probability_class: LOW
+  recovery:
+    recovery_state_required: RECOVERY
+    return_to_service_event_required: true
+    post_repair_baseline_recalibration: true

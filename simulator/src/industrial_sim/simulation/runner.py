@@ -3,7 +3,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
-from uuid import UUID
+from uuid import UUID, uuid5
 
 import yaml
 
@@ -56,8 +56,17 @@ class EnterpriseSimulationRunner:
         effective_seed = (
             self.generation_contract.default_seed if seed is None else seed
         )
-        effective_run_id = run_id or UUID(
-            "00000000-0000-0000-0000-000000000001"
+        effective_run_id = run_id or uuid5(
+            UUID("c0a80101-0000-0000-0000-000000000001"),
+            "|".join(
+                (
+                    "simulation-run",
+                    mode.value,
+                    str(effective_seed),
+                    start_time.astimezone(timezone.utc).isoformat(),
+                    end_time.astimezone(timezone.utc).isoformat(),
+                )
+            ),
         )
 
         context = SimulationContext(
@@ -67,9 +76,15 @@ class EnterpriseSimulationRunner:
             configuration_version=self.generation_contract.contract_version,
             current_time=start_time.astimezone(timezone.utc),
         )
+        bootstrap_distribution = None
+        if mode is RunMode.BOOTSTRAP:
+            bootstrap_distribution = generation["bootstrap"]["machine_history"]["initial_state_distribution"]
         machines = MachineWorldLoader(
             self.root / "data_reference" / "seed" / "machine_master_seed.csv"
-        ).load()
+        ).load(
+            initial_state_distribution=bootstrap_distribution,
+            deterministic_seed=effective_seed,
+        )
         catalog = load_production_catalog(
             self.root / "config" / "simulator_production.yaml",
             self.root / "data_reference" / "seed" / "product_seed.csv",
@@ -90,7 +105,6 @@ class EnterpriseSimulationRunner:
         writer = PartitionedEventStreamWriter(output_root)
 
         generation = self.generation_contract.raw
-        mode_config = generation["generation"]["modes"][mode.value]
         if mode is RunMode.LIVE:
             tick_seconds = int(generation["time"]["live_tick_seconds"])
         else:
@@ -150,7 +164,29 @@ class EnterpriseSimulationRunner:
             tick_count += 1
             cursor = result.event_time
 
+        writer.close()
         manifest_path = writer.write_manifest()
+        run_manifest_path = Path(manifest_path).with_name("simulation_run_manifest.json")
+        run_manifest_path.write_text(
+            __import__("json").dumps(
+                {
+                    "simulator_run_id": f"RUN-{effective_run_id}",
+                    "run_mode": mode.value,
+                    "deterministic_seed": effective_seed,
+                    "configuration_version": self.generation_contract.contract_version,
+                    "simulation_start": start_time.astimezone(timezone.utc).isoformat(),
+                    "simulation_end": end_time.astimezone(timezone.utc).isoformat(),
+                    "tick_count": tick_count,
+                    "order_count": order_count,
+                    "event_count": writer.manifest()["total_event_count"],
+                    "event_manifest": str(manifest_path),
+                },
+                indent=2,
+                sort_keys=True,
+            )
+            + "\n",
+            encoding="utf-8",
+        )
         return SimulationRunnerResult(
             run_id=effective_run_id,
             mode=mode,
@@ -159,5 +195,5 @@ class EnterpriseSimulationRunner:
             tick_count=tick_count,
             order_count=order_count,
             event_count=writer.manifest()["total_event_count"],
-            output_manifest=str(manifest_path),
+            output_manifest=str(run_manifest_path),
         )

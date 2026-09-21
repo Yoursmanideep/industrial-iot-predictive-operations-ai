@@ -1,0 +1,88 @@
+{
+  "displayName": "IndustrialIoT_Eventstream",
+  "description": "Validated industrial IoT events from the simulator routed to Eventhouse and Fabric Activator.",
+  "type": "Eventstream",
+  "topology": {
+    "sources": [
+      {
+        "id": "00000000-0000-0000-0000-000000000001",
+        "name": "SimulatorCustomEndpoint",
+        "type": "CustomEndpoint",
+        "properties": {
+          "inputSerialization": {
+            "type": "Json",
+            "properties": {
+              "encoding": "UTF8"
+            }
+          }
+        }
+      }
+    ],
+    "destinations": [
+      {
+        "id": "00000000-0000-0000-0000-000000000101",
+        "name": "EventhouseRaw",
+        "type": "Eventhouse",
+        "properties": {
+          "dataIngestionMode": "ProcessedIngestion",
+          "workspaceId": "${FABRIC_WORKSPACE_ID}",
+          "itemId": "${FABRIC_EVENTHOUSE_ID}",
+          "databaseName": "${FABRIC_EVENTHOUSE_DATABASE}",
+          "tableName": "IndustrialIoTEvent",
+          "inputSerialization": {
+            "type": "Json",
+            "properties": {
+              "encoding": "UTF8"
+            }
+          }
+        },
+        "inputNodes": [
+          {
+            "name": "eventstream-IndustrialIoT"
+          }
+        ]
+      },
+      {
+        "id": "00000000-0000-0000-0000-000000000102",
+        "name": "Activator",
+        "type": "Activator",
+        "properties": {
+          "workspaceId": "${FABRIC_WORKSPACE_ID}",
+          "itemId": "${FABRIC_ACTIVATOR_ID}",
+          "inputSerialization": {
+            "type": "Json",
+            "properties": {
+              "encoding": "UTF8"
+            }
+          }
+        },
+        "inputNodes": [
+          {
+            "name": "eventstream-IndustrialIoT"
+          }
+        ]
+      }
+    ],
+    "operators": [],
+    "streams": [
+      {
+        "name": "eventstream-IndustrialIoT",
+        "sourceNodes": [
+          {
+            "name": "SimulatorCustomEndpoint"
+          }
+        ],
+        "operatorNodes": [],
+        "destinationNodes": [
+          {
+            "name": "EventhouseRaw"
+          },
+          {
+            "name": "Activator"
+          }
+        ]
+      }
+    ],
+    "compatibilityLevel": "1.1"
+  }
+}

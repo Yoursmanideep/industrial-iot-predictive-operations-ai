@@ -1,0 +1,19 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/page/2.1.0/schema.json",
+  "name": "7ad3c5e7f90123456789",
+  "displayName": "Machine Tooltip",
+  "displayOption": "FitToPage",
+  "height": 240,
+  "width": 420,
+  "visibility": "HiddenInViewMode",
+  "pageBinding": {
+    "name": "MachineTooltipPod",
+    "type": "Tooltip"
+  },
+  "annotations": [
+    {
+      "name": "intendedUse",
+      "value": "Machine hover tooltip for OEE and latest telemetry context"
+    }
+  ]
+}

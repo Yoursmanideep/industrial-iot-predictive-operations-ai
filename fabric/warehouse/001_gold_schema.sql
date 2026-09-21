@@ -2,7 +2,6 @@
 
 CREATE SCHEMA gold;
 CREATE SCHEMA mart;
-CREATE SCHEMA control;
 
 CREATE TABLE gold.dim_date (
     date_sk INT NOT NULL,

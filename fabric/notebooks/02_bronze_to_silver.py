@@ -215,6 +215,10 @@ def reject_rows(df):
         .when(F.col("event_time").isNull(), "INVALID_EVENT_TIME")
         .when(F.col("plant_id").isNull(), "MISSING_PLANT_ID")
         .when(
+            F.col("plant_id").isNotNull() & F.col("master_plant_sk").isNull(),
+            "PLANT_MASTER_NOT_FOUND",
+        )
+        .when(
             F.col("machine_id").isNotNull() & F.col("machine_sk").isNull(),
             "MACHINE_MASTER_NOT_FOUND",
         )
@@ -450,6 +454,7 @@ accepted_count = accepted.count()
 late_count = accepted.where(F.col("is_late_arrival") == True).count()
 master_failure_count = quality_rejected.where(
     F.col("rejection_code").isin(
+        "PLANT_MASTER_NOT_FOUND",
         "MACHINE_MASTER_NOT_FOUND",
         "LINE_MASTER_NOT_FOUND",
         "PRODUCT_MASTER_NOT_FOUND",

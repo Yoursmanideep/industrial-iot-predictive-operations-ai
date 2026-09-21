@@ -95,6 +95,12 @@ class ProductionEventFactory:
         event_uuid = deterministic_event_id(
             run_id, entity_key, event_type, event_time.isoformat(), generation_sequence
         )
+        line_id = kwargs.pop("line_id", production_order.line_id)
+        product_id = kwargs.pop("product_id", production_order.product_id)
+        machine_id = kwargs.pop("machine_id", None)
+        operation_id = kwargs.pop("operation_id", None)
+        batch_id = kwargs.pop("batch_id", f"BAT-{batch.batch_id}" if batch else None)
+        correlation_id = kwargs.pop("correlation_id", f"PO-{production_order.production_order_id}")
         return ProductionEvent(
             event_id=f"EVT-{event_uuid}",
             event_type=event_type,
@@ -104,12 +110,12 @@ class ProductionEventFactory:
             source_system=self.source_system,
             plant_id=production_order.plant_id,
             production_order_id=f"PO-{production_order.production_order_id}",
-            line_id=production_order.line_id,
-            batch_id=f"BAT-{batch.batch_id}" if batch else None,
-            product_id=production_order.product_id,
-            operation_id=kwargs.pop("operation_id", None),
-            machine_id=kwargs.pop("machine_id", None),
-            correlation_id=kwargs.pop("correlation_id", f"PO-{production_order.production_order_id}"),
+            line_id=line_id,
+            machine_id=machine_id,
+            batch_id=batch_id,
+            product_id=product_id,
+            operation_id=operation_id,
+            correlation_id=correlation_id,
             causation_id=causation_id,
             simulator_run_id=f"RUN-{run_id}",
             deterministic_seed=deterministic_seed,

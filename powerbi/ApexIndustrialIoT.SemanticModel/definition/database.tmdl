@@ -1,0 +1,4 @@
+database ApexIndustrialIoT
+    compatibilityLevel: 1604
+    compatibilityMode: powerBI
+    language: 1033

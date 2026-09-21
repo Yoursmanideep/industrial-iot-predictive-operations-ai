@@ -49,9 +49,13 @@ When planned scenario duration is reached, the stage becomes FAILURE and status 
 
 The scenario can then be routed through maintenance and recovery.
 
-## Recovery path
+## Corrective maintenance and recovery
 
-MAINTENANCE → RECOVERY → BASELINE.
+A failed scenario moves through an explicit corrective-maintenance transition:
+
+FAILURE → MAINTENANCE → RECOVERY → BASELINE.
+
+The engine exposes this as begin_maintenance(), complete_maintenance() and complete_recovery(). Tests do not bypass these transitions by directly mutating stage.
 
 Completing recovery sets the scenario status to RESOLVED.
 

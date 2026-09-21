@@ -2,6 +2,7 @@ version: 1.0.0
 
 report:
   name: Apex Industrial IoT Operations
+  project_format: PBIP_PBIR
   semantic_model: ApexIndustrialIoT
   audience:
     - plant_operations
@@ -12,6 +13,7 @@ report:
 
 pages:
   - page: Executive Overview
+    page_id: 1a7f6e9b4c2d8e10f305
     purpose: enterprise KPI overview across plants and production lines
     primary_measures:
       - OEE %
@@ -20,54 +22,70 @@ pages:
       - Quality %
       - Good Units
       - Rejected Units
-      - Unplanned Downtime Minutes
-    slicers:
+    filters:
       - Date.calendar_date
       - Plant.plant_name
       - Shift.shift_name
 
   - page: Plant Operations
-    purpose: compare operating performance by plant and line
-    visuals:
-      - OEE by plant and line
-      - downtime by category
-      - production yield by product
-      - machine fault count
-    drilldown:
-      - Plant → Line → Machine
+    page_id: 2b8e7f0a5d3c9f21e416
+    purpose: plant and line operational comparison
+    drill_path: Plant → Line → Machine
+    filters:
+      - Date.calendar_date
+      - Plant.plant_name
+      - Shift.shift_name
 
   - page: Machine Health
-    purpose: inspect recent telemetry and machine operating state
+    page_id: 3c9f8a1b6e4da032f527
+    purpose: recent machine telemetry and operating context
     visuals:
-      - latest machine state
-      - vibration trend
       - temperature trend
-      - power trend
-      - quality score
-      - scenario/failure context
+      - vibration trend
+      - OEE card
+      - temperature card
+      - vibration card
 
   - page: Downtime & Reliability
-    purpose: analyze planned and unplanned downtime drivers
+    page_id: 4da09b2c7f5eb143a638
+    purpose: planned/unplanned downtime and failure analysis
     visuals:
-      - downtime minutes by category
-      - fault count by failure mode
-      - Pareto of downtime causes
-      - machine downtime heatmap
+      - downtime by category
+      - fault downtime by machine
+      - unplanned downtime KPI
+      - fault count KPI
+      - alarm count KPI
 
   - page: Production & Quality
-    purpose: connect production volume with yield and rejection
+    page_id: 5eb1a3c8f6d2b254c749
+    purpose: output, yield, rejection and product analysis
     visuals:
-      - actual vs good vs rejected units
-      - production yield
-      - quality event volume
-      - defect distribution
+      - good units by product
+      - yield trend
+      - actual units KPI
+      - rejected units KPI
+      - production yield KPI
+
+  - page: Machine Detail
+    page_id: 6fc2b4d9e7a3c365d850
+    visibility: HiddenInViewMode
+    purpose: drill-through destination for Machine.machine_id
+    source_field: Machine.machine_id
+
+  - page: Machine Tooltip
+    page_id: 7ad3c5e7f90123456789
+    visibility: HiddenInViewMode
+    purpose: contextual machine KPI tooltip
 
 security:
   rls_role: Plant RLS
   plant_scope: user_mapping
 
-interaction_rules:
-  cross_filter_direction: oneDirection
-  avoid_visual_average_of_pct_kpis: true
-  drillthrough_machine_level: enabled
-  tooltip_lineage_context: enabled
+interactions:
+  machine_drillthrough: enabled
+  machine_tooltip: enabled
+  bookmarks:
+    - Executive Overview
+    - Plant Operations
+  preserve_rls_filters: true
+  cross_filter_direction: single

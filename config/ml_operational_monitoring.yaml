@@ -1,0 +1,51 @@
+version: 1.0.0
+
+monitoring:
+  model_name: ApexIndustrialIoT_PredictiveMaintenance_FailureRisk
+  evaluation_horizon_minutes: 60
+  recent_window_days: 7
+  baseline_window_days: 30
+  minimum_recent_predictions: 100
+  thresholds:
+    roc_auc_min: 0.70
+    average_precision_min: 0.30
+    brier_max: 0.25
+    prediction_coverage_min: 0.90
+    critical_risk_rate_max: 0.25
+    psi_warn: 0.10
+    psi_critical: 0.25
+  drift_features:
+    - temperature_c
+    - vibration_mm_s
+    - pressure_bar
+    - power_kw
+    - cycle_time_s
+    - throughput_unit_min
+    - quality_score_pct
+    - position_error_mm
+    - motor_current_a
+    - torque_nm
+    - alarm_count_15m
+    - utilization_proxy_15m
+
+explainability:
+  method: model_feature_importance
+  top_k: 15
+  model_flavor: sklearn
+  require_model_version: true
+
+actions:
+  performance_breach:
+    action: MODEL_REVIEW
+  drift_critical:
+    action: DATA_DRIFT_REVIEW
+  endpoint_health_breach:
+    action: ENDPOINT_REVIEW
+  critical_prediction:
+    action: PREDICTIVE_MAINTENANCE_REVIEW
+
+governance:
+  no_auto_promotion_on_drift: true
+  no_auto_retraining_without_review: true
+  explanation_is_decision_support_only: true
+  credentials_in_git: false

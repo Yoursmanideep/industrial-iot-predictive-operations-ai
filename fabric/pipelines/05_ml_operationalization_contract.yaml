@@ -1,0 +1,55 @@
+version: 1.0.0
+
+pipeline:
+  name: IndustrialIoT_ML_Operationalization
+  purpose: monitor model quality and drift, publish explanations, and route predictive-maintenance decisions
+
+parameters:
+  model_name: required
+  monitoring_window_start_utc: required
+  monitoring_window_end_utc: required
+
+activities:
+  - name: MonitorAndExplainModel
+    action: execute_fabric_notebook
+    notebook: fabric/notebooks/07_ml_monitoring_explainability.py
+    outputs:
+      - ml.machine_failure_model_monitoring
+      - ml.machine_failure_feature_drift
+      - ml.machine_failure_feature_explanation
+
+  - name: PersistMonitoringMetrics
+    action: copy_delta_to_warehouse
+    source: ml.machine_failure_model_monitoring
+    destination: gold.fact_ml_model_monitoring
+
+  - name: PersistFeatureExplanations
+    action: copy_delta_to_warehouse
+    source: ml.machine_failure_feature_explanation
+    destination: gold.fact_ml_feature_explanation
+
+  - name: ReviewBreaches
+    action: evaluate_mart
+    source: mart.v_ml_model_health
+    actions:
+      performance_breach: MODEL_REVIEW
+      drift_critical: DATA_DRIFT_REVIEW
+      endpoint_health_breach: ENDPOINT_REVIEW
+
+  - name: PublishOperationalRisk
+    action: activate_high_and_critical_predictions
+    source: mart.v_ml_actionable_machine_risk
+    action: PREDICTIVE_MAINTENANCE_REVIEW
+
+quality_gates:
+  no_auto_model_promotion_on_monitoring_breach: true
+  model_version_is_traceable: true
+  feature_version_is_traceable: true
+  prediction_identity_is_preserved: true
+  monitoring_metrics_are_windowed: true
+  drift_baseline_is_explicit: true
+  explanations_are_decision_support_only: true
+
+security:
+  credentials_in_git: false
+  workspace_and_resource_names_externalized: true

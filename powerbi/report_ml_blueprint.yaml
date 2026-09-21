@@ -1,0 +1,32 @@
+version: 1.0.0
+
+page:
+  name: Predictive Maintenance
+  page_id: 8be4d2f6a90123456780
+  purpose: show machine failure-risk predictions, model health, drift and decision-support context
+  audience:
+    - reliability_engineering
+    - maintenance
+    - plant_operations
+
+visuals:
+  - KPI: Critical ML Risk Machines
+  - KPI: High ML Risk Machines
+  - KPI: Model ROC AUC
+  - KPI: Model Average Precision
+  - table: Actionable Machine Risk
+  - line_chart: Failure Risk History
+  - bar_chart: Top Feature Importance
+  - matrix: ML Model Health
+  - table: Feature Drift Exceptions
+
+filters:
+  - Date.calendar_date
+  - Plant.plant_name
+  - Line.line_name
+  - Machine.machine_id
+  - MachineFailureRisk.risk_band
+  - MachineFailureRisk.model_version
+
+governance_note:
+  display: "ML predictions are decision support. Risk bands and thresholds are configurable engineering defaults until validated against observed operational costs."

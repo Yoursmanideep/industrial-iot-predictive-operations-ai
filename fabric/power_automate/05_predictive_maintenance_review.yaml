@@ -1,0 +1,58 @@
+version: 1.0.0
+
+flow:
+  name: IndustrialIoT_Predictive_Maintenance_Review
+  purpose: create a maintenance review work item from a high or critical ML failure-risk prediction
+
+trigger:
+  type: ActivatorCustomAction
+  source: IndustrialIoT_Predictive_Maintenance_Review
+
+steps:
+  - name: Deduplicate
+    action: lookup
+    key: prediction_id
+    datastore: Dataverse
+    duplicate_action: terminate_successfully
+
+  - name: CreateMaintenanceReview
+    action: create_row
+    entity: MaintenanceWorkItem
+    fields:
+      work_item_type: PREDICTIVE_ML_REVIEW
+      prediction_id: dynamic.prediction_id
+      machine_id: dynamic.machine_id
+      plant_id: dynamic.plant_id
+      line_id: dynamic.line_id
+      risk_score: dynamic.failure_risk_score
+      risk_band: dynamic.risk_band
+      model_name: dynamic.model_name
+      model_version: dynamic.model_version
+      feature_time_utc: dynamic.feature_time_utc
+      status: OPEN
+      priority: dynamic.risk_band
+
+  - name: NotifyReliability
+    action: send_teams_message
+    destination: Reliability Engineering
+    message: Predictive maintenance review required for the affected machine.
+
+  - name: NotifyPlantOperations
+    action: send_teams_message
+    destination: Plant Operations
+    message: Machine failure risk is above the configured predictive-maintenance review threshold.
+
+  - name: AuditDecision
+    action: append_audit
+    datastore: Dataverse
+    key: prediction_id
+
+reliability:
+  retries: 3
+  retry_backoff_seconds: 30
+  idempotency_key: prediction_id
+  automatic_machine_stop: false
+  human_review_required: true
+
+security:
+  credentials_in_git: false

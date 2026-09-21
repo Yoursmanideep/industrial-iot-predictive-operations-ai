@@ -1,0 +1,48 @@
+version: 1.0.0
+
+activator:
+  name: IndustrialIoT_Predictive_Maintenance_Activator
+  source: Eventhouse:IndustrialIoTMLPrediction
+  object_type: IndustrialMachine
+  object_key: machine_id
+
+rules:
+  - id: ACT-ML-CRITICAL
+    name: ML Failure Risk Critical
+    rule_type: event_or_property
+    condition:
+      failure_risk_score_gte: 0.80
+      inference_mode: [REALTIME, BATCH]
+    action:
+      type: custom_action
+      custom_action: IndustrialIoT_Predictive_Maintenance_Review
+    cooldown_minutes: 30
+
+  - id: ACT-ML-HIGH
+    name: ML Failure Risk High
+    rule_type: event_or_property
+    condition:
+      failure_risk_score_gte: 0.60
+      risk_band: [HIGH, CRITICAL]
+    action:
+      type: custom_action
+      custom_action: IndustrialIoT_Predictive_Maintenance_Review
+    cooldown_minutes: 60
+
+  - id: ACT-ML-MODEL-HEALTH
+    name: ML Monitoring Breach
+    rule_type: event_or_property
+    condition:
+      source: mart.v_ml_model_health
+      status: BREACH
+    action:
+      type: custom_action
+      custom_action: IndustrialIoT_ML_Model_Health_Review
+    cooldown_minutes: 180
+
+governance:
+  rules_are_decision_support: true
+  automatic_machine_stop: false
+  automatic_model_promotion: false
+  threshold_values_are_synthetic_defaults: true
+  review_required_before_production_action: true

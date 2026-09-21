@@ -8,9 +8,9 @@ BOOTSTRAP uses the governed historical machine-state distribution and baseline t
 
 BACKFILL uses the governed historical baseline cadence for a finite requested window.
 
-LIVE uses the 5-second simulation cadence.
+LIVE uses the 5-second simulation cadence and 5-second telemetry cadence.
 
-REPLAY reuses the supplied simulator run identity and seed so deterministic event semantics can be reproduced.
+REPLAY requires the same deterministic run identity and seed to reproduce event identities; source-run artifact comparison is a later replay-validation layer.
 
 ## Run identity
 
@@ -18,7 +18,7 @@ When a run ID is supplied, it is used directly.
 
 When it is omitted, a deterministic UUIDv5-style run ID is derived from mode, seed, simulation start and simulation end.
 
-This makes repeated CLI or API runs with the same inputs reproducible.
+This makes repeated runs with the same inputs reproducible.
 
 ## Machine world
 
@@ -36,36 +36,28 @@ Orders are generated from the enterprise production generator.
 
 Only plans whose planned start has been reached are registered into the active simulation world.
 
-The runner moves to the next order boundary when necessary instead of registering an order late inside a coarse historical tick.
+The runner can move to the next order boundary when necessary instead of registering an order late inside a coarse historical tick.
 
 ## Event streaming
 
-Events are written incrementally so a long historical run does not require retaining the complete event history in memory.
+Events are written incrementally, avoiding retention of the entire historical event population in memory.
 
-Partitions use:
+Partitions use event type, event date and plant.
 
-event_type=<telemetry|operational|production>/event_date=YYYY-MM-DD/plant_id=<plant>/...
+run_event_manifest.json records per-stream counts, event-time bounds and generation-sequence bounds.
 
-The writer maintains run-scoped generation-sequence monotonicity independently for each event stream.
-
-Two manifests are produced:
-
-run_event_manifest.json — per-stream counts, event-time bounds and sequence bounds.
-
-simulation_run_manifest.json — run identity, mode, seed, simulation window, tick count, registered order count and total event count.
+simulation_run_manifest.json records run identity, mode, seed, simulation window, tick count, registered order count and total event count.
 
 ## CLI
 
-The industrial-sim command now supports mode, start/end timestamps, duration in minutes, seed, run ID, repository root and output directory.
+The industrial-sim command supports mode, start/end timestamps, duration in minutes, seed, run ID, repository root and output directory.
 
-Example execution shape:
+Example:
 
 industrial-sim --mode LIVE --start 2026-09-21T06:00:00Z --minutes 5 --output output/simulator
 
 ## Verification
 
-Stage tests cover deterministic bootstrap machine states, writer append behavior and deterministic default run identity.
+Tests cover deterministic bootstrap machine state assignment, append-safe stream output, deterministic run identity and five-second live telemetry cadence.
 
-Integration coverage from Stage 3.7 remains the authoritative test of synchronized machine, scenario, telemetry and production behavior.
-
-Runtime pytest execution remains pending because this environment cannot execute the repository test suite against the GitHub workspace.
+Local pytest execution remains pending because the current environment does not have a working checkout of the GitHub repository for runtime execution.

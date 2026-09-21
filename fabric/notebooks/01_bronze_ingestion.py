@@ -4,7 +4,7 @@
 from pyspark.sql import functions as F
 from delta.tables import DeltaTable
 
-SOURCE_PATH = "Files/ingress/validated/event_type=telemetry/event_date=2026-09-21/plant_id=PLT-CHN-01/telemetry.jsonl"
+SOURCE_PATH = "Files/bronze/event_type=telemetry/event_date=2026-09-21/plant_id=PLT-CHN-01/ingestion_batch_id=IBT-REPLACE_ME/telemetry.jsonl"
 INGESTION_BATCH_ID = "IBT-REPLACE_ME"
 SOURCE_FILE_SHA256 = "REPLACE_WITH_MANIFEST_SHA256"
 BRONZE_TABLE = "bronze_iot_event"
@@ -97,7 +97,16 @@ def ingest_partition(source_path: str, batch_id: str) -> dict:
     ingested = new_events.withColumn("ingestion_batch_id", F.lit(batch_id)).withColumn("ingested_at_utc", F.current_timestamp())
 
     if accepted_count:
-        ingested.write.mode("append").format("delta").saveAsTable(BRONZE_TABLE)
+        bronze_delta = DeltaTable.forName(spark, BRONZE_TABLE)
+        (
+            bronze_delta.alias("t")
+            .merge(
+                ingested.alias("s"),
+                "t.event_id = s.event_id",
+            )
+            .whenNotMatchedInsertAll()
+            .execute()
+        )
 
     status = "QUARANTINED" if conflict_count else "COMPLETED"
     checkpoint = spark.createDataFrame(
@@ -113,7 +122,17 @@ def ingest_partition(source_path: str, batch_id: str) -> dict:
         )],
         "ingestion_batch_id string, simulator_run_id string, source_file_sha256 string, event_count long, accepted_event_count long, rejected_event_count long, status string, error_code string"
     ).withColumn("updated_at_utc", F.current_timestamp()).withColumn("destination_path", F.lit(BRONZE_TABLE))
-    checkpoint.write.mode("append").format("delta").saveAsTable(CHECKPOINT_TABLE)
+    checkpoint_delta = DeltaTable.forName(spark, CHECKPOINT_TABLE)
+    (
+        checkpoint_delta.alias("t")
+        .merge(
+            checkpoint.alias("s"),
+            "t.ingestion_batch_id = s.ingestion_batch_id",
+        )
+        .whenMatchedUpdateAll()
+        .whenNotMatchedInsertAll()
+        .execute()
+    )
 
     return {
         "status": status,

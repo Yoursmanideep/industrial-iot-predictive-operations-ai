@@ -1,0 +1,7 @@
+expression DL_Warehouse =
+    ```
+    let
+        Source = AzureStorage.DataLake("https://onelake.dfs.fabric.microsoft.com/<FABRIC_WORKSPACE_ID>/<FABRIC_WAREHOUSE_ID>", [HierarchicalNavigation=true])
+    in
+        Source
+    ```

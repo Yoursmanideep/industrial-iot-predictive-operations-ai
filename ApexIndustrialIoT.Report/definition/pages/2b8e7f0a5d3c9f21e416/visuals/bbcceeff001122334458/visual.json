@@ -1,0 +1,44 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.9.0/schema.json",
+  "name": "bbcceeff001122334458",
+  "position": {
+    "x": 840,
+    "y": 20,
+    "z": 1000,
+    "height": 110,
+    "width": 400,
+    "tabOrder": 1000
+  },
+  "visual": {
+    "visualType": "slicer",
+    "query": {
+      "queryState": {
+        "Values": {
+          "projections": [
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "Shift"
+                    }
+                  },
+                  "Property": "shift_name"
+                }
+              },
+              "queryRef": "Shift.shift_name",
+              "nativeQueryRef": "shift_name",
+              "active": true
+            }
+          ]
+        }
+      }
+    }
+  },
+  "annotations": [
+    {
+      "name": "businessPurpose",
+      "value": "Plant operations shift slicer"
+    }
+  ]
+}

@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from datetime import datetime
 from enum import StrEnum
 from uuid import UUID
@@ -66,6 +66,7 @@ class ProductionOrder:
     actual_start_time: datetime | None = None
     actual_end_time: datetime | None = None
     paused_at: datetime | None = None
+    batches: list[ProductionBatch] = field(default_factory=list, repr=False)
 
     def __post_init__(self) -> None:
         if self.planned_quantity <= 0:

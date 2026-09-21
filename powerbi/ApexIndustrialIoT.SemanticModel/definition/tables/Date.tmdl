@@ -1,0 +1,35 @@
+table Date
+    isHidden: false
+    column date_sk
+        dataType: int64
+        isHidden
+        isKey
+        summarizeBy: none
+        sourceColumn: date_sk
+    column calendar_date
+        dataType: dateTime
+        summarizeBy: none
+        sourceColumn: calendar_date
+        formatString: yyyy-mm-dd
+    column calendar_year
+        dataType: int64
+        summarizeBy: none
+        sourceColumn: calendar_year
+    column month_number
+        dataType: int64
+        summarizeBy: none
+        sourceColumn: month_number
+    column month_name
+        dataType: string
+        summarizeBy: none
+        sourceColumn: month_name
+    column fiscal_year
+        dataType: int64
+        summarizeBy: none
+        sourceColumn: fiscal_year
+    partition Date = entity
+        mode: directLake
+        source
+            entityName: dim_date
+            schemaName: gold
+            expressionSource: DL_Warehouse

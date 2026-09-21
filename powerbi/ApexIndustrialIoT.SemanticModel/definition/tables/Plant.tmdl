@@ -1,0 +1,30 @@
+table Plant
+    column plant_sk
+        dataType: int64
+        isHidden
+        isKey
+        summarizeBy: none
+        sourceColumn: plant_sk
+    column plant_id
+        dataType: string
+        isDefaultLabel
+        summarizeBy: none
+        sourceColumn: plant_id
+    column plant_name
+        dataType: string
+        summarizeBy: none
+        sourceColumn: plant_name
+    column city
+        dataType: string
+        summarizeBy: none
+        sourceColumn: city
+    column state
+        dataType: string
+        summarizeBy: none
+        sourceColumn: state
+    partition Plant = entity
+        mode: directLake
+        source
+            entityName: dim_plant
+            schemaName: gold
+            expressionSource: DL_Warehouse

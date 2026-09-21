@@ -1,0 +1,47 @@
+version: 1.0.0
+
+navigation:
+  default_page: Executive Overview
+  pages:
+    Executive Overview:
+      target: 1a7f6e9b4c2d8e10f305
+    Plant Operations:
+      target: 2b8e7f0a5d3c9f21e416
+    Machine Health:
+      target: 3c9f8a1b6e4da032f527
+    Downtime & Reliability:
+      target: 4da09b2c7f5eb143a638
+    Production & Quality:
+      target: 5eb1a3c8f6d2b254c749
+
+drillthrough:
+  Machine Detail:
+    source_field: Machine.machine_id
+    target_page: 6fc2b4d9e7a3c365d850
+    page_filter: Machine.machine_id
+
+tooltips:
+  Machine Health:
+    target_page: 7ad3c5e7f90123456789
+    source_context: Machine.machine_id
+
+bookmarks:
+  Executive Overview:
+    purpose: reset report to enterprise KPI view
+    page: 1a7f6e9b4c2d8e10f305
+    reset_filters: true
+  Plant Operations:
+    purpose: focus report on plant and line operations
+    page: 2b8e7f0a5d3c9f21e416
+    reset_filters: true
+
+interaction_rules:
+  slicer_sync:
+    Date.calendar_date: report_level
+    Plant.plant_name: report_level
+    Shift.shift_name: report_level
+  machine_drillthrough_enabled: true
+  machine_tooltip_enabled: true
+  cross_page_navigation_enabled: true
+  avoid_bidirectional_model_relationships: true
+  preserve_rls_filters: true

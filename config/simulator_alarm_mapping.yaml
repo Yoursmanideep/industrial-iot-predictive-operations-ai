@@ -1,0 +1,25 @@
+version: 1.0.0
+
+signal_alarm_mapping:
+  vibration: VIBRATION_HIGH
+  temperature: TEMPERATURE_HIGH
+  pressure: PRESSURE_LOW
+  power: POWER_ABNORMAL
+  quality: QUALITY_DEGRADATION
+  production_rate: QUALITY_DEGRADATION
+  throughput: QUALITY_DEGRADATION
+  cycle_time: QUALITY_DEGRADATION
+  force: POWER_ABNORMAL
+  torque: VIBRATION_HIGH
+  position_error: QUALITY_DEGRADATION
+  measurement_deviation: QUALITY_DEGRADATION
+  fuel_flow_rate: TEMPERATURE_HIGH
+  belt_speed: VIBRATION_HIGH
+  inspection_cycle_time: QUALITY_DEGRADATION
+
+stage_severity:
+  ANOMALY: MEDIUM
+  CRITICAL: HIGH
+  FAILURE: CRITICAL
+
+source_system: simulator

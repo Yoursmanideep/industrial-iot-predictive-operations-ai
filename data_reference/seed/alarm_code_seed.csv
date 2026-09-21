@@ -1,0 +1,7 @@
+alarm_code_sk,alarm_code,alarm_name,alarm_category,default_severity,machine_type_code,trigger_signal,status
+"1","VIBRATION_HIGH","Vibration High","MECHANICAL","HIGH","ALL","vibration_mm_s","ACTIVE"
+"2","TEMPERATURE_HIGH","Temperature High","THERMAL","HIGH","ALL","temperature_c","ACTIVE"
+"3","PRESSURE_LOW","Pressure Low","PRESSURE","HIGH","ALL","pressure_bar","ACTIVE"
+"4","POWER_ABNORMAL","Abnormal Power Consumption","ELECTRICAL","MEDIUM","ALL","power_kw","ACTIVE"
+"5","QUALITY_DEGRADATION","Quality Degradation","PROCESS","HIGH","ALL","quality_score_pct","ACTIVE"
+"6","COMMUNICATION_LOST","Machine Communication Lost","CONTROL","HIGH","ALL","communication_state","ACTIVE"

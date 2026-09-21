@@ -23,3 +23,27 @@ Local setup:
 1. python -m pip install -e ".[dev]"
 2. industrial-sim --help
 3. pytest
+
+
+## Stage 3.15 — Fabric Eventstream publishing
+
+The simulator keeps its durable JSONL output and can optionally publish validated events to the Fabric Eventstream Custom Endpoint during a run.
+
+Install the optional realtime dependencies:
+
+```
+python -m pip install -e ".[realtime]"
+```
+
+Connection options are environment-driven:
+
+- `FABRIC_EVENTSTREAM_CONNECTION_STRING`
+- or `FABRIC_EVENTSTREAM_FQDN` + `FABRIC_EVENTSTREAM_ENTITY_NAME` with Entra ID credentials available to the runtime
+
+Run:
+
+```
+industrial-sim --mode LIVE --minutes 5 --publish-eventstream
+```
+
+No endpoint keys, tenant secrets or connection strings are stored in Git.

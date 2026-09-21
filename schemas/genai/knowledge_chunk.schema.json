@@ -1,0 +1,25 @@
+{
+  "$schema":"https://json-schema.org/draft/2020-12/schema",
+  "$id":"https://github.com/Yoursmanideep/industrial-iot-predictive-operations-ai/blob/main/schemas/genai/knowledge_chunk.schema.json",
+  "title":"Industrial IoT Knowledge Chunk",
+  "type":"object",
+  "additionalProperties":false,
+  "required":["chunk_id","document_id","document_version","title","knowledge_domain","machine_type_code","heading_path","chunk_text","source_uri","source_locator","active"],
+  "properties":{
+    "chunk_id":{"type":"string","pattern":"^KCH-[A-Z0-9-]+$"},
+    "document_id":{"type":"string","pattern":"^DOC-[A-Z0-9-]+$"},
+    "document_version":{"type":"string","pattern":"^[0-9]+\\.[0-9]+\\.[0-9]+$"},
+    "title":{"type":"string","minLength":1},
+    "knowledge_domain":{"type":"string","enum":["MAINTENANCE_MANUAL","STANDARD_OPERATING_PROCEDURE","ALARM_PLAYBOOK","FAILURE_MODE_GUIDE","SAFETY_PROCEDURE"]},
+    "machine_type_code":{"type":["string","null"]},
+    "heading_path":{"type":"string","minLength":1},
+    "chunk_text":{"type":"string","minLength":20},
+    "source_uri":{"type":"string","minLength":1},
+    "source_locator":{"type":"string","minLength":1},
+    "effective_from":{"type":["string","null"],"format":"date"},
+    "effective_to":{"type":["string","null"],"format":"date"},
+    "active":{"type":"boolean"},
+    "visibility_scope":{"type":"string","enum":["ENTERPRISE","PLANT","MACHINE_TYPE"]},
+    "visibility_value":{"type":["string","null"]}
+  }
+}

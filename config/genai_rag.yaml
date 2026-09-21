@@ -1,0 +1,60 @@
+version: 1.0.0
+
+rag:
+  name: ApexIndustrialIoT_Maintenance_RAG
+  purpose: grounded maintenance troubleshooting and decision support
+  answer_language: en-US
+  retrieval:
+    provider: AzureAISearch
+    top_k: 5
+    minimum_retrieval_score: 0.55
+    hybrid_search: true
+    semantic_reranking: true
+    require_machine_type_filter_when_known: true
+    require_active_document_version: true
+    citation_required: true
+  chunking:
+    strategy: section_aware
+    target_tokens: 700
+    overlap_tokens: 100
+    preserve_heading_path: true
+    preserve_source_page_or_section: true
+  embeddings:
+    provider: FabricAI
+    function: ai.embed
+    embedding_column: embedding
+    model_reference: FabricBuiltInAIEndpoint
+  generation:
+    provider: AzureOpenAI_or_FabricAI
+    temperature: 0.1
+    max_output_tokens: 1200
+    structured_response: true
+  knowledge_domains:
+    - maintenance_manual
+    - standard_operating_procedure
+    - alarm_playbook
+    - failure_mode_guide
+    - safety_procedure
+  structured_context:
+    warehouse_views:
+      - mart.v_genai_machine_context_latest
+      - mart.v_genai_incident_context
+      - mart.v_genai_production_context
+      - mart.v_genai_maintenance_context
+    realtime_queries:
+      - rt_ml_latest_prediction
+      - rt_ml_high_risk_machines
+  answer_policy:
+    ground_only_in_retrieved_evidence: true
+    structured_context_is_additional_evidence: true
+    uncited_operational_claims_forbidden: true
+    fabricate_manual_steps: false
+    unknown_when_insufficient_evidence: true
+    automatic_machine_control: false
+    automatic_work_order_creation: false
+    recommend_human_review_for_high_risk: true
+  security:
+    plant_scoped_structured_context: true
+    knowledge_visibility_filter_required: true
+    credentials_in_git: false
+    secret_source: Fabric_Connection_or_KeyVault

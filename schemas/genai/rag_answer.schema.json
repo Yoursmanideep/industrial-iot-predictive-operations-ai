@@ -1,0 +1,23 @@
+{
+  "$schema":"https://json-schema.org/draft/2020-12/schema",
+  "$id":"https://github.com/Yoursmanideep/industrial-iot-predictive-operations-ai/blob/main/schemas/genai/rag_answer.schema.json",
+  "title":"Industrial IoT RAG Answer",
+  "type":"object",
+  "additionalProperties":false,
+  "required":["answer_id","question","answer","answer_status","citations","recommended_next_steps","safety_notes","used_structured_context","retrieval_count","generated_at_utc"],
+  "properties":{
+    "answer_id":{"type":"string","pattern":"^RAG-[0-9a-fA-F-]{36}$"},
+    "question":{"type":"string","minLength":1},
+    "answer":{"type":"string","minLength":1},
+    "answer_status":{"type":"string","enum":["GROUNDED","PARTIAL","INSUFFICIENT_EVIDENCE","BLOCKED"]},
+    "citations":{"type":"array","items":{"type":"object","additionalProperties":false,"required":["chunk_id","document_id","document_version","source_locator"],"properties":{"chunk_id":{"type":"string"},"document_id":{"type":"string"},"document_version":{"type":"string"},"source_locator":{"type":"string"}}}},
+    "recommended_next_steps":{"type":"array","items":{"type":"string"}},
+    "safety_notes":{"type":"array","items":{"type":"string"}},
+    "used_structured_context":{"type":"boolean"},
+    "retrieval_count":{"type":"integer","minimum":0},
+    "model_name":{"type":["string","null"]},
+    "model_version":{"type":["string","null"]},
+    "retrieval_query":{"type":"string"},
+    "generated_at_utc":{"type":"string","format":"date-time"}
+  }
+}

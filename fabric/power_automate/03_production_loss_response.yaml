@@ -1,0 +1,34 @@
+version: 1.0.0
+
+flow:
+  name: IndustrialIoT_Production_Loss_Response
+  trigger:
+    type: Activator_CustomAction
+    source: IndustrialIoT_Operational_Activator
+  purpose: route_material_production_loss_to_operations
+
+steps:
+  - name: Deduplicate
+    action: lookup_existing_incident
+    key: event_id
+    on_duplicate: terminate_success
+  - name: CreateLossEvent
+    action: create_dataverse_row
+    entity: ProductionLossWorkItem
+    fields:
+      source_event_id: event_id
+      plant_id: plant_id
+      line_id: line_id
+      machine_id: machine_id
+      production_order_id: production_order_id
+      loss_quantity: loss_quantity
+      loss_category: loss_category
+      loss_reason_code: loss_reason_code
+      event_time_utc: event_time
+  - name: NotifyProductionControl
+    action: send_teams_message
+    recipient_group: Production Control
+    content_template: "Production loss detected | {plant_id} | {line_id} | loss={loss_quantity}"
+
+security:
+  credentials_in_git: false

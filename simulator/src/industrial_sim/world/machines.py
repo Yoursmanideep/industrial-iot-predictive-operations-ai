@@ -75,6 +75,10 @@ class MachineWorldLoader:
                     criticality=row["criticality"],
                 )
 
+        if len(runtimes) != 270:
+            raise ValueError(f"Expected 270 machines, loaded {len(runtimes)}")
+        return runtimes
+
     @staticmethod
     def _select_initial_state(
         machine_id: str,
@@ -96,7 +100,3 @@ class MachineWorldLoader:
             if fraction <= cumulative:
                 return MachineState(state_name)
         return MachineState(list(distribution)[-1])
-
-        if len(runtimes) != 270:
-            raise ValueError(f"Expected 270 machines, loaded {len(runtimes)}")
-        return runtimes

@@ -65,6 +65,7 @@ class ProductionOrder:
     rejected_quantity: float = 0.0
     actual_start_time: datetime | None = None
     actual_end_time: datetime | None = None
+    paused_at: datetime | None = None
 
     def __post_init__(self) -> None:
         if self.planned_quantity <= 0:

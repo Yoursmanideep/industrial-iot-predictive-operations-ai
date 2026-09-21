@@ -1,4 +1,7 @@
 from datetime import datetime, timezone
+from pathlib import Path
+
+CONFIG_DIR = Path(__file__).resolve().parents[2] / "config"
 
 from industrial_sim.domain.machine import Machine, MachineIdentity, MachineState
 from industrial_sim.machines.base import MachineBehaviorContext
@@ -19,7 +22,7 @@ def build_machine(machine_type: str, machine_id: str) -> Machine:
 
 
 def test_all_nine_types_emit_configured_signals() -> None:
-    profiles = load_machine_profiles("../../config/simulator_machine_profiles.yaml")
+    profiles = load_machine_profiles(CONFIG_DIR / "simulator_machine_profiles.yaml")
     registry = TelemetryPhysicsRegistry.default()
     event_time = datetime(2026, 9, 21, 6, 0, tzinfo=timezone.utc)
 

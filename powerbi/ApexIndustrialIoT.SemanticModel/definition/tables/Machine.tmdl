@@ -1,0 +1,36 @@
+table Machine
+    column machine_sk
+        dataType: int64
+        isHidden
+        isKey
+        summarizeBy: none
+        sourceColumn: machine_sk
+    column machine_id
+        dataType: string
+        isDefaultLabel
+        summarizeBy: none
+        sourceColumn: machine_id
+    column machine_type_code
+        dataType: string
+        summarizeBy: none
+        sourceColumn: machine_type_code
+    column criticality
+        dataType: string
+        summarizeBy: none
+        sourceColumn: criticality
+    column line_sk
+        dataType: int64
+        isHidden
+        summarizeBy: none
+        sourceColumn: line_sk
+    column machine_model_sk
+        dataType: int64
+        isHidden
+        summarizeBy: none
+        sourceColumn: machine_model_sk
+    partition Machine = entity
+        mode: directLake
+        source
+            entityName: dim_machine
+            schemaName: gold
+            expressionSource: DL_Warehouse

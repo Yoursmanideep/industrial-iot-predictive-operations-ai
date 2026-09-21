@@ -1,0 +1,63 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.9.0/schema.json",
+  "name": "aabbccddeeff00112238",
+  "position": {
+    "x": 650,
+    "y": 250,
+    "z": 1000,
+    "height": 430,
+    "width": 610,
+    "tabOrder": 1000
+  },
+  "visual": {
+    "visualType": "barChart",
+    "query": {
+      "queryState": {
+        "Category": {
+          "projections": [
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "Plant"
+                    }
+                  },
+                  "Property": "plant_name"
+                }
+              },
+              "queryRef": "Plant.plant_name",
+              "nativeQueryRef": "plant_name",
+              "active": true
+            }
+          ]
+        },
+        "Y": {
+          "projections": [
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "OEE"
+                    }
+                  },
+                  "Property": "OEE %"
+                }
+              },
+              "queryRef": "OEE.OEE %",
+              "nativeQueryRef": "OEE %",
+              "active": true
+            }
+          ]
+        }
+      }
+    }
+  },
+  "annotations": [
+    {
+      "name": "businessPurpose",
+      "value": "OEE by plant"
+    }
+  ]
+}

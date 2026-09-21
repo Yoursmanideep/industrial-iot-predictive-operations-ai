@@ -33,6 +33,8 @@ class WorkloadModel:
         self._cfg = config["workload"]
 
     def evaluate(self, inputs: WorkloadInputs, shift: ShiftContext, event_time: datetime) -> WorkloadResult:
+        if event_time.tzinfo is None:
+            raise ValueError("event_time must be timezone-aware.")
         base = float(self._cfg["base_line_utilization"])
         mix = max(-0.12, min(0.12, inputs.product_mix_factor))
         shift_adjusted = base * shift.workload_multiplier
@@ -57,9 +59,10 @@ class WorkloadModel:
         workload *= (1.0 - age_penalty) * (1.0 - health_penalty) * changeover_penalty * state_factor
         workload = max(float(self._cfg["minimum_factor"]), min(workload, float(self._cfg["maximum_factor"])))
 
-        effective_capacity = max(0.0, inputs.rated_capacity_units_min * (1.0 - age_penalty) * (1.0 - health_penalty))
-        cycle_factor = max(0.10, min(2.0, 60.0 / max(inputs.product_cycle_time_seconds, 1.0)))
-        effective_capacity *= cycle_factor / max(cycle_factor, 1.0)
+        rated_capacity = max(0.0, inputs.rated_capacity_units_min)
+        cycle_capacity = 60.0 / max(inputs.product_cycle_time_seconds, 1.0)
+        effective_capacity = min(rated_capacity, cycle_capacity)
+        effective_capacity *= (1.0 - age_penalty) * (1.0 - health_penalty)
 
         return WorkloadResult(
             workload_factor=workload,

@@ -1,24 +1,30 @@
 # Microsoft Fabric Layer
 
 Stage 3.10 introduced replay-safe validated ingestion into Bronze.
-
-Stage 3.11 introduces curated Silver Delta processing.
+Stage 3.11 introduced curated Silver Delta processing.
+Stage 3.12 introduces the SQL-first Warehouse Gold analytical model.
 
 Structure:
 
-- `ingestion/` — deterministic batch identity, checkpoints, scanning and replay-safe Bronze landing
-- `notebooks/` — Bronze and Silver Spark transformations
-- `sql/` — ingestion and Silver control models
-- `kql/` — Eventhouse destination schema
-- `pipelines/` — deployment contracts
-- `silver/` — Silver-layer documentation and contract tests
+- ingestion/ — deterministic batch identity, checkpoints, scanning and replay-safe Bronze landing
+- notebooks/ — Bronze and Silver Spark transformations
+- sql/ — ingestion, Silver and Warehouse control models
+- kql/ — Eventhouse destination schema
+- pipelines/ — deployment contracts
+- silver/ — Silver-layer documentation and contract tests
+- warehouse/ — staging contracts, Gold star schema, load procedures, OEE and KPI views
 
-Silver outputs:
+Gold outputs:
 
-- `silver.machine_telemetry`
-- `silver.machine_operational_event`
-- `silver.production_event`
-- `silver.rejected_event`
-- `control.silver_load_audit`
+- gold dimensions for date, shift, plant, area, line, machine, product, people, parts and governed reference codes
+- gold.fact_machine_telemetry
+- gold.fact_machine_operational_event
+- gold.fact_downtime_interval
+- gold.fact_production_event
+- gold.fact_production_loss
+- gold.fact_maintenance_event
+- gold.fact_quality_event
+- gold.fact_oee_daily
+- mart KPI and consumption views
 
-Next layer: SQL-first Warehouse/Gold modeling and analytical fact/dimension design.
+Next layer: Power BI semantic model and enterprise reporting.

@@ -43,11 +43,13 @@ class LineExecutionEngine:
                 line_id=line_id,
                 event_time=event_time,
                 bottleneck_rate_units_min=0.0,
+                nominal_bottleneck_rate_units_min=0.0,
                 available=False,
                 active_machine_ids=tuple(m.machine_id for m in available),
                 blocked_machine_ids=blocked,
                 scenario_multiplier=0.0,
             )
+        nominal_bottleneck = min(m.effective_capacity_units_min for m in available)
         bottleneck = min(
             m.effective_capacity_units_min * max(0.0, min(1.0, m.scenario_production_multiplier))
             for m in available
@@ -56,6 +58,7 @@ class LineExecutionEngine:
             line_id=line_id,
             event_time=event_time,
             bottleneck_rate_units_min=bottleneck,
+            nominal_bottleneck_rate_units_min=nominal_bottleneck,
             available=bottleneck > 0,
             active_machine_ids=tuple(m.machine_id for m in available),
             blocked_machine_ids=blocked,
@@ -73,7 +76,7 @@ class LineExecutionEngine:
         quality = max(0.0, min(1.0, quality_multiplier))
         rejected = produced * (1.0 - quality)
         good = produced - rejected
-        baseline_capacity = max(rate, 0.01)
+        baseline_capacity = max(snapshot.nominal_bottleneck_rate_units_min, 0.01)
         ratio = rate / baseline_capacity
         loss_category = None
         loss_reason = None

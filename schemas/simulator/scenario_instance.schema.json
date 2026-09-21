@@ -23,7 +23,7 @@
   "properties": {
     "scenario_instance_id": {
       "type": "string",
-      "pattern": "^SCN-[0-9a-fA-F-]{36}$"
+      "pattern": "^[0-9a-fA-F-]{36}$"
     },
     "simulator_run_id": {
       "type": "string",

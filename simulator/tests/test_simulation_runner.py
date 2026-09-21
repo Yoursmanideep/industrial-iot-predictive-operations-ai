@@ -81,7 +81,7 @@ def test_stream_writer_appends_across_multiple_write_calls(tmp_path: Path) -> No
     assert len(files[0].read_text(encoding="utf-8").splitlines()) == 2
 
 
-def test_runner_uses_deterministic_default_run_id() -> None:
+def test_runner_uses_deterministic_default_run_id(tmp_path: Path) -> None:
     runner = EnterpriseSimulationRunner(ROOT)
     result_a = runner.run(
         mode=RunMode.LIVE,
@@ -89,7 +89,7 @@ def test_runner_uses_deterministic_default_run_id() -> None:
         end_time=START + timedelta(seconds=5),
         seed=20260921,
         run_id=None,
-        output_root=ROOT / "output" / "test-runner-a",
+        output_root=tmp_path / "runner-a",
     )
     result_b = runner.run(
         mode=RunMode.LIVE,
@@ -97,7 +97,7 @@ def test_runner_uses_deterministic_default_run_id() -> None:
         end_time=START + timedelta(seconds=5),
         seed=20260921,
         run_id=None,
-        output_root=ROOT / "output" / "test-runner-b",
+        output_root=tmp_path / "runner-b",
     )
     assert result_a.run_id == result_b.run_id
     assert result_a.mode is RunMode.LIVE

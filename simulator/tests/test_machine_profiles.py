@@ -7,7 +7,7 @@ from industrial_sim.machines.registry import MachineBehaviorRegistry
 
 
 def test_loads_all_nine_machine_profiles() -> None:
-    catalog = load_machine_profiles("../../config/simulator_machine_profiles.yaml")
+    catalog = load_machine_profiles(CONFIG_DIR / "simulator_machine_profiles.yaml")
     expected = {
         "CNC", "HYDRAULIC_PRESS", "INDUSTRIAL_ROBOT", "CONVEYOR", "COMPRESSOR",
         "FURNACE", "INSPECTION", "PACKAGING", "PALLETIZER",

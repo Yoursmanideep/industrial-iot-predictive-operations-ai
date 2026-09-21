@@ -1,0 +1,74 @@
+version: 1.0.0
+
+semantic_model:
+  name: ApexIndustrialIoT
+  definition_format: TMDL
+  compatibility_level: 1604
+  storage_mode: DirectLake
+  direct_lake_variant: OneLake
+
+source:
+  type: FabricWarehouse
+  warehouse_name: ${FABRIC_WAREHOUSE_NAME}
+  warehouse_id: ${FABRIC_WAREHOUSE_ID}
+  workspace_id: ${FABRIC_WORKSPACE_ID}
+
+modeling:
+  design: star_schema
+  imported_dimensions: false
+  implicit_measures: discouraged
+  foreign_keys_hidden: true
+  bi_layer: mart_plus_gold_base_tables
+
+tables:
+  dimensions:
+    - Date
+    - Shift
+    - Plant
+    - Line
+    - Machine
+    - Product
+  facts:
+    - OEE
+    - Production
+    - Downtime
+    - Telemetry
+    - OperationalEvent
+  security:
+    - PlantAccess
+
+relationships:
+  cross_filter_direction: oneDirection
+  bidirectional_relationships: false
+  many_to_many_relationships: false
+
+rls:
+  role_name: Plant RLS
+  identity_function: USERPRINCIPALNAME
+  filter_target: Plant
+  access_source: PlantAccess
+  semantic_model_rule: Plant[plant_id] IN AllowedPlants
+
+measures:
+  core_kpis:
+    - Availability %
+    - Performance %
+    - Quality %
+    - OEE %
+    - Good Units
+    - Rejected Units
+    - Total Downtime Minutes
+    - Unplanned Downtime Minutes
+    - Fault Count
+    - Alarm Count
+
+deployment:
+  workspace_and_item_names_externalized: true
+  credentials_in_git: false
+  pbip_source_control: recommended
+
+validation:
+  strict_table_names: true
+  no_ambiguous_relationships: true
+  rls_must_filter_plant_dimension: true
+  no_sql_view_dependency_for_direct_lake: true

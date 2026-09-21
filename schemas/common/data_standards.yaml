@@ -1,0 +1,214 @@
+# Global Data Standards
+# Stage 2.1 — Industrial IoT Predictive Operations & AI Intelligence Platform
+
+project:
+  timezone: Asia/Kolkata
+  canonical_timestamp_timezone: UTC
+  timestamp_format: ISO-8601
+  timestamp_precision: milliseconds
+  schema_version_format: semantic-versioning
+
+naming:
+  field_case: snake_case
+  table_case: snake_case
+  enum_case: UPPER_SNAKE_CASE
+  event_type_case: PascalCase
+  identifiers: lowercase_type_prefix_uppercase_sequence
+  no_spaces_in_identifiers: true
+
+identifiers:
+  principle: immutable_and_globally_unique
+  event_id:
+    format: EVT-{UUID}
+    immutable: true
+  machine_id:
+    example: CHN-L01-CNC01
+    immutable: true
+  plant_id:
+    example: PLT-CHN-01
+    immutable: true
+  line_id:
+    example: CHN-L01
+    immutable: true
+  production_area_id:
+    example: CHN-PA01
+    immutable: true
+  work_order_id:
+    format: WO-{UUID}
+    immutable: true
+  incident_id:
+    format: INC-{UUID}
+    immutable: true
+
+timestamps:
+  event_time:
+    meaning: Time at which the business/physical event actually occurred.
+    required: true
+    timezone: UTC
+  ingestion_time:
+    meaning: Time at which the platform received the event.
+    required_for_events: true
+    timezone: UTC
+  processing_time:
+    meaning: Time at which a pipeline or processing component completed handling.
+    required_for_curated_processing_records: true
+    timezone: UTC
+  rule:
+    event_time_and_ingestion_time_must_not_be_substituted: true
+  ordering:
+    primary: event_time
+    tie_breaker: event_id
+
+measurements:
+  canonical_units:
+    temperature: degC
+    vibration: mm_s
+    pressure: bar
+    rotational_speed: rpm
+    power: kW
+    current: A
+    voltage: V
+    force: kN
+    torque: N_m
+    distance: mm
+    time_interval: s
+    throughput: unit_min
+    energy: kWh
+  storage_rule:
+    values_must_be_stored_in_canonical_units: true
+    source_conversion_must_be_documented: true
+
+numeric_precision:
+  principle: preserve_measurement_precision_without_excessive_storage_scale
+  percentages:
+    recommended_scale: 4
+    valid_range: 0_to_100
+  scores:
+    recommended_scale: 4
+    valid_range: 0_to_100
+  sensor_measurements:
+    rule: choose_precision_from_source_sensor_resolution_and_business_requirement
+  monetary_values:
+    currency: INR
+    recommended_scale: 2
+
+null_and_missing_values:
+  null:
+    meaning: Value is known to be unavailable or has not been populated.
+  not_applicable:
+    representation: NULL
+    companion_flag_required_when_ambiguity_exists: true
+    rule: Do not use magic numeric or string values such as -1, 999999, NA, UNKNOWN to represent missingness.
+  zero:
+    meaning: A measured or valid business value of exactly zero.
+  empty_string:
+    allowed: false
+  whitespace_only_strings:
+    allowed: false
+
+boolean_values:
+  allowed: [true, false]
+  numeric_boolean_values:
+    allowed: false
+  string_boolean_values:
+    allowed: false
+
+enumerations:
+  rule: values_must_come_from_controlled_vocabularies
+  unknown_values:
+    allowed: false
+  new_values:
+    process: update_reference_configuration_and_schema_before_production_use
+
+event_envelope:
+  common_required_fields:
+    - event_id
+    - event_type
+    - schema_version
+    - event_time
+    - ingestion_time
+    - source_system
+  recommended_fields:
+    - correlation_id
+    - causation_id
+    - plant_id
+    - line_id
+    - machine_id
+  traceability:
+    correlation_id: Groups events that belong to one business/operational flow.
+    causation_id: Identifies the immediate event that caused the current event when applicable.
+
+event_time_rules:
+  clock_skew:
+    rule: retain_received_event_time_and_record_quality_issue_when_source_clock_is_invalid
+  future_events:
+    rule: quarantine_when_event_time_exceeds_configured_clock_skew_tolerance
+  late_arriving_events:
+    rule: accept_when_valid_and_process_using_event_time
+  duplicate_events:
+    detection_key: event_id
+    behavior: idempotent_deduplication
+
+data_quality:
+  mandatory_checks:
+    - schema_validity
+    - required_field_completeness
+    - datatype_validity
+    - enumeration_validity
+    - range_validity
+    - referential_integrity
+    - duplicate_detection
+    - timestamp_validity
+  invalid_record_behavior:
+    action: quarantine
+    preserve_raw_payload: true
+    preserve_failure_reason: true
+  quality_status_values:
+    - PASS
+    - WARN
+    - FAIL
+
+schema_versioning:
+  strategy: semantic_versioning
+  compatibility:
+    patch: backward_compatible_bug_or_metadata_change
+    minor: backward_compatible_field_addition_or_optional_extension
+    major: breaking_contract_change
+  rule: producers_and_consumers_must_declare_supported_schema_version
+
+security:
+  secrets:
+    stored_in_git: false
+  credentials:
+    stored_in_event_payload: false
+  sensitive_fields:
+    principle: collect_minimum_required_business_data
+  environment_separation:
+    environments:
+      - DEV
+      - TEST
+      - PROD
+
+processing:
+  idempotency:
+    required_for_reprocessable_pipelines: true
+  reproducibility:
+    input_batch_and_schema_version_must_be_traceable: true
+  auditability:
+    required: true
+
+source_metadata:
+  source_system:
+    required: true
+  source_record_id:
+    required_when_available: true
+  source_received_at:
+    recommended: true
+
+contract_change_control:
+  rule: schema_changes_require_documented_review
+  required_artifacts:
+    - schema_version_update
+    - change_description
+    - compatibility_assessment
+    - downstream_impact_assessment

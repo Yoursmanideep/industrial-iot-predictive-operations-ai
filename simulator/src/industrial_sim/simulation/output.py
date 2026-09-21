@@ -45,29 +45,29 @@ class PartitionedEventStreamWriter:
 
     def write(self, events: Iterable[object]) -> None:
         for event in events:
-                stream = self._stream_name(event)
-                stats = self.stats.setdefault(stream, StreamStats())
-                stats.observe(event)
-                path = (
-                    self.output_root
-                    / f"event_type={stream}"
-                    / f"event_date={event.event_time.date().isoformat()}"
-                    / f"plant_id={event.plant_id}"
-                    / f"{stream.lower()}.jsonl"
+            stream = self._stream_name(event)
+            stats = self.stats.setdefault(stream, StreamStats())
+            stats.observe(event)
+            path = (
+                self.output_root
+                / f"event_type={stream}"
+                / f"event_date={event.event_time.date().isoformat()}"
+                / f"plant_id={event.plant_id}"
+                / f"{stream.lower()}.jsonl"
+            )
+            path.parent.mkdir(parents=True, exist_ok=True)
+            handle = self._handles.get(path)
+            if handle is None:
+                handle = path.open("w", encoding="utf-8")
+                self._handles[path] = handle
+            handle.write(
+                json.dumps(
+                    event.to_dict(),
+                    separators=(",", ":"),
+                    sort_keys=True,
                 )
-                path.parent.mkdir(parents=True, exist_ok=True)
-                handle = self._handles.get(path)
-                if handle is None:
-                    handle = path.open("w", encoding="utf-8")
-                    self._handles[path] = handle
-                handle.write(
-                    json.dumps(
-                        event.to_dict(),
-                        separators=(",", ":"),
-                        sort_keys=True,
-                    )
-                    + "\n"
-                )
+                + "\n"
+            )
 
     def close(self) -> None:
         for handle in self._handles.values():

@@ -13,6 +13,7 @@ class MachineBehaviorContext:
     ambient_temperature_c: float
     health_factor: float
     scenario_stage: str | None = None
+    scenario_severity: float = 0.0
 
 
 @dataclass(frozen=True)

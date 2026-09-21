@@ -31,7 +31,8 @@ class FabricLoadPlanner:
         filename = Path(manifest.source_file_path).name
         destination = (
             f"{self.bronze_root}/event_type={manifest.event_type}/"
-            f"event_date={manifest.event_date}/plant_id={manifest.plant_id}/{filename}"
+            f"event_date={manifest.event_date}/plant_id={manifest.plant_id}/"
+            f"ingestion_batch_id={manifest.ingestion_batch_id}/{filename}"
         )
         return FabricLoadPlan(
             ingestion_batch_id=manifest.ingestion_batch_id,

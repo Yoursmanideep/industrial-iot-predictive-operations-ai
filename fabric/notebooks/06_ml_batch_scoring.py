@@ -86,7 +86,7 @@ output = (
         F.greatest(F.lit(0.0), F.least(F.lit(1.0), F.col("prediction").cast("double"))),
     )
     .withColumn("risk_band", risk_band(F.col("failure_risk_score")))
-    .withColumn("prediction_created_at_utc", F.current_timestamp())
+    .withColumn("scored_at_utc", F.current_timestamp())
     .withColumn("prediction_horizon_minutes", F.lit(HORIZON_MINUTES))
     .withColumn("model_name", F.lit(MODEL_NAME))
     .withColumn("model_version", F.lit(str(MODEL_VERSION)))
@@ -102,7 +102,7 @@ output = (
     )
     .select(
         "prediction_id", "feature_id", "plant_id", "line_id", "machine_id",
-        "feature_time_utc", "prediction_created_at_utc",
+        "feature_time_utc", "scored_at_utc",
         "model_name", "model_version", "feature_version",
         "prediction_horizon_minutes", "failure_risk_score", "risk_band",
         "inference_mode", "endpoint_reference", "source_run_id",

@@ -1,0 +1,39 @@
+version: 1.0.0
+
+index:
+  name: industrial-iot-knowledge
+  provider: AzureAISearch
+  source_table: ml.rag_knowledge_embeddings
+  key_field: chunk_id
+  searchable_fields:
+    - title
+    - heading_path
+    - chunk_text
+  filterable_fields:
+    - document_id
+    - document_version
+    - knowledge_domain
+    - machine_type_code
+    - active
+    - visibility_scope
+    - visibility_value
+  vector_field:
+    name: embedding
+    dimensions: deployment_time_from_embedding_model
+    profile: industrial-iot-hnsw
+  vector_profile:
+    algorithm: hnsw
+  semantic_configuration:
+    name: industrial-iot-semantic
+    title_field: title
+    content_fields:
+      - chunk_text
+  retrieval:
+    mode: hybrid
+    lexical_search: true
+    vector_search: true
+    semantic_reranking: true
+    top_k: 5
+  security:
+    visibility_filters_required: true
+    credentials_in_git: false

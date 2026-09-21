@@ -1,0 +1,188 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Silver Production Event",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "event_id",
+    "event_time",
+    "ingestion_time",
+    "plant_id",
+    "production_order_id",
+    "event_type",
+    "ingestion_batch_id",
+    "event_date",
+    "is_late_arrival"
+  ],
+  "properties": {
+    "event_id": {
+      "type": "string"
+    },
+    "event_time": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "ingestion_time": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "plant_id": {
+      "type": "string"
+    },
+    "line_id": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "machine_id": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "production_order_id": {
+      "type": "string"
+    },
+    "batch_id": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "product_id": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "operation_id": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "production_sequence": {
+      "type": [
+        "integer",
+        "null"
+      ]
+    },
+    "planned_quantity": {
+      "type": [
+        "number",
+        "null"
+      ]
+    },
+    "actual_quantity": {
+      "type": [
+        "number",
+        "null"
+      ]
+    },
+    "good_quantity": {
+      "type": [
+        "number",
+        "null"
+      ]
+    },
+    "rejected_quantity": {
+      "type": [
+        "number",
+        "null"
+      ]
+    },
+    "quantity_uom": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "loss_reason_code": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "loss_category": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "loss_quantity": {
+      "type": [
+        "number",
+        "null"
+      ]
+    },
+    "loss_duration_seconds": {
+      "type": [
+        "number",
+        "null"
+      ]
+    },
+    "downtime_event_id": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "machine_fault_event_id": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "correlation_id": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "causation_id": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "simulator_run_id": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "scenario_id": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "scenario_instance_id": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "generation_sequence": {
+      "type": [
+        "integer",
+        "null"
+      ]
+    },
+    "ingestion_batch_id": {
+      "type": "string"
+    },
+    "event_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "is_late_arrival": {
+      "type": "boolean"
+    },
+    "processed_at_utc": {
+      "type": "string",
+      "format": "date-time"
+    }
+  }
+}

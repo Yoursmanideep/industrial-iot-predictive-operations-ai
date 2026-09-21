@@ -76,7 +76,7 @@ class ValidatedSourceScanner:
         return IngestionBatchManifest(
             ingestion_batch_id=ingestion_batch_id(key),
             simulator_run_id=simulator_run_id,
-source_file_path=str(path),
+            source_file_path=str(path),
             source_file_sha256=source_hash,
             event_type=event_type,
             event_date=event_date,

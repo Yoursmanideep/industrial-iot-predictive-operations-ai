@@ -1,0 +1,200 @@
+# Stage 3.3 — Simulator World Model
+
+simulation:
+  purpose: deterministic_enterprise_simulation
+  canonical_timezone: UTC
+  business_timezone: Asia/Kolkata
+  default_tick_seconds: 5
+  telemetry_interval_seconds: 5
+  operational_event_mode: state_change_or_business_event
+  production_event_mode: event_driven_with_optional_short_interval_aggregation
+  deterministic_seed: 20260921
+  reproducibility_required: true
+
+world:
+  enterprise: Apex Industrial Manufacturing
+  plants: 3
+  production_lines: 15
+  machines: 270
+  shifts_per_day: 3
+  baseline_operating_days_per_week: 6
+
+time:
+  shift_schedule:
+    SH1:
+      start_local: "06:00"
+      end_local: "14:00"
+    SH2:
+      start_local: "14:00"
+      end_local: "22:00"
+    SH3:
+      start_local: "22:00"
+      end_local: "06:00"
+  planning_horizon_days: 365
+  bootstrap_history_days: 180
+  event_time_is_simulation_time: true
+  ingestion_delay:
+    enabled: true
+    distribution: bounded_random
+    min_ms: 20
+    max_ms: 1500
+
+operating_context:
+  ambient_temperature:
+    enabled: true
+    daily_pattern: seasonal_plus_intraday
+    plant_offset_allowed: true
+    machine_local_adjustment_allowed: true
+  utility_conditions:
+    enabled: true
+    power_variation: true
+    brief_interruptions_allowed: true
+  workload:
+    shift_effect: true
+    product_mix_effect: true
+    machine_age_effect: true
+
+machine_behavior:
+  principles:
+    - telemetry_signals_are_correlated
+    - machine_state_controls_signal_behavior
+    - workload_changes_production_and_energy
+    - degradation_changes_multiple_signals_before_failure
+    - maintenance_changes_machine_health_and_behavior
+    - failure_scenarios_are_explicit_and_traceable
+    - random_variation_is_constrained_by_physical_and_operational_rules
+
+state_behavior:
+  RUNNING:
+    telemetry_active: true
+    production_active: true
+  IDLE:
+    telemetry_active: true
+    production_active: false
+    load_factor_range: [0.00, 0.20]
+  SETUP:
+    telemetry_active: true
+    production_active: false
+  STARVED:
+    telemetry_active: true
+    production_active: false
+    production_impact: negative
+  BLOCKED:
+    telemetry_active: true
+    production_active: false
+    production_impact: negative
+  FAULT:
+    telemetry_active: true
+    production_active: false
+    anomaly_expected: true
+  MAINTENANCE:
+    telemetry_active: limited
+    production_active: false
+  OFFLINE:
+    telemetry_active: false
+    production_active: false
+  RECOVERY:
+    telemetry_active: true
+    production_active: false_or_limited
+    recovery_trend: move_toward_baseline
+
+production_model:
+  order_lifecycle:
+    - CREATED
+    - RELEASED
+    - SCHEDULED
+    - STARTED
+    - IN_PROGRESS
+    - PAUSED
+    - COMPLETED
+    - CANCELLED
+  batch_lifecycle:
+    - PLANNED
+    - STARTED
+    - IN_PROGRESS
+    - COMPLETED
+    - REJECTED
+    - REWORK
+  order_generation:
+    daily_orders_per_plant_range: [30, 60]
+    product_mix_is_deterministic: true
+    planned_quantity_range_units: [100, 2500]
+    planned_schedule_buffer_percent: 10
+  production_rate:
+    driver_factors:
+      - machine_capacity
+      - product_cycle_time
+      - workload_factor
+      - machine_health
+      - operating_state
+      - changeover_penalty
+
+quality_model:
+  baseline_quality_percent_range: [96.0, 99.8]
+  degradation_effect: quality_declines_as_process_instability_increases
+  defect_events_are_observed_outcomes: true
+  modelled_defect_probability_must_not_equal_actual_defect: true
+  quality_measurement_frequency: sampled_by_inspection_process
+
+maintenance_model:
+  maintenance_modes:
+    - PREVENTIVE
+    - PREDICTIVE
+    - CORRECTIVE
+    - EMERGENCY
+    - INSPECTION
+    - CALIBRATION
+  scheduled_maintenance_enabled: true
+  predictive_maintenance_enabled: true
+  corrective_maintenance_enabled: true
+  repair_changes_machine_health: true
+  post_repair_recovery_enabled: true
+  parts_consumption_enabled: true
+  maintenance_cost_enabled: true
+
+event_orchestration:
+  primary_causal_chain:
+    - telemetry
+    - anomaly_condition
+    - alarm
+    - fault
+    - production_impact
+    - quality_impact
+    - maintenance_request
+    - work_order
+    - repair
+    - recovery
+    - return_to_service
+  rule:
+    each_link_must_be_traceable_when_an_operational_relationship_exists: true
+
+randomness:
+  rule: constrained_stochastic_variation_only
+  seeded: true
+  forbidden:
+    - independent_uniform_random_value_for_every_signal
+    - unconstrained_negative_physical_measurements
+    - random_failure_without_state_history
+
+scenario_execution:
+  modes:
+    - BASELINE
+    - DEGRADATION
+    - INCIDENT
+    - RECOVERY
+  one_primary_active_failure_per_machine: true
+  multiple_secondary_anomalies_allowed: true
+  scenario_can_be_interrupted_by_maintenance: true
+  scenario_can_extend_into_production_and_quality_impact: true
+  repair_resets_or_reduces_degradation_state: true
+
+observability:
+  simulator_run_id_required: true
+  every_generated_event_contains_run_id: true
+  generation_trace_required: true
+  trace_fields:
+    - simulator_run_id
+    - scenario_id
+    - scenario_instance_id
+    - generated_at_utc
+    - deterministic_seed

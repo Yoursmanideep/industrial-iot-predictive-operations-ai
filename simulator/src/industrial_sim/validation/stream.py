@@ -75,6 +75,7 @@ class ValidatedEventStreamWriter:
         import json
 
         self.output_root.mkdir(parents=True, exist_ok=True)
+        self.valid_writer.write_manifest()
         path = self.output_root / "validation_manifest.json"
         path.write_text(
             json.dumps(self.manifest(), indent=2, sort_keys=True) + "\n",

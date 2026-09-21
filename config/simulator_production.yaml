@@ -1,0 +1,86 @@
+version: 1.0.0
+
+generation:
+  orders_per_plant_per_day_range: [30, 60]
+  planned_quantity_range_units: [100, 2500]
+  batch_count_range: [1, 8]
+  minimum_batch_quantity_units: 10
+
+products:
+  PROD-MOTOR-A01:
+    product_family: Motor Assemblies
+    route: [CNC, ROB, CON, INS, PKG, PAL]
+    quality_baseline_pct: 98.5
+    workload_factor: 1.00
+  PROD-MOTOR-A02:
+    product_family: Motor Assemblies
+    route: [CNC, ROB, CON, INS, PKG, PAL]
+    quality_baseline_pct: 98.3
+    workload_factor: 1.02
+  PROD-PUMP-B01:
+    product_family: Pump Systems
+    route: [CNC, HPR, ROB, INS, PKG, PAL]
+    quality_baseline_pct: 97.8
+    workload_factor: 1.05
+  PROD-PUMP-B02:
+    product_family: Pump Systems
+    route: [CNC, HPR, ROB, INS, PKG, PAL]
+    quality_baseline_pct: 97.6
+    workload_factor: 1.08
+  PROD-GEAR-C01:
+    product_family: Drive Systems
+    route: [CNC, ROB, INS, PKG, PAL]
+    quality_baseline_pct: 98.2
+    workload_factor: 1.03
+  PROD-GEAR-C02:
+    product_family: Drive Systems
+    route: [CNC, ROB, INS, PKG, PAL]
+    quality_baseline_pct: 97.9
+    workload_factor: 1.05
+  PROD-VALVE-D01:
+    product_family: Fluid Control
+    route: [CNC, HPR, INS, PKG, PAL]
+    quality_baseline_pct: 98.1
+    workload_factor: 1.01
+  PROD-VALVE-D02:
+    product_family: Fluid Control
+    route: [CNC, HPR, INS, PKG, PAL]
+    quality_baseline_pct: 97.9
+    workload_factor: 1.03
+  PROD-HOUSING-E01:
+    product_family: Machined Components
+    route: [CNC, INS, PKG, PAL]
+    quality_baseline_pct: 98.8
+    workload_factor: 0.96
+  PROD-HOUSING-E02:
+    product_family: Machined Components
+    route: [CNC, INS, PKG, PAL]
+    quality_baseline_pct: 98.6
+    workload_factor: 0.98
+  PROD-SHAFT-F01:
+    product_family: Drive Components
+    route: [CNC, ROB, INS, PKG, PAL]
+    quality_baseline_pct: 98.3
+    workload_factor: 0.99
+  PROD-SHAFT-F02:
+    product_family: Drive Components
+    route: [CNC, ROB, INS, PKG, PAL]
+    quality_baseline_pct: 98.1
+    workload_factor: 1.01
+
+line_execution:
+  machine_selection: one_machine_per_route_step
+  bottleneck_rule: minimum_available_capacity
+  scenario_multiplier_applied: true
+  blocked_or_starved_machine_capacity_factor: 0.0
+  setup_capacity_factor: 0.55
+  recovery_capacity_factor: 0.25
+  minimum_active_rate_units_min: 0.01
+
+losses:
+  slowdown_threshold_ratio: 0.85
+  downtime_threshold_ratio: 0.10
+  default_loss_reasons:
+    slowdown: SLOW_CYCLE
+    downtime: MACHINE_DOWNTIME
+    quality: QUALITY_DEFECT

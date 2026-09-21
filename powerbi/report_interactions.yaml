@@ -13,8 +13,15 @@ navigation:
       target: 4da09b2c7f5eb143a638
     Production & Quality:
       target: 5eb1a3c8f6d2b254c749
+    Predictive Maintenance:
+      target: 8be4d2f6a90123456780
 
 drillthrough:
+  Predictive Maintenance:
+    source_field: Machine.machine_id
+    target_page: 8be4d2f6a90123456780
+    page_filter: Machine.machine_id
+
   Machine Detail:
     source_field: Machine.machine_id
     target_page: 6fc2b4d9e7a3c365d850

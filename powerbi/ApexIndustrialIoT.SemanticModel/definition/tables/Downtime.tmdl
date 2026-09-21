@@ -1,0 +1,66 @@
+table Downtime
+    measure 'Downtime Minutes' = DIVIDE(SUM(Downtime[duration_seconds]), 60)
+        formatString: 0.0
+    measure 'Unplanned Downtime Minutes' = CALCULATE([Downtime Minutes], Downtime[is_planned] = FALSE())
+        formatString: 0.0
+    measure 'Planned Downtime Minutes' = CALCULATE([Downtime Minutes], Downtime[is_planned] = TRUE())
+        formatString: 0.0
+    measure 'Fault Downtime Minutes' = CALCULATE([Downtime Minutes], Downtime[state_code] = "FAULT")
+        formatString: 0.0
+    column downtime_fact_key
+        dataType: int64
+        isHidden
+        isKey
+        summarizeBy: none
+        sourceColumn: downtime_fact_key
+    column date_sk
+        dataType: int64
+        isHidden
+        summarizeBy: none
+        sourceColumn: date_sk
+    column shift_sk
+        dataType: int64
+        isHidden
+        summarizeBy: none
+        sourceColumn: shift_sk
+    column plant_sk
+        dataType: int64
+        isHidden
+        summarizeBy: none
+        sourceColumn: plant_sk
+    column line_sk
+        dataType: int64
+        isHidden
+        summarizeBy: none
+        sourceColumn: line_sk
+    column machine_sk
+        dataType: int64
+        isHidden
+        summarizeBy: none
+        sourceColumn: machine_sk
+    column state_code
+        dataType: string
+        summarizeBy: none
+        sourceColumn: state_code
+    column downtime_category
+        dataType: string
+        summarizeBy: none
+        sourceColumn: downtime_category
+    column is_planned
+        dataType: boolean
+        summarizeBy: none
+        sourceColumn: is_planned
+    column duration_seconds
+        dataType: decimal
+        summarizeBy: sum
+        sourceColumn: duration_seconds
+    column interval_start_utc
+        dataType: dateTime
+        summarizeBy: none
+        sourceColumn: interval_start_utc
+    partition Downtime = entity
+        mode: directLake
+        source
+            entityName: fact_downtime_interval
+            schemaName: gold
+            expressionSource: DL_Warehouse

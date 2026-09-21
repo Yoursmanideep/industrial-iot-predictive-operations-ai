@@ -1,0 +1,63 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.9.0/schema.json",
+  "name": "d1e2f304152637485961",
+  "position": {
+    "x": 650,
+    "y": 20,
+    "z": 1000,
+    "height": 500,
+    "width": 610,
+    "tabOrder": 1000
+  },
+  "visual": {
+    "visualType": "barChart",
+    "query": {
+      "queryState": {
+        "Category": {
+          "projections": [
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "Machine"
+                    }
+                  },
+                  "Property": "machine_id"
+                }
+              },
+              "queryRef": "Machine.machine_id",
+              "nativeQueryRef": "machine_id",
+              "active": true
+            }
+          ]
+        },
+        "Y": {
+          "projections": [
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "Downtime"
+                    }
+                  },
+                  "Property": "Fault Downtime Minutes"
+                }
+              },
+              "queryRef": "Downtime.Fault Downtime Minutes",
+              "nativeQueryRef": "Fault Downtime Minutes",
+              "active": true
+            }
+          ]
+        }
+      }
+    }
+  },
+  "annotations": [
+    {
+      "name": "businessPurpose",
+      "value": "Fault downtime by machine"
+    }
+  ]
+}

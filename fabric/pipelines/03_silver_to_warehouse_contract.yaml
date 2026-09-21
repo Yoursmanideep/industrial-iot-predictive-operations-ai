@@ -1,0 +1,68 @@
+version: 1.0.0
+
+pipeline:
+  name: IndustrialIoT_SilverToWarehouseGold
+  purpose: load_conformed_dimensions_facts_and_business_kpis
+
+parameters:
+  gold_run_id: required
+  source_window_start_utc: required
+  source_window_end_utc: required
+
+activities:
+  - name: StageSilverTelemetry
+    action: copy_silver_delta_to_warehouse_staging
+    source: silver.machine_telemetry
+    destination: stg.silver_machine_telemetry
+
+  - name: StageSilverOperational
+    action: copy_silver_delta_to_warehouse_staging
+    source: silver.machine_operational_event
+    destination: stg.silver_machine_operational_event
+    derivations:
+      is_planned: source_event_payload
+
+  - name: StageSilverProduction
+    action: copy_silver_delta_to_warehouse_staging
+    source: silver.production_event
+    destination: stg.silver_production_event
+
+  - name: StageSilverMaintenance
+    action: copy_silver_delta_to_warehouse_staging
+    source: silver.maintenance_event
+    destination: stg.silver_maintenance_event
+    readiness: pending_silver_maintenance_domain
+
+  - name: StageSilverQuality
+    action: copy_silver_delta_to_warehouse_staging
+    source: silver.quality_event
+    destination: stg.silver_quality_event
+    readiness: pending_silver_quality_domain
+
+  - name: RefreshGold
+    action: execute_stored_procedure
+    procedure: gold.usp_refresh_gold
+    parameters:
+      gold_run_id: pipeline.gold_run_id
+      source_window_start_utc: pipeline.source_window_start_utc
+      source_window_end_utc: pipeline.source_window_end_utc
+
+  - name: VerifyGoldAudit
+    action: verify_control_gold_load_audit
+    success_state: COMPLETED
+
+quality_gates:
+  source_window_is_utc: true
+  event_id_is_idempotent: true
+  dimension_surrogate_keys_remain_stable: true
+  oee_is_recalculated_from_time_and_quantity_components: true
+  planned_and_unplanned_stops_are_separated: true
+
+consumption:
+  primary_surface: mart
+  semantic_model: Power BI
+  recommended_model: star_schema
+
+security:
+  credentials_in_git: false
+  workspace_and_resource_names_from_environment: true

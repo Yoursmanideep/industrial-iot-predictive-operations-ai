@@ -12,6 +12,7 @@ The Python simulator now progresses through:
 - Stage 3.6.1 — enterprise-scale deterministic production generation
 - Stage 3.7 — synchronized simulation clock
 - Stage 3.8 — enterprise simulation runner
+- Stage 3.9 — event validation and quarantine
 
 The Stage 3.7 coordinator is industrial_sim.simulation.step_engine.IntegratedSimulationStepEngine.
 

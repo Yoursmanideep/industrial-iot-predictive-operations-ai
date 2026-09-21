@@ -7,6 +7,7 @@ Stage 3.13 introduced the Power BI semantic model and Plant RLS.
 Stage 3.14 introduced the PBIP/PBIR report project.
 Stage 3.15 introduced the Eventstream/Eventhouse/Activator hot operational path.
 Stage 3.16 introduces the predictive-maintenance ML lifecycle.
+Stage 3.17 introduces ML monitoring, explainability and operational decision workflows.
 
 Structure:
 

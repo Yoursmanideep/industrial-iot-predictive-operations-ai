@@ -7,6 +7,10 @@ from uuid import UUID
 
 from industrial_sim.domain.run import RunMode
 from industrial_sim.simulation.runner import EnterpriseSimulationRunner
+from industrial_sim.transport.eventstream import (
+    EventHubEventstreamPublisher,
+    EventstreamPublisherConfig,
+)
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -57,6 +61,11 @@ def build_parser() -> argparse.ArgumentParser:
         default=Path("output/simulator"),
         help="Output directory for streamed events and manifests.",
     )
+    parser.add_argument(
+        "--publish-eventstream",
+        action="store_true",
+        help="Publish validated events to the Fabric Eventstream Custom Endpoint.",
+    )
     return parser
 
 
@@ -92,6 +101,12 @@ def main() -> int:
     )
     run_id = UUID(args.run_id) if args.run_id else None
 
+    publisher = None
+    if args.publish_eventstream:
+        publisher = EventHubEventstreamPublisher(
+            EventstreamPublisherConfig.from_environment()
+        )
+
     result = runner.run(
         mode=RunMode(args.mode),
         start_time=start,
@@ -99,6 +114,7 @@ def main() -> int:
         seed=args.seed,
         run_id=run_id,
         output_root=args.output,
+        event_publisher=publisher,
     )
 
     print(f"simulator_run_id=RUN-{result.run_id}")

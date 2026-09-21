@@ -42,6 +42,7 @@ class LineCapacitySnapshot:
     line_id: str
     event_time: datetime
     bottleneck_rate_units_min: float
+    nominal_bottleneck_rate_units_min: float
     available: bool
     active_machine_ids: tuple[str, ...]
     blocked_machine_ids: tuple[str, ...]

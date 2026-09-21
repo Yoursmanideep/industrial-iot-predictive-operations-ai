@@ -1,0 +1,4 @@
+plant_sk,plant_id,plant_name,city,state,country,timezone_name,currency_code,status,effective_from,effective_to,is_current
+"1","PLT-CHN-01","Chennai Manufacturing Plant","Chennai","Tamil Nadu","India","Asia/Kolkata","INR","ACTIVE","2022-01-01","","true"
+"2","PLT-PUN-01","Pune Manufacturing Plant","Pune","Maharashtra","India","Asia/Kolkata","INR","ACTIVE","2022-01-01","","true"
+"3","PLT-CBE-01","Coimbatore Manufacturing Plant","Coimbatore","Tamil Nadu","India","Asia/Kolkata","INR","ACTIVE","2022-01-01","","true"

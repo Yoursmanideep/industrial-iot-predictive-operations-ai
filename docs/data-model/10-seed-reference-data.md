@@ -8,21 +8,6 @@ The seed layer is generated from the locked Stage 1 machine inventory and Stage 
 
 ## Seed counts
 
-| Dataset | Records |
-|---|---:|
-| Machine inventory | 270 |
-| Machine master | 270 |
-| Machine models | 18 |
-| Products | 12 |
-| Operators | 60 |
-| Technicians | 36 |
-| Suppliers | 18 |
-| Spare parts | 36 |
-| Failure modes | 25 |
-| Alarm codes | 6 |
-| Production reasons | 12 |
-| Quality defects | 7 |
-
 ## Machine master
 
 The 270 physical machines are derived from the existing Stage 1 inventory. Each machine receives:

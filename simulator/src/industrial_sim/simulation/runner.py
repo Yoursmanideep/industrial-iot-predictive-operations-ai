@@ -70,6 +70,8 @@ class EnterpriseSimulationRunner:
             ),
         )
 
+        generation = self.generation_contract.raw
+
         context = SimulationContext(
             simulator_run_id=effective_run_id,
             deterministic_seed=effective_seed,
@@ -105,7 +107,6 @@ class EnterpriseSimulationRunner:
         )
         writer = PartitionedEventStreamWriter(output_root)
 
-        generation = self.generation_contract.raw
         if mode is RunMode.LIVE:
             tick_seconds = int(generation["time"]["live_tick_seconds"])
         else:

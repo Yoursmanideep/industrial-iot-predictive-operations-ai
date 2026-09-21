@@ -5,8 +5,11 @@
   "additionalProperties": false,
   "required": [
     "event_id",
+    "event_type",
+    "schema_version",
     "event_time",
     "ingestion_time",
+    "source_system",
     "plant_id",
     "line_id",
     "machine_id",
@@ -14,10 +17,17 @@
     "operating_state",
     "ingestion_batch_id",
     "event_date",
-    "is_late_arrival"
+    "is_late_arrival",
+    "processed_at_utc"
   ],
   "properties": {
     "event_id": {
+      "type": "string"
+    },
+    "event_type": {
+      "const": "MachineTelemetry"
+    },
+    "schema_version": {
       "type": "string"
     },
     "event_time": {
@@ -27,6 +37,9 @@
     "ingestion_time": {
       "type": "string",
       "format": "date-time"
+    },
+    "source_system": {
+      "type": "string"
     },
     "plant_id": {
       "type": "string"
@@ -41,6 +54,21 @@
       "type": "string"
     },
     "operating_state": {
+      "type": "string"
+    },
+    "correlation_id": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "causation_id": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "payload_sha256": {
       "type": "string"
     },
     "temperature_c": {
@@ -80,6 +108,114 @@
       ]
     },
     "quality_score_pct": {
+      "type": [
+        "number",
+        "null"
+      ]
+    },
+    "feed_rate_mm_min": {
+      "type": [
+        "number",
+        "null"
+      ]
+    },
+    "hydraulic_pressure_bar": {
+      "type": [
+        "number",
+        "null"
+      ]
+    },
+    "force_kn": {
+      "type": [
+        "number",
+        "null"
+      ]
+    },
+    "cycle_time_s": {
+      "type": [
+        "number",
+        "null"
+      ]
+    },
+    "motor_temperature_c": {
+      "type": [
+        "number",
+        "null"
+      ]
+    },
+    "torque_nm": {
+      "type": [
+        "number",
+        "null"
+      ]
+    },
+    "position_error_mm": {
+      "type": [
+        "number",
+        "null"
+      ]
+    },
+    "motor_current_a": {
+      "type": [
+        "number",
+        "null"
+      ]
+    },
+    "belt_speed_m_s": {
+      "type": [
+        "number",
+        "null"
+      ]
+    },
+    "discharge_pressure_bar": {
+      "type": [
+        "number",
+        "null"
+      ]
+    },
+    "rpm": {
+      "type": [
+        "number",
+        "null"
+      ]
+    },
+    "chamber_temperature_c": {
+      "type": [
+        "number",
+        "null"
+      ]
+    },
+    "fuel_flow_rate": {
+      "type": [
+        "number",
+        "null"
+      ]
+    },
+    "pressure_mbar": {
+      "type": [
+        "number",
+        "null"
+      ]
+    },
+    "inspection_cycle_time_s": {
+      "type": [
+        "number",
+        "null"
+      ]
+    },
+    "measurement_deviation_mm": {
+      "type": [
+        "number",
+        "null"
+      ]
+    },
+    "defect_probability_pct": {
+      "type": [
+        "number",
+        "null"
+      ]
+    },
+    "equipment_temperature_c": {
       "type": [
         "number",
         "null"
@@ -128,6 +264,39 @@
     "processed_at_utc": {
       "type": "string",
       "format": "date-time"
+    },
+    "machine_sk": {
+      "type": [
+        "integer",
+        "null"
+      ]
+    },
+    "master_line_sk": {
+      "type": [
+        "integer",
+        "null"
+      ]
+    },
+    "plant_sk": {
+      "type": [
+        "integer",
+        "null"
+      ]
+    },
+    "master_plant_sk": {
+      "type": [
+        "integer",
+        "null"
+      ]
+    },
+    "product_sk": {
+      "type": [
+        "integer",
+        "null"
+      ]
+    },
+    "event_payload_json": {
+      "type": "string"
     }
   }
 }

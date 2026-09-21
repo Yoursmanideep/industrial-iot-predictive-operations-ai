@@ -1,0 +1,21 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/Yoursmanideep/industrial-iot-predictive-operations-ai/blob/main/simulator/schemas/machine_state_snapshot.schema.json",
+  "title": "Simulator Machine State Snapshot",
+  "description": "Machine state snapshot used by the simulator state engine.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["machine_id", "plant_id", "line_id", "machine_type", "state", "snapshot_time", "state_since"],
+  "properties": {
+    "machine_id": {"type": "string", "pattern": "^[A-Z]{3}-L[0-9]{2}-[A-Z]{3}[0-9]{2}$"},
+    "plant_id": {"type": "string", "pattern": "^PLT-[A-Z]{3}-[0-9]{2}$"},
+    "line_id": {"type": "string", "pattern": "^[A-Z]{3}-L[0-9]{2}$"},
+    "machine_type": {"type": "string", "enum": ["CNC", "HYDRAULIC_PRESS", "INDUSTRIAL_ROBOT", "CONVEYOR", "COMPRESSOR", "FURNACE", "INSPECTION", "PACKAGING", "PALLETIZER"]},
+    "machine_model": {"type": ["string", "null"]},
+    "state": {"type": "string", "enum": ["RUNNING", "IDLE", "SETUP", "STARVED", "BLOCKED", "FAULT", "MAINTENANCE", "OFFLINE", "RECOVERY"]},
+    "snapshot_time": {"type": "string", "format": "date-time"},
+    "state_since": {"type": "string", "format": "date-time"},
+    "active_scenario_instance_id": {"type": ["string", "null"]},
+    "active_work_order_id": {"type": ["string", "null"]}
+  }
+}

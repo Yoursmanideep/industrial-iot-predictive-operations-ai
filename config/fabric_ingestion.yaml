@@ -1,0 +1,48 @@
+version: 1.0.0
+
+fabric:
+  environment: DEV
+  workspace_id: ${FABRIC_WORKSPACE_ID}
+  lakehouse:
+    name: ${FABRIC_LAKEHOUSE_NAME}
+    bronze_root: Files/bronze
+  eventhouse:
+    name: ${FABRIC_EVENTHOUSE_NAME}
+    database: ${FABRIC_EVENTHOUSE_DATABASE}
+
+landing:
+  source_format: jsonl
+  compression: none
+  partition_keys:
+    - event_type
+    - event_date
+    - plant_id
+
+bronze:
+  raw_payload_column: event_payload_json
+  ingestion_batch_id_column: ingestion_batch_id
+  source_file_column: source_file_path
+  event_id_column: event_id
+  deduplication_key: event_id
+
+checkpoint:
+  strategy: deterministic_batch_id_plus_event_id
+  checkpoint_store: fabric_control_table
+  retry_safe: true
+
+idempotency:
+  batch_key_algorithm: SHA256
+  event_key: event_id
+  duplicate_action: skip
+  conflicting_duplicate_action: quarantine
+
+eventhouse:
+  telemetry_mapping: MachineTelemetry
+  operational_mapping: MachineOperationalEvent
+  production_mapping: ProductionEvent
+  ingestion_mode: append_with_event_id_deduplication
+
+security:
+  credentials_in_git: false
+  workspace_and_resource_names_from_environment: true
+  managed_identity_preferred: true

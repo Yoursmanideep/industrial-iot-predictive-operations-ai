@@ -41,6 +41,27 @@ RECENT_DAYS = int(MONITOR_CFG["monitoring"]["recent_window_days"])
 BASELINE_DAYS = int(MONITOR_CFG["monitoring"]["baseline_window_days"])
 TOP_K = int(MONITOR_CFG["explainability"]["top_k"])
 
+MODEL_FEATURES = [
+    "machine_type_code", "shift_code", "hour_sin", "hour_cos",
+    "temperature_c", "vibration_mm_s", "pressure_bar", "power_kw",
+    "cycle_time_s", "throughput_unit_min", "quality_score_pct",
+    "position_error_mm", "motor_current_a", "torque_nm",
+    "temperature_c_mean_15m", "temperature_c_std_15m", "temperature_c_delta_15m",
+    "temperature_c_mean_60m", "temperature_c_std_60m", "temperature_c_delta_60m",
+    "vibration_mm_s_mean_15m", "vibration_mm_s_std_15m", "vibration_mm_s_delta_15m",
+    "vibration_mm_s_mean_60m", "vibration_mm_s_std_60m", "vibration_mm_s_delta_60m",
+    "pressure_bar_mean_15m", "pressure_bar_std_15m", "pressure_bar_delta_15m",
+    "pressure_bar_mean_60m", "pressure_bar_std_60m", "pressure_bar_delta_60m",
+    "power_kw_mean_15m", "power_kw_std_15m", "power_kw_delta_15m",
+    "power_kw_mean_60m", "power_kw_std_60m", "power_kw_delta_60m",
+    "machine_age_days",
+    "alarm_count_15m", "alarm_count_60m", "fault_count_24h",
+    "communication_loss_count_60m",
+    "line_actual_quantity_15m", "line_loss_quantity_15m",
+    "line_actual_quantity_60m", "line_loss_quantity_60m",
+    "utilization_proxy_15m",
+]
+
 NUMERIC_FEATURES = [
     "temperature_c", "vibration_mm_s", "pressure_bar", "power_kw",
     "cycle_time_s", "throughput_unit_min", "quality_score_pct",
@@ -128,17 +149,15 @@ monitor_rows = []
 recent_count = recent.count()
 
 if recent_count:
-    coverage = recent.select("feature_id").distinct().count() / max(1, recent.select("machine_id").distinct().count() * 24 * 60 / 5 * RECENT_DAYS)
-else:
-    coverage = 0.0
-coverage = min(1.0, float(coverage))
+    predicted_machines = recent.select("machine_id").distinct().count()
+coverage = predicted_machines / 270.0
 
 monitor_rows.append({
     "model_name": MODEL_NAME,
     "model_version": MODEL_VERSION,
     "monitor_window_start_utc": recent_start,
     "monitor_window_end_utc": now,
-    "metric_name": "prediction_coverage",
+    "metric_name": "machine_coverage",
     "metric_value": coverage,
     "threshold_value": float(THRESHOLDS["prediction_coverage_min"]),
     "status": status_from_threshold(coverage, float(THRESHOLDS["prediction_coverage_min"]), "min"),
@@ -242,7 +261,7 @@ for rank, index in enumerate(np.argsort(importance)[::-1][:TOP_K], start=1):
     explanation_rows.append({
         "model_name": MODEL_NAME,
         "model_version": MODEL_VERSION,
-        "feature_name": NUMERIC_FEATURES[index] if index < len(NUMERIC_FEATURES) else f"feature_{index}",
+        "feature_name": MODEL_FEATURES[index] if index < len(MODEL_FEATURES) else f"feature_{index}",
         "feature_importance": float(importance[index]),
         "importance_rank": rank,
         "explanation_method": MONITOR_CFG["explainability"]["method"],

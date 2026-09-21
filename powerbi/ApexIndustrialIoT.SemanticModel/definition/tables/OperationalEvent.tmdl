@@ -1,0 +1,69 @@
+table OperationalEvent
+    measure 'Alarm Count' = CALCULATE(COUNTROWS(OperationalEvent), OperationalEvent[event_type] = "AlarmRaised")
+        formatString: #,##0
+    measure 'Fault Count' = CALCULATE(COUNTROWS(OperationalEvent), OperationalEvent[event_type] = "MachineFaulted")
+        formatString: #,##0
+    measure 'Communication Loss Count' = CALCULATE(COUNTROWS(OperationalEvent), OperationalEvent[event_type] = "CommunicationLost")
+        formatString: #,##0
+    column event_id
+        dataType: string
+        isHidden
+        summarizeBy: none
+        sourceColumn: event_id
+    column date_sk
+        dataType: int64
+        isHidden
+        summarizeBy: none
+        sourceColumn: date_sk
+    column shift_sk
+        dataType: int64
+        isHidden
+        summarizeBy: none
+        sourceColumn: shift_sk
+    column plant_sk
+        dataType: int64
+        isHidden
+        summarizeBy: none
+        sourceColumn: plant_sk
+    column line_sk
+        dataType: int64
+        isHidden
+        summarizeBy: none
+        sourceColumn: line_sk
+    column machine_sk
+        dataType: int64
+        isHidden
+        summarizeBy: none
+        sourceColumn: machine_sk
+    column event_type
+        dataType: string
+        summarizeBy: none
+        sourceColumn: event_type
+    column severity
+        dataType: string
+        summarizeBy: none
+        sourceColumn: severity
+    column fault_code
+        dataType: string
+        summarizeBy: none
+        sourceColumn: fault_code
+    column failure_mode_sk
+        dataType: int64
+        isHidden
+        summarizeBy: none
+        sourceColumn: failure_mode_sk
+    column alarm_sk
+        dataType: int64
+        isHidden
+        summarizeBy: none
+        sourceColumn: alarm_sk
+    column event_time_utc
+        dataType: dateTime
+        summarizeBy: none
+        sourceColumn: event_time_utc
+    partition OperationalEvent = entity
+        mode: directLake
+        source
+            entityName: fact_machine_operational_event
+            schemaName: gold
+            expressionSource: DL_Warehouse

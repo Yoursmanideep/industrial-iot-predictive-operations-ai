@@ -1,0 +1,13 @@
+reason_sk,reason_code,reason_name,reason_domain,loss_category,status
+"1","MATERIAL_STARVATION","Material Starvation","PAUSE","MATERIAL","ACTIVE"
+"2","PLANNED_CHANGEOVER","Planned Changeover","PAUSE","PLANNING","ACTIVE"
+"3","QUALITY_HOLD","Quality Hold","PAUSE","QUALITY","ACTIVE"
+"4","MACHINE_FAULT","Machine Fault","PAUSE","DOWNTIME","ACTIVE"
+"5","OPERATOR_SHORTAGE","Operator Shortage","PAUSE","PLANNING","ACTIVE"
+"6","UTILITY_INTERRUPTION","Utility Interruption","PAUSE","DOWNTIME","ACTIVE"
+"7","SLOW_CYCLE","Slow Cycle","LOSS","SLOWDOWN","ACTIVE"
+"8","MACHINE_DOWNTIME","Machine Downtime","LOSS","DOWNTIME","ACTIVE"
+"9","PROCESS_SCRAP","Process Scrap","LOSS","SCRAP","ACTIVE"
+"10","QUALITY_DEFECT","Quality Defect","LOSS","QUALITY","ACTIVE"
+"11","MATERIAL_SHORTAGE","Material Shortage","LOSS","MATERIAL","ACTIVE"
+"12","SCHEDULE_VARIANCE","Schedule Variance","LOSS","PLANNING","ACTIVE"

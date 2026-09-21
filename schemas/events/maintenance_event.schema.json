@@ -1,0 +1,523 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/Yoursmanideep/industrial-iot-predictive-operations-ai/blob/main/schemas/events/maintenance_event.schema.json",
+  "title": "Maintenance Event",
+  "description": "Canonical event contract for maintenance requests, work orders, technician activity, parts usage, repair, verification and return to service.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "event_id",
+    "event_type",
+    "schema_version",
+    "event_time",
+    "ingestion_time",
+    "source_system",
+    "plant_id",
+    "machine_id"
+  ],
+  "properties": {
+    "event_id": {
+      "type": "string",
+      "pattern": "^EVT-[0-9a-fA-F-]{36}$"
+    },
+    "event_type": {
+      "type": "string",
+      "enum": [
+        "MaintenanceRequested",
+        "WorkOrderCreated",
+        "TechnicianAssigned",
+        "MaintenanceInspectionStarted",
+        "MaintenanceInspectionCompleted",
+        "RepairStarted",
+        "PartsConsumed",
+        "RepairCompleted",
+        "MaintenanceVerified",
+        "MachineReturnedToService",
+        "WorkOrderCancelled"
+      ]
+    },
+    "schema_version": {
+      "type": "string",
+      "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"
+    },
+    "event_time": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "ingestion_time": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "source_system": {
+      "type": "string",
+      "minLength": 1
+    },
+    "correlation_id": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "minLength": 1
+    },
+    "causation_id": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "minLength": 1
+    },
+    "plant_id": {
+      "type": "string",
+      "pattern": "^PLT-[A-Z]{3}-[0-9]{2}$"
+    },
+    "line_id": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "pattern": "^[A-Z]{3}-L[0-9]{2}$"
+    },
+    "machine_id": {
+      "type": "string",
+      "pattern": "^[A-Z]{3}-L[0-9]{2}-[A-Z]{3}[0-9]{2}$"
+    },
+    "machine_type": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "enum": [
+        "CNC",
+        "HYDRAULIC_PRESS",
+        "INDUSTRIAL_ROBOT",
+        "CONVEYOR",
+        "COMPRESSOR",
+        "FURNACE",
+        "INSPECTION",
+        "PACKAGING",
+        "PALLETIZER",
+        null
+      ]
+    },
+    "work_order_id": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "pattern": "^WO-[0-9a-fA-F-]{36}$"
+    },
+    "maintenance_request_id": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "pattern": "^MR-[0-9a-fA-F-]{36}$"
+    },
+    "failure_mode_code": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "pattern": "^[A-Z0-9_-]{2,50}$"
+    },
+    "fault_event_id": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "pattern": "^EVT-[0-9a-fA-F-]{36}$"
+    },
+    "incident_id": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "pattern": "^INC-[0-9a-fA-F-]{36}$"
+    },
+    "maintenance_type": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "enum": [
+        "CORRECTIVE",
+        "PREVENTIVE",
+        "PREDICTIVE",
+        "INSPECTION",
+        "EMERGENCY",
+        "CALIBRATION",
+        null
+      ]
+    },
+    "priority": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "enum": [
+        "LOW",
+        "MEDIUM",
+        "HIGH",
+        "CRITICAL",
+        null
+      ]
+    },
+    "status": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "enum": [
+        "REQUESTED",
+        "OPEN",
+        "ASSIGNED",
+        "IN_PROGRESS",
+        "ON_HOLD",
+        "COMPLETED",
+        "VERIFIED",
+        "CANCELLED",
+        null
+      ]
+    },
+    "technician_id": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "pattern": "^TECH-[0-9]{5,}$"
+    },
+    "supervisor_id": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "pattern": "^TECH-[0-9]{5,}$"
+    },
+    "inspection_result": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "enum": [
+        "PASS",
+        "FAIL",
+        "CONDITIONAL",
+        "NOT_REQUIRED",
+        null
+      ]
+    },
+    "diagnosis_code": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "pattern": "^[A-Z0-9_-]{2,50}$"
+    },
+    "diagnosis_notes": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "minLength": 1
+    },
+    "repair_action_code": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "pattern": "^[A-Z0-9_-]{2,50}$"
+    },
+    "repair_notes": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "minLength": 1
+    },
+    "part_id": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "pattern": "^PART-[A-Z0-9_-]{3,30}$"
+    },
+    "part_quantity": {
+      "type": [
+        "number",
+        "null"
+      ],
+      "exclusiveMinimum": 0
+    },
+    "part_uom": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "enum": [
+        "unit",
+        "kg",
+        "litre",
+        "meter",
+        null
+      ]
+    },
+    "part_unit_cost_inr": {
+      "type": [
+        "number",
+        "null"
+      ],
+      "minimum": 0
+    },
+    "labor_hours": {
+      "type": [
+        "number",
+        "null"
+      ],
+      "minimum": 0
+    },
+    "maintenance_cost_inr": {
+      "type": [
+        "number",
+        "null"
+      ],
+      "minimum": 0
+    },
+    "downtime_duration_seconds": {
+      "type": [
+        "number",
+        "null"
+      ],
+      "minimum": 0
+    },
+    "verification_notes": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "minLength": 1
+    },
+    "scheduled_start_time": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "format": "date-time"
+    },
+    "scheduled_end_time": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "format": "date-time"
+    },
+    "resolution_code": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "pattern": "^[A-Z0-9_-]{2,50}$"
+    },
+    "cancel_reason_code": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "pattern": "^[A-Z0-9_-]{2,50}$"
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "event_type": {
+            "const": "MaintenanceRequested"
+          }
+        }
+      },
+      "then": {
+        "required": [
+          "maintenance_request_id",
+          "maintenance_type",
+          "priority"
+        ]
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "event_type": {
+            "const": "WorkOrderCreated"
+          }
+        }
+      },
+      "then": {
+        "required": [
+          "work_order_id",
+          "maintenance_type",
+          "priority",
+          "status"
+        ]
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "event_type": {
+            "const": "TechnicianAssigned"
+          }
+        }
+      },
+      "then": {
+        "required": [
+          "work_order_id",
+          "technician_id"
+        ]
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "event_type": {
+            "const": "MaintenanceInspectionStarted"
+          }
+        }
+      },
+      "then": {
+        "required": [
+          "work_order_id",
+          "technician_id"
+        ]
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "event_type": {
+            "const": "MaintenanceInspectionCompleted"
+          }
+        }
+      },
+      "then": {
+        "required": [
+          "work_order_id",
+          "inspection_result"
+        ]
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "event_type": {
+            "const": "RepairStarted"
+          }
+        }
+      },
+      "then": {
+        "required": [
+          "work_order_id",
+          "technician_id",
+          "status"
+        ]
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "event_type": {
+            "const": "PartsConsumed"
+          }
+        }
+      },
+      "then": {
+        "required": [
+          "work_order_id",
+          "part_id",
+          "part_quantity",
+          "part_uom",
+          "part_unit_cost_inr"
+        ]
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "event_type": {
+            "const": "RepairCompleted"
+          }
+        }
+      },
+      "then": {
+        "required": [
+          "work_order_id",
+          "resolution_code",
+          "status"
+        ]
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "event_type": {
+            "const": "MaintenanceVerified"
+          }
+        }
+      },
+      "then": {
+        "required": [
+          "work_order_id",
+          "inspection_result",
+          "status"
+        ]
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "event_type": {
+            "const": "MachineReturnedToService"
+          }
+        }
+      },
+      "then": {
+        "required": [
+          "work_order_id",
+          "status"
+        ],
+        "properties": {
+          "status": {
+            "const": "COMPLETED"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "event_type": {
+            "const": "WorkOrderCancelled"
+          }
+        }
+      },
+      "then": {
+        "required": [
+          "work_order_id",
+          "cancel_reason_code",
+          "status"
+        ],
+        "properties": {
+          "status": {
+            "const": "CANCELLED"
+          }
+        }
+      }
+    }
+  ],
+  "x-business-rules": [
+    "Corrective or emergency maintenance should reference failure_mode_code or fault_event_id when the cause is known.",
+    "PartsConsumed must use a positive quantity and non-negative unit cost.",
+    "maintenance_cost_inr may be derived from parts, labor and other approved components, with derivation traceability retained.",
+    "MachineReturnedToService represents completion of the maintenance workflow; the machine state transition is recorded separately by the machine operational event contract.",
+    "MaintenanceVerified should not report PASS when verification failed.",
+    "A work order must be traceable to the affected machine and, when applicable, an incident, fault or maintenance request."
+  ]
+}

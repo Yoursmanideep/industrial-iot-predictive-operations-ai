@@ -1,0 +1,253 @@
+# Stage 3.4 — Simulator Data-Generation Contract
+
+generation:
+  contract_version: 1.0.0
+  deterministic: true
+  default_seed: 20260921
+  default_timezone: Asia/Kolkata
+  canonical_timestamp_timezone: UTC
+
+  modes:
+    BOOTSTRAP:
+      purpose: generate_historical_context
+      horizon_days: 180
+      baseline_telemetry_interval_seconds: 60
+      incident_telemetry_interval_seconds: 5
+      output_is_finite: true
+    BACKFILL:
+      purpose: generate_a_defined_historical_window
+      telemetry_interval_seconds: 60
+      incident_window_interval_seconds: 5
+      output_is_finite: true
+    LIVE:
+      purpose: continuously_advance_simulation_time
+      telemetry_interval_seconds: 5
+      output_is_continuous: true
+    REPLAY:
+      purpose: reproduce_a_prior_simulation_run
+      source_run_id_required: true
+      preserve_event_ids: true
+      preserve_generation_sequence: true
+      output_is_finite: true
+
+time:
+  bootstrap_history_days: 180
+  planning_horizon_days: 365
+  live_tick_seconds: 5
+  telemetry:
+    baseline_interval_seconds: 60
+    incident_interval_seconds: 5
+    recovery_interval_seconds: 5
+    maintenance_interval_seconds: 30
+  production:
+    unit_produced_aggregation_seconds: 30
+  quality:
+    inline_inspection_interval_seconds: 900
+    batch_disposition_event_driven: true
+
+entity_generation_order:
+  - simulator_run
+  - plants
+  - production_areas
+  - lines
+  - machine_models
+  - machines
+  - products
+  - operators
+  - technicians
+  - suppliers
+  - spare_parts
+  - production_orders
+  - batches
+  - scenario_instances
+  - events
+
+run_identity:
+  simulator_run_id:
+    format: RUN-{UUID}
+    immutable: true
+  deterministic_seed:
+    required: true
+  generator_version:
+    required: true
+  configuration_version:
+    required: true
+
+deterministic_identity:
+  strategy: UUIDv5_for_reproducible_identity
+  namespace_rule: derive_namespace_from_simulator_run_id
+  event_generation_key:
+    fields:
+      - simulator_run_id
+      - entity_business_key
+      - event_type
+      - event_time
+      - generation_sequence
+  rule: same_run_same_seed_same_configuration_must_produce_same_identifiers
+
+event_sequence:
+  generation_sequence:
+    type: monotonically_increasing_integer
+    scope: simulator_run
+    starts_at: 1
+    unique_within_run: true
+  ordering:
+    primary: event_time
+    secondary: generation_sequence
+    tertiary: event_id
+
+event_traceability:
+  simulator_run_id: required
+  scenario_id: optional
+  scenario_instance_id: optional
+  generated_at_utc: required
+  deterministic_seed: required
+  generation_sequence: required
+  generator_version: required
+  configuration_version: required
+
+correlation:
+  correlation_id:
+    generated_for:
+      - production_order
+      - scenario_instance
+      - maintenance_workflow
+      - inspection_workflow
+  causation_id:
+    rule: direct_parent_event_only
+  propagation:
+    rule: downstream_events_inherit_parent_correlation_id_when_in_same_flow
+
+bootstrap:
+  machine_history:
+    all_270_machines_included: true
+    initial_state_distribution:
+      RUNNING: 0.80
+      IDLE: 0.08
+      SETUP: 0.04
+      MAINTENANCE: 0.03
+      OFFLINE: 0.05
+  historical_scenarios:
+    enabled: true
+    target_incident_rate_per_100_machine_days: 0.35
+    target_is_synthetic_calibration_only: true
+    failures_can_be_preceded_by_early_intervention: true
+  telemetry_resolution:
+    baseline: 60
+    incident_and_recovery: 5
+
+production_generation:
+  orders_per_plant_per_day_range: [30, 60]
+  product_selection:
+    deterministic: true
+    weighted_by_product_family: true
+  line_assignment:
+    capacity_aware: true
+    machine_compatibility_required: true
+  quantity_range_units: [100, 2500]
+
+batch_generation:
+  orders_can_have_multiple_batches: true
+  batch_count_range_per_order: [1, 8]
+  batch_lineage_required: true
+
+scenario_scheduling:
+  one_primary_active_scenario_per_machine: true
+  scenario_interruption_by_predictive_maintenance: true
+  scenario_interruption_by_corrective_failure: true
+  stages:
+    - BASELINE
+    - EARLY_DEGRADATION
+    - ANOMALY
+    - CRITICAL
+    - FAILURE
+    - MAINTENANCE
+    - RECOVERY
+
+event_orchestration:
+  per_tick_order:
+    - advance_simulation_clock
+    - resolve_shift_and_workload
+    - update_environment
+    - update_active_scenarios
+    - update_machine_states
+    - generate_telemetry
+    - evaluate_alarm_conditions
+    - generate_operational_events
+    - update_production
+    - generate_quality_events
+    - generate_or_update_maintenance
+    - finalize_traceability
+    - emit_events
+  rule: causation_events_must_exist_before_downstream_events
+
+operational_event_rules:
+  state_change:
+    emit_only_when_state_changes: true
+  alarm:
+    raise_on_condition_entry: true
+    clear_on_condition_exit: true
+  fault:
+    emit_once_per_fault_episode: true
+  recovery:
+    emit_once_per_recovery_episode: true
+  communication:
+    lost_after_threshold_seconds: 15
+    restored_when_signal_returns: true
+
+production_event_rules:
+  unit_produced:
+    aggregate_window_seconds: 30
+    only_when_machine_state_is: RUNNING
+  production_pause:
+    emitted_when_line_execution_becomes_unavailable: true
+  production_loss:
+    emitted_when_loss_is_business_measurable: true
+  machine_fault_linkage:
+    required_when_fault_directly_causes_loss: true
+
+quality_event_rules:
+  inspection:
+    triggered_by_schedule_or_batch_boundary: true
+  measurement:
+    generated_from_process_and_machine_state: true
+  defect:
+    actual_outcome_generated_independently_from_predicted_probability: true
+  disposition:
+    explicit_event_required: true
+
+maintenance_event_rules:
+  predictive:
+    can_start_during_early_degradation: true
+  corrective:
+    triggered_by_confirmed_fault_or_failure: true
+  emergency:
+    allowed_for_critical_failure: true
+  repair:
+    parts_consumption_optional_by_repair_type: true
+  return_to_service:
+    requires_verification_event: true
+
+replay_and_idempotency:
+  source_of_truth_for_identity: event_id
+  replay_same_run:
+    event_ids_must_match: true
+    generation_sequence_must_match: true
+  replay_different_run:
+    event_ids_must_differ: true
+  duplicate_behavior:
+    downstream_loads_must_be_idempotent: true
+
+validation:
+  required:
+    - schema_validation
+    - identity_validation
+    - temporal_order_validation
+    - causation_parent_exists
+    - correlation_consistency
+    - machine_state_transition_validity
+    - production_quantity_consistency
+    - quality_disposition_consistency
+    - maintenance_lifecycle_consistency
+    - generation_sequence_uniqueness
+  failure_action: quarantine_and_preserve_generation_trace

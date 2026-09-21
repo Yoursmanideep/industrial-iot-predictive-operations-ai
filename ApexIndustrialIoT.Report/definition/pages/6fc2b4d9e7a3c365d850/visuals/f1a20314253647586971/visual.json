@@ -1,0 +1,63 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.9.0/schema.json",
+  "name": "f1a20314253647586971",
+  "position": {
+    "x": 330,
+    "y": 180,
+    "z": 1000,
+    "height": 500,
+    "width": 930,
+    "tabOrder": 1000
+  },
+  "visual": {
+    "visualType": "lineChart",
+    "query": {
+      "queryState": {
+        "Category": {
+          "projections": [
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "Date"
+                    }
+                  },
+                  "Property": "calendar_date"
+                }
+              },
+              "queryRef": "Date.calendar_date",
+              "nativeQueryRef": "calendar_date",
+              "active": true
+            }
+          ]
+        },
+        "Y": {
+          "projections": [
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "Telemetry"
+                    }
+                  },
+                  "Property": "Average Temperature C"
+                }
+              },
+              "queryRef": "Telemetry.Average Temperature C",
+              "nativeQueryRef": "Average Temperature C",
+              "active": true
+            }
+          ]
+        }
+      }
+    }
+  },
+  "annotations": [
+    {
+      "name": "businessPurpose",
+      "value": "Machine detail temperature trend"
+    }
+  ]
+}
